@@ -2,8 +2,7 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import * as LucideIcons from 'lucide-react';
-import { Sparkles, TrendingUp, LogOut, Edit3, BookText } from 'lucide-react';
+import { Languages, Microscope, History, Music, Sparkles, TrendingUp, LogOut, Edit3, BookText } from 'lucide-react';
 import CategoryCard from '@/components/Dashboard/CategoryCard';
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -17,13 +16,19 @@ const Index = () => {
 
   useEffect(() => {
     const profile = localStorage.getItem('user_profile');
-    if (profile) setUser(JSON.parse(profile));
+    if (profile) {
+      setUser(JSON.parse(profile));
+    }
 
     const savedStats = localStorage.getItem('study_stats');
     if (savedStats) {
       const parsed = JSON.parse(savedStats);
-      setStats({ streak: parsed.streak || 0, average: Math.round(parsed.average || 0) });
+      setStats({
+        streak: parsed.streak || 0,
+        average: Math.round(parsed.average || 0)
+      });
     }
+
     setStudyData(getStudyData());
   }, []);
 
@@ -36,21 +41,41 @@ const Index = () => {
         categoryName: cat.title 
       }))
     );
+
     if (allTopics.length === 0) return null;
-    const dateSeed = new Date().getFullYear() * 10000 + (new Date().getMonth() + 1) * 100 + new Date().getDate();
+
+    const now = new Date();
+    const dateSeed = now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
     const topicIndex = dateSeed % allTopics.length;
+    
     const modes = ['flashcards', 'abcd', 'writing', 'matching'];
-    return { ...allTopics[topicIndex], mode: modes[dateSeed % modes.length] };
+    const modeIndex = dateSeed % modes.length;
+    
+    return {
+      ...allTopics[topicIndex],
+      mode: modes[modeIndex]
+    };
   }, [studyData]);
 
   const handleLogout = () => {
-    localStorage.clear();
+    localStorage.removeItem('user_profile');
+    localStorage.removeItem('study_stats');
+    localStorage.removeItem('study_data');
     navigate('/onboarding');
   };
 
-  const DynamicIcon = ({ name, className }: { name: string, className?: string }) => {
-    const IconComponent = (LucideIcons as any)[name] || BookText;
-    return <IconComponent className={className} />;
+  const getIconForCategory = (title: string) => {
+    const lower = title.toLowerCase();
+    if (lower.includes('angličtina')) return Languages;
+    if (lower.includes('biologie')) return Microscope;
+    if (lower.includes('dějepis')) return History;
+    if (lower.includes('hudební')) return Music;
+    return BookText;
+  };
+
+  const getColorForCategory = (idx: number) => {
+    const colors = ['bg-indigo-500', 'bg-emerald-500', 'bg-amber-500', 'bg-rose-500', 'bg-violet-500', 'bg-cyan-500'];
+    return colors[idx % colors.length];
   };
 
   return (
@@ -82,37 +107,78 @@ const Index = () => {
             </div>
             <TrendingUp className="w-8 h-8 text-slate-200 dark:text-slate-700" />
           </div>
+          
           <div className="flex gap-2">
             <ThemeToggle />
-            <Button variant="ghost" size="icon" onClick={() => navigate('/edit')} className="rounded-2xl h-14 w-14 bg-white dark:bg-slate-900 shadow-sm"><Edit3 className="w-6 h-6" /></Button>
-            <Button variant="ghost" size="icon" onClick={handleLogout} className="rounded-2xl h-14 w-14 bg-white dark:bg-slate-900 shadow-sm hover:text-red-500"><LogOut className="w-6 h-6" /></Button>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => navigate('/edit')}
+              className="rounded-2xl h-14 w-14 bg-white dark:bg-slate-900 shadow-sm hover:bg-indigo-50 dark:hover:bg-slate-800 transition-colors"
+              title="Editor témat"
+            >
+              <Edit3 className="w-6 h-6" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={handleLogout}
+              className="rounded-2xl h-14 w-14 bg-white dark:bg-slate-900 shadow-sm hover:bg-red-50 dark:hover:bg-red-950 hover:text-red-500 transition-colors"
+              title="Odhlásit se"
+            >
+              <LogOut className="w-6 h-6" />
+            </Button>
           </div>
         </div>
       </header>
 
       <main className="max-w-6xl mx-auto">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {Object.values(studyData).map((cat) => (
-            <CategoryCard 
-              key={cat.id}
-              title={cat.title} 
-              count={cat.topics.reduce((acc, t) => acc + t.items.length, 0)} 
-              icon={() => <DynamicIcon name={cat.iconName} className="w-8 h-8 text-white" />} 
-              color={cat.color} 
-              onClick={() => navigate(`/study/${cat.id}`)}
-            />
-          ))}
+        <div className="mb-10">
+          <h2 className="text-2xl font-black text-slate-800 dark:text-slate-100 mb-6 text-center md:text-left">Tvoje studijní sady</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center md:justify-items-stretch">
+            {Object.values(studyData).map((cat, idx) => (
+              <div key={cat.id} className="w-full max-w-sm md:max-w-none">
+                <CategoryCard 
+                  title={cat.title} 
+                  count={cat.topics.reduce((acc, t) => acc + t.items.length, 0)} 
+                  icon={getIconForCategory(cat.title)} 
+                  color={getColorForCategory(idx)} 
+                  onClick={() => navigate(`/study/${cat.id}`)}
+                />
+              </div>
+            ))}
+            {Object.keys(studyData).length === 0 && (
+              <div className="col-span-full p-12 text-center bg-white dark:bg-slate-900 rounded-[3rem] border-2 border-dashed border-slate-200 dark:border-slate-800">
+                <p className="text-slate-500 font-medium mb-4">Zatím nemáš žádné studijní sady.</p>
+                <Button onClick={() => navigate('/edit')} className="rounded-2xl bg-indigo-600 font-bold">Vytvořit první sadu</Button>
+              </div>
+            )}
+          </div>
         </div>
 
         {dailyChallenge && (
-          <div className="mt-12 bg-indigo-600 dark:bg-indigo-700 rounded-[3rem] p-8 md:p-12 text-white relative overflow-hidden shadow-2xl shadow-indigo-200 dark:shadow-none">
-            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
-              <div>
+          <div className="bg-indigo-600 dark:bg-indigo-700 rounded-[3rem] p-8 md:p-12 text-white relative overflow-hidden shadow-2xl shadow-indigo-200 dark:shadow-none">
+            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8 text-center md:text-left">
+              <div className="max-w-md">
                 <h3 className="text-3xl font-bold mb-2">Dnešní výzva</h3>
-                <p className="text-indigo-100 text-xl font-medium">{dailyChallenge.categoryName}: <span className="text-white font-black">{dailyChallenge.topicName}</span></p>
-                <button onClick={() => navigate(`/study/${dailyChallenge.categoryId}/${dailyChallenge.topicId}?mode=${dailyChallenge.mode}`)} className="mt-8 bg-white text-indigo-600 font-black px-10 py-4 rounded-2xl">Spustit</button>
+                <p className="text-indigo-100 text-xl font-medium mb-2">
+                  {dailyChallenge.categoryName}: <span className="text-white font-black">{dailyChallenge.topicName}</span>
+                </p>
+                <p className="text-indigo-100/80 text-sm mb-8">Zopakuj si toto téma pomocí režimu <span className="font-bold">{
+                  dailyChallenge.mode === 'flashcards' ? 'Kartičky' : 
+                  dailyChallenge.mode === 'abcd' ? 'Výběr' : 
+                  dailyChallenge.mode === 'writing' ? 'Psaní' : 'Přiřazování'
+                }</span>!</p>
+                <button 
+                  onClick={() => navigate(`/study/${dailyChallenge.categoryId}/${dailyChallenge.topicId}?mode=${dailyChallenge.mode}`)}
+                  className="bg-white text-indigo-600 dark:text-indigo-700 font-black px-10 py-4 rounded-2xl hover:bg-indigo-50 transition-colors shadow-lg shadow-indigo-800/20 mx-auto md:mx-0 block"
+                >
+                  Spustit výzvu
+                </button>
               </div>
-              <Sparkles className="w-24 h-24 text-white opacity-40" />
+              <div className="w-48 h-48 bg-indigo-500/30 rounded-full flex items-center justify-center border-4 border-white/20">
+                <Sparkles className="w-24 h-24 text-white opacity-40" />
+              </div>
             </div>
           </div>
         )}
