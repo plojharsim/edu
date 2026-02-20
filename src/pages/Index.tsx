@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'export-router-dom';
 import { useNavigate } from 'react-router-dom';
 import * as LucideIcons from 'lucide-react';
 import { Sparkles, TrendingUp, LogOut, Edit3, Heart } from 'lucide-react';
