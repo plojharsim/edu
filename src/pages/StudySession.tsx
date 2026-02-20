@@ -10,7 +10,7 @@ import MatchingGame from '@/components/Learning/MatchingGame';
 import StudyResults from '@/components/Learning/StudyResults';
 import { Button } from '@/components/ui/button';
 import { BookOpen, CheckSquare, Keyboard, Layers, ChevronLeft, BookText, Check, X } from 'lucide-react';
-import { getStudyData, Topic, StudyItem } from '@/data/studyData';
+import { getStudyData, Topic, StudyItem, StudyMode } from '@/data/studyData';
 
 const StudySession = () => {
   const { categoryId, topicId } = useParams();
@@ -19,7 +19,7 @@ const StudySession = () => {
   
   const [view, setView] = useState<'topic-selection' | 'mode-selection' | 'study' | 'results'>('topic-selection');
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
-  const [mode, setMode] = useState<'flashcards' | 'abcd' | 'writing' | 'matching' | null>(null);
+  const [mode, setMode] = useState<StudyMode | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [correctCount, setCorrectCount] = useState(0);
   const [incorrectCount, setIncorrectCount] = useState(0);
@@ -58,7 +58,6 @@ const StudySession = () => {
 
   const currentItem = selectedTopic?.items[currentIndex];
 
-  // Připravíme zamíchané možnosti pro ABCD režim
   const shuffledOptions = useMemo(() => {
     if (!currentItem || !currentItem.isAbcdEnabled) return [];
     const all = [currentItem.definition, ...currentItem.options.filter(o => o.trim() !== "")];
@@ -66,7 +65,7 @@ const StudySession = () => {
   }, [currentItem]);
 
   if (!category) {
-    return <div className="p-20 text-center">Načítání nebo kategorie nenalezena...</div>;
+    return <div className="p-20 text-center">Načítání...</div>;
   }
 
   const handleTopicSelect = (topic: Topic) => {
@@ -74,7 +73,7 @@ const StudySession = () => {
     setView('mode-selection');
   };
 
-  const handleModeSelect = (selectedMode: 'flashcards' | 'abcd' | 'writing' | 'matching') => {
+  const handleModeSelect = (selectedMode: StudyMode) => {
     setMode(selectedMode);
     setView('study');
     setCurrentIndex(0);
@@ -130,6 +129,17 @@ const StudySession = () => {
     setView('results');
   };
 
+  const isModeAllowed = (m: StudyMode) => {
+    if (!selectedTopic) return false;
+    const allowed = selectedTopic.allowedModes || ['flashcards', 'abcd', 'writing', 'matching'];
+    
+    if (m === 'abcd') {
+      return allowed.includes('abcd') && !selectedTopic.items.some(i => !i.isAbcdEnabled);
+    }
+    
+    return allowed.includes(m);
+  };
+
   if (view === 'topic-selection') {
     return (
       <div className="min-h-screen bg-background p-6 flex flex-col items-center justify-center transition-colors duration-300">
@@ -173,28 +183,37 @@ const StudySession = () => {
           <h1 className="text-4xl font-black text-slate-800 dark:text-slate-100 mb-2">Jak se chceš učit?</h1>
         </div>
         <div className="flex flex-wrap justify-center gap-4 w-full max-w-2xl">
-          <Button variant="outline" className="h-32 w-full sm:w-[calc(50%-0.5rem)] rounded-[2rem] border-2 border-indigo-100 dark:border-indigo-900/30 bg-card flex flex-col gap-2 hover:border-indigo-500 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 transition-all" onClick={() => handleModeSelect('flashcards')}>
-            <Layers className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
-            <span className="font-bold text-lg">Kartičky</span>
-          </Button>
-          <Button 
-            variant="outline" 
-            disabled={selectedTopic?.items.some(i => !i.isAbcdEnabled)}
-            className="h-32 w-full sm:w-[calc(50%-0.5rem)] rounded-[2rem] border-2 border-emerald-100 dark:border-emerald-900/30 bg-card flex flex-col gap-2 hover:border-emerald-500 dark:hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 transition-all disabled:opacity-50" 
-            onClick={() => handleModeSelect('abcd')}
-          >
-            <CheckSquare className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
-            <span className="font-bold text-lg">Výběr (ABCD)</span>
-            {selectedTopic?.items.some(i => !i.isAbcdEnabled) && <span className="text-[10px] text-slate-400">Není nastaveno u všech karet</span>}
-          </Button>
-          <Button variant="outline" className="h-32 w-full sm:w-[calc(50%-0.5rem)] rounded-[2rem] border-2 border-amber-100 dark:border-amber-900/30 bg-card flex flex-col gap-2 hover:border-amber-500 dark:hover:border-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/20 transition-all" onClick={() => handleModeSelect('writing')}>
-            <Keyboard className="w-8 h-8 text-amber-600 dark:text-amber-400" />
-            <span className="font-bold text-lg">Psaní</span>
-          </Button>
-          <Button variant="outline" className="h-32 w-full sm:w-[calc(50%-0.5rem)] rounded-[2rem] border-2 border-rose-100 dark:border-rose-900/30 bg-card flex flex-col gap-2 hover:border-rose-500 dark:hover:border-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all" onClick={() => handleModeSelect('matching')}>
-            <BookOpen className="w-8 h-8 text-rose-600 dark:text-rose-400" />
-            <span className="font-bold text-lg">Přiřazování</span>
-          </Button>
+          {isModeAllowed('flashcards') && (
+            <Button variant="outline" className="h-32 w-full sm:w-[calc(50%-0.5rem)] rounded-[2rem] border-2 border-indigo-100 dark:border-indigo-900/30 bg-card flex flex-col gap-2 hover:border-indigo-500 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 transition-all" onClick={() => handleModeSelect('flashcards')}>
+              <Layers className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
+              <span className="font-bold text-lg">Kartičky</span>
+            </Button>
+          )}
+          {isModeAllowed('abcd') && (
+            <Button 
+              variant="outline" 
+              className="h-32 w-full sm:w-[calc(50%-0.5rem)] rounded-[2rem] border-2 border-emerald-100 dark:border-emerald-900/30 bg-card flex flex-col gap-2 hover:border-emerald-500 dark:hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 transition-all" 
+              onClick={() => handleModeSelect('abcd')}
+            >
+              <CheckSquare className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
+              <span className="font-bold text-lg">Výběr (ABCD)</span>
+            </Button>
+          )}
+          {isModeAllowed('writing') && (
+            <Button variant="outline" className="h-32 w-full sm:w-[calc(50%-0.5rem)] rounded-[2rem] border-2 border-amber-100 dark:border-amber-900/30 bg-card flex flex-col gap-2 hover:border-amber-500 dark:hover:border-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/20 transition-all" onClick={() => handleModeSelect('writing')}>
+              <Keyboard className="w-8 h-8 text-amber-600 dark:text-amber-400" />
+              <span className="font-bold text-lg">Psaní</span>
+            </Button>
+          )}
+          {isModeAllowed('matching') && (
+            <Button variant="outline" className="h-32 w-full sm:w-[calc(50%-0.5rem)] rounded-[2rem] border-2 border-rose-100 dark:border-rose-900/30 bg-card flex flex-col gap-2 hover:border-rose-500 dark:hover:border-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all" onClick={() => handleModeSelect('matching')}>
+              <BookOpen className="w-8 h-8 text-rose-600 dark:text-rose-400" />
+              <span className="font-bold text-lg">Přiřazování</span>
+            </Button>
+          )}
+          {(!isModeAllowed('flashcards') && !isModeAllowed('abcd') && !isModeAllowed('writing') && !isModeAllowed('matching')) && (
+            <p className="text-slate-400 font-medium italic">Pro toto téma nejsou povoleny žádné režimy.</p>
+          )}
         </div>
       </div>
     );

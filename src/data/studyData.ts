@@ -1,3 +1,5 @@
+export type StudyMode = 'flashcards' | 'abcd' | 'writing' | 'matching';
+
 export interface StudyItem {
   id: string;
   term: string;
@@ -10,14 +12,15 @@ export interface Topic {
   id: string;
   name: string;
   items: StudyItem[];
+  allowedModes?: StudyMode[]; // Seznam povolených režimů
 }
 
 export interface Category {
   id: string;
   title: string;
   topics: Topic[];
-  iconName?: string; // Název ikony z Lucide (např. 'Languages')
-  color?: string;    // Tailwind třída (např. 'bg-indigo-500')
+  iconName?: string;
+  color?: string;
   isCustom?: boolean;
 }
 
@@ -31,6 +34,7 @@ export const PREDEFINED_DATA: Record<string, Category> = {
       {
         id: "animals",
         name: "Zvířata",
+        allowedModes: ['flashcards', 'abcd', 'writing', 'matching'],
         items: [
           { id: "e1", term: "Dog", definition: "Pes", options: ["Kočka", "Pes", "Kůň", "Vlk"], isAbcdEnabled: true },
           { id: "e2", term: "Cat", definition: "Kočka", options: ["Pes", "Kočka", "Myš", "Pták"], isAbcdEnabled: true },
@@ -48,6 +52,7 @@ export const PREDEFINED_DATA: Record<string, Category> = {
       {
         id: "cells",
         name: "Buňka",
+        allowedModes: ['flashcards', 'abcd', 'writing'],
         items: [
           { id: "b1", term: "Mitochondrie", definition: "Energetické centrum buňky", options: ["Jádro", "Ribozom", "Vakuola"], isAbcdEnabled: true },
           { id: "b2", term: "Chloroplast", definition: "Místo fotosyntézy", options: ["Cytoplazma", "Buněčná stěna", "Lysozom"], isAbcdEnabled: true },
@@ -65,6 +70,7 @@ export const PREDEFINED_DATA: Record<string, Category> = {
       {
         id: "middle-ages",
         name: "Středověk",
+        allowedModes: ['flashcards', 'abcd', 'matching'],
         items: [
           { id: "h1", term: "1348", definition: "Založení Karlovy univerzity", options: ["Bitva na Bílé hoře", "Upálení Jana Husa", "Zlatá bula sicilská"], isAbcdEnabled: true },
           { id: "h2", term: "Karel IV.", definition: "Otec vlasti", options: ["Jan Žižka", "Jiří z Poděbrad", "Rudolf II."], isAbcdEnabled: true },
@@ -82,6 +88,7 @@ export const PREDEFINED_DATA: Record<string, Category> = {
       {
         id: "composers",
         name: "Skladatelé",
+        allowedModes: ['flashcards', 'abcd', 'writing', 'matching'],
         items: [
           { id: "m1", term: "B. Smetana", definition: "Má vlast", options: ["Rusalka", "Slovanské tance", "Osud"], isAbcdEnabled: true },
           { id: "m2", term: "A. Dvořák", definition: "Z Nového světa", options: ["Libuše", "Prodaná nevěsta", "Don Giovanni"], isAbcdEnabled: true },

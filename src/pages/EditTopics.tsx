@@ -7,8 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Plus, Trash2, ChevronLeft, Save, BookText } from "lucide-react";
-import { saveUserTopics, Topic, StudyItem } from '@/data/studyData';
+import { Checkbox } from "@/components/ui/checkbox";
+import { Plus, Trash2, ChevronLeft, Save, BookText, Layers, CheckSquare, Keyboard, BookOpen } from "lucide-react";
+import { saveUserTopics, Topic, StudyItem, StudyMode } from '@/data/studyData';
 import { showSuccess } from '@/utils/toast';
 
 const EditTopics = () => {
@@ -29,7 +30,12 @@ const EditTopics = () => {
 
   const addTopic = () => {
     const id = `topic_${Date.now()}`;
-    const newTopic: Topic = { id, name: "Nové téma", items: [] };
+    const newTopic: Topic = { 
+      id, 
+      name: "Nové téma", 
+      items: [],
+      allowedModes: ['flashcards', 'abcd', 'writing', 'matching']
+    };
     setTopics([...topics, newTopic]);
     setActiveTopicId(id);
   };
@@ -37,6 +43,20 @@ const EditTopics = () => {
   const deleteTopic = (id: string) => {
     setTopics(topics.filter(t => t.id !== id));
     if (activeTopicId === id) setActiveTopicId(null);
+  };
+
+  const toggleMode = (topicId: string, mode: StudyMode) => {
+    const newTopics = topics.map(t => {
+      if (t.id === topicId) {
+        const modes = t.allowedModes || ['flashcards', 'abcd', 'writing', 'matching'];
+        const newModes = modes.includes(mode) 
+          ? modes.filter(m => m !== mode)
+          : [...modes, mode];
+        return { ...t, allowedModes: newModes };
+      }
+      return t;
+    });
+    setTopics(newTopics);
   };
 
   const addItem = (topicId: string) => {
@@ -77,6 +97,13 @@ const EditTopics = () => {
 
   const activeTopic = topics.find(t => t.id === activeTopicId);
 
+  const MODES: { id: StudyMode, label: string, icon: any }[] = [
+    { id: 'flashcards', label: 'Kartičky', icon: Layers },
+    { id: 'abcd', label: 'Výběr (ABCD)', icon: CheckSquare },
+    { id: 'writing', label: 'Psaní', icon: Keyboard },
+    { id: 'matching', label: 'Přiřazování', icon: BookOpen },
+  ];
+
   return (
     <div className="min-h-screen bg-background p-6 pb-20">
       <header className="max-w-6xl mx-auto mb-10 flex items-center justify-between">
@@ -92,7 +119,6 @@ const EditTopics = () => {
       </header>
 
       <main className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-8">
-        {/* Seznam témat */}
         <div className="md:col-span-4 space-y-4">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-bold text-slate-500 uppercase text-xs tracking-widest">Témata ve "Vlastní"</h2>
@@ -118,32 +144,52 @@ const EditTopics = () => {
               </button>
             </div>
           ))}
-          {topics.length === 0 && (
-            <p className="text-center py-8 text-slate-400 text-sm italic">Zatím žádná vlastní témata.</p>
-          )}
         </div>
 
-        {/* Editor položek */}
         <div className="md:col-span-8 space-y-6">
           {activeTopic ? (
             <>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="font-bold text-slate-500 uppercase text-xs tracking-widest">Položky tématu</h2>
+              <div className="bg-card p-6 rounded-[2rem] shadow-sm mb-6">
+                <h2 className="font-bold text-slate-500 uppercase text-xs tracking-widest mb-4">Základní nastavení</h2>
+                <Input 
+                  value={activeTopic.name}
+                  onChange={(e) => {
+                    const newTopics = [...topics];
+                    const t = newTopics.find(x => x.id === activeTopic.id);
+                    if (t) t.name = e.target.value;
+                    setTopics(newTopics);
+                  }}
+                  className="mb-6 h-14 text-xl font-bold border-2 border-indigo-100 dark:border-indigo-900/30 bg-background"
+                  placeholder="Název tématu"
+                />
+
+                <div className="space-y-4">
+                  <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200">Povolené studijní režimy</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    {MODES.map(mode => (
+                      <div key={mode.id} className="flex items-center space-x-3 p-4 bg-background rounded-2xl border border-slate-100 dark:border-slate-800">
+                        <Checkbox 
+                          id={`mode-${mode.id}`}
+                          checked={(activeTopic.allowedModes || ['flashcards', 'abcd', 'writing', 'matching']).includes(mode.id)}
+                          onCheckedChange={() => toggleMode(activeTopic.id, mode.id)}
+                        />
+                        <Label htmlFor={`mode-${mode.id}`} className="flex items-center gap-2 cursor-pointer font-medium">
+                          <mode.icon className="w-4 h-4 text-indigo-500" />
+                          {mode.label}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between mb-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                <h2 className="font-bold text-slate-500 uppercase text-xs tracking-widest">Karty v tématu ({activeTopic.items.length})</h2>
                 <Button onClick={() => addItem(activeTopic.id)} className="rounded-xl bg-indigo-600 text-white font-bold gap-2">
                   <Plus className="w-4 h-4" /> Přidat kartu
                 </Button>
               </div>
-              <Input 
-                value={activeTopic.name}
-                onChange={(e) => {
-                  const newTopics = [...topics];
-                  const t = newTopics.find(x => x.id === activeTopic.id);
-                  if (t) t.name = e.target.value;
-                  setTopics(newTopics);
-                }}
-                className="mb-6 h-14 text-xl font-bold border-2 border-indigo-100 dark:border-indigo-900/30 bg-card"
-                placeholder="Název tématu"
-              />
+
               <div className="space-y-4">
                 {activeTopic.items.map((item, idx) => (
                   <Card key={item.id} className="p-6 rounded-[2rem] border-none shadow-sm bg-card relative overflow-hidden">
@@ -157,7 +203,7 @@ const EditTopics = () => {
                             checked={item.isAbcdEnabled}
                             onCheckedChange={(val) => updateItem(activeTopic.id, item.id, 'isAbcdEnabled', val)}
                           />
-                          <Label htmlFor={`abcd-${item.id}`} className="text-xs font-bold text-slate-500">ABCD režim</Label>
+                          <Label htmlFor={`abcd-${item.id}`} className="text-xs font-bold text-slate-500">Možnosti ABCD</Label>
                         </div>
                         <Button size="icon" variant="ghost" onClick={() => deleteItem(activeTopic.id, item.id)} className="text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30">
                           <Trash2 className="w-4 h-4" />
@@ -167,7 +213,7 @@ const EditTopics = () => {
                     
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
                       <div className="space-y-2">
-                        <label className="text-[10px] font-bold uppercase text-slate-400 tracking-widest">Termín / Otázka</label>
+                        <label className="text-[10px] font-bold uppercase text-slate-400 tracking-widest">Termín</label>
                         <Input 
                           value={item.term}
                           onChange={(e) => updateItem(activeTopic.id, item.id, 'term', e.target.value)}
@@ -176,7 +222,7 @@ const EditTopics = () => {
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-[10px] font-bold uppercase text-slate-400 tracking-widest">Definice / Správná odpověď</label>
+                        <label className="text-[10px] font-bold uppercase text-slate-400 tracking-widest">Definice</label>
                         <Input 
                           value={item.definition}
                           onChange={(e) => updateItem(activeTopic.id, item.id, 'definition', e.target.value)}
@@ -188,7 +234,7 @@ const EditTopics = () => {
 
                     {item.isAbcdEnabled && (
                       <div className="space-y-3 p-4 bg-slate-50 dark:bg-slate-950/50 rounded-2xl border border-slate-100 dark:border-slate-800">
-                        <label className="text-[10px] font-bold uppercase text-slate-400 tracking-widest">Špatné odpovědi (Distraktory)</label>
+                        <label className="text-[10px] font-bold uppercase text-slate-400 tracking-widest">Špatné odpovědi</label>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                           {item.options.map((opt, optIdx) => (
                             <Input 
