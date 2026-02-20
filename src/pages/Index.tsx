@@ -65,7 +65,6 @@ const Index = () => {
     navigate('/onboarding');
   };
 
-  // Dynamické získání ikony podle názvu
   const getIcon = (iconName: string = 'BookText') => {
     const Icon = (LucideIcons as any)[iconName] || LucideIcons.BookText;
     return Icon;
@@ -73,61 +72,70 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background p-6 pb-20 transition-colors duration-300">
-      <header className="max-w-6xl mx-auto pt-10 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-8">
-        <div className="text-center md:text-left">
-          <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
-            <Sparkles className="w-5 h-5 text-indigo-500 fill-indigo-500" />
-            <span className="text-indigo-600 dark:text-indigo-400 font-bold uppercase tracking-widest text-xs">
-              Vítej zpět, {user.name}! {user.grade && `(${user.grade})`}
-            </span>
+      <header className="max-w-6xl mx-auto pt-10 mb-12">
+        <div className="flex flex-col items-center md:items-start mb-8">
+          <div className="flex flex-col items-center md:items-start group">
+            <h1 className="text-2xl font-black text-indigo-600 dark:text-indigo-400 tracking-tighter">Učička</h1>
+            <span className="text-[10px] text-slate-400 font-medium -mt-1 ml-0.5 opacity-60 group-hover:opacity-100 transition-opacity">by plojharsim</span>
           </div>
-          <h1 className="text-4xl md:text-5xl font-black text-slate-800 dark:text-slate-100 leading-tight">
-            Co se dnes <br />
-            <span className="text-indigo-600 dark:text-indigo-400 underline decoration-indigo-200 dark:decoration-indigo-900 underline-offset-8">naučíme?</span>
-          </h1>
         </div>
-        
-        <div className="flex flex-col md:flex-row items-center gap-4">
-          <div className="bg-card p-6 rounded-[2rem] shadow-sm flex items-center gap-6 border-2 border-white dark:border-slate-800">
-            <div className="flex flex-col items-center">
-              <span className="text-3xl font-black text-indigo-600 dark:text-indigo-400">{stats.streak}</span>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Dní v řadě</span>
+
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
+          <div className="text-center md:text-left">
+            <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
+              <Sparkles className="w-5 h-5 text-indigo-500 fill-indigo-500" />
+              <span className="text-indigo-600 dark:text-indigo-400 font-bold uppercase tracking-widest text-xs">
+                Vítej zpět, {user.name}! {user.grade && `(${user.grade})`}
+              </span>
             </div>
-            <div className="w-[1px] h-10 bg-slate-100 dark:bg-slate-800" />
-            <div className="flex flex-col items-center">
-              <span className="text-3xl font-black text-emerald-500">{stats.average}%</span>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Průměr</span>
-            </div>
-            <TrendingUp className="w-8 h-8 text-slate-200 dark:text-slate-700" />
+            <h2 className="text-4xl md:text-5xl font-black text-slate-800 dark:text-slate-100 leading-tight">
+              Co se dnes <br />
+              <span className="text-indigo-600 dark:text-indigo-400 underline decoration-indigo-200 dark:decoration-indigo-900 underline-offset-8">naučíme?</span>
+            </h2>
           </div>
           
-          <div className="flex gap-2">
-            <ThemeToggle />
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={() => navigate('/edit')}
-              className="rounded-2xl h-14 w-14 bg-white dark:bg-slate-900 shadow-sm hover:bg-indigo-50 dark:hover:bg-slate-800 transition-colors"
-              title="Editor témat"
-            >
-              <Edit3 className="w-6 h-6" />
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={handleLogout}
-              className="rounded-2xl h-14 w-14 bg-white dark:bg-slate-900 shadow-sm hover:bg-red-50 dark:hover:bg-red-950 hover:text-red-500 transition-colors"
-              title="Odhlásit se"
-            >
-              <LogOut className="w-6 h-6" />
-            </Button>
+          <div className="flex flex-col md:flex-row items-center gap-4">
+            <div className="bg-card p-6 rounded-[2rem] shadow-sm flex items-center gap-6 border-2 border-white dark:border-slate-800">
+              <div className="flex flex-col items-center">
+                <span className="text-3xl font-black text-indigo-600 dark:text-indigo-400">{stats.streak}</span>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Dní v řadě</span>
+              </div>
+              <div className="w-[1px] h-10 bg-slate-100 dark:bg-slate-800" />
+              <div className="flex flex-col items-center">
+                <span className="text-3xl font-black text-emerald-500">{stats.average}%</span>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Průměr</span>
+              </div>
+              <TrendingUp className="w-8 h-8 text-slate-200 dark:text-slate-700" />
+            </div>
+            
+            <div className="flex gap-2">
+              <ThemeToggle />
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => navigate('/edit')}
+                className="rounded-2xl h-14 w-14 bg-white dark:bg-slate-900 shadow-sm hover:bg-indigo-50 dark:hover:bg-slate-800 transition-colors"
+                title="Editor témat"
+              >
+                <Edit3 className="w-6 h-6" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={handleLogout}
+                className="rounded-2xl h-14 w-14 bg-white dark:bg-slate-900 shadow-sm hover:bg-red-50 dark:hover:bg-red-950 hover:text-red-500 transition-colors"
+                title="Odhlásit se"
+              >
+                <LogOut className="w-6 h-6" />
+              </Button>
+            </div>
           </div>
         </div>
       </header>
 
       <main className="max-w-6xl mx-auto">
         <div className="mb-10">
-          <h2 className="text-2xl font-black text-slate-800 dark:text-slate-100 mb-6 text-center md:text-left">Tvoje studijní sady</h2>
+          <h3 className="text-2xl font-black text-slate-800 dark:text-slate-100 mb-6 text-center md:text-left">Tvoje studijní sady</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center md:justify-items-stretch">
             {Object.values(studyData).map((cat) => (
               <div key={cat.id} className="w-full max-w-sm md:max-w-none">
