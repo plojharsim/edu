@@ -7,6 +7,7 @@ import { ThemeProvider } from "next-themes";
 import Index from "./pages/Index";
 import StudySession from "./pages/StudySession";
 import Onboarding from "./pages/Onboarding";
+import EditTopics from "./pages/EditTopics";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,6 +34,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Index />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/edit" 
+              element={
+                <ProtectedRoute>
+                  <EditTopics />
                 </ProtectedRoute>
               } 
             />

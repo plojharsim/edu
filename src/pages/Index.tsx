@@ -2,16 +2,17 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Languages, Microscope, History, Music, Sparkles, TrendingUp, LogOut } from 'lucide-react';
+import { Languages, Microscope, History, Music, Sparkles, TrendingUp, LogOut, Edit3, BookText } from 'lucide-react';
 import CategoryCard from '@/components/Dashboard/CategoryCard';
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { CATEGORY_DATA } from '@/data/studyData';
+import { getStudyData, Category } from '@/data/studyData';
 
 const Index = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState({ name: 'Studente', grade: '' });
   const [stats, setStats] = useState({ streak: 0, average: 0 });
+  const [studyData, setStudyData] = useState<Record<string, Category>>({});
 
   useEffect(() => {
     const profile = localStorage.getItem('user_profile');
@@ -27,10 +28,12 @@ const Index = () => {
         average: Math.round(parsed.average || 0)
       });
     }
+
+    setStudyData(getStudyData());
   }, []);
 
   const dailyChallenge = useMemo(() => {
-    const allTopics = Object.values(CATEGORY_DATA).flatMap(cat => 
+    const allTopics = Object.values(studyData).flatMap(cat => 
       cat.topics.map(topic => ({ 
         categoryId: cat.id, 
         topicId: topic.id, 
@@ -52,18 +55,27 @@ const Index = () => {
       ...allTopics[topicIndex],
       mode: modes[modeIndex]
     };
-  }, []);
+  }, [studyData]);
 
   const handleLogout = () => {
     localStorage.removeItem('user_profile');
     localStorage.removeItem('study_stats');
+    localStorage.removeItem('study_data');
     navigate('/onboarding');
   };
 
-  const getCategoryCount = (id: string) => {
-    const category = CATEGORY_DATA[id];
-    if (!category) return 0;
-    return category.topics.reduce((acc, topic) => acc + topic.items.length, 0);
+  const getIconForCategory = (title: string) => {
+    const lower = title.toLowerCase();
+    if (lower.includes('angličtina')) return Languages;
+    if (lower.includes('biologie')) return Microscope;
+    if (lower.includes('dějepis')) return History;
+    if (lower.includes('hudební')) return Music;
+    return BookText;
+  };
+
+  const getColorForCategory = (idx: number) => {
+    const colors = ['bg-indigo-500', 'bg-emerald-500', 'bg-amber-500', 'bg-rose-500', 'bg-violet-500', 'bg-cyan-500'];
+    return colors[idx % colors.length];
   };
 
   return (
@@ -101,9 +113,18 @@ const Index = () => {
             <Button 
               variant="ghost" 
               size="icon" 
+              onClick={() => navigate('/edit')}
+              className="rounded-2xl h-14 w-14 bg-white dark:bg-slate-900 shadow-sm hover:bg-indigo-50 dark:hover:bg-slate-800 transition-colors"
+              title="Editor témat"
+            >
+              <Edit3 className="w-6 h-6" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="icon" 
               onClick={handleLogout}
               className="rounded-2xl h-14 w-14 bg-white dark:bg-slate-900 shadow-sm hover:bg-red-50 dark:hover:bg-red-950 hover:text-red-500 transition-colors"
-              title="Resetovat profil"
+              title="Odhlásit se"
             >
               <LogOut className="w-6 h-6" />
             </Button>
@@ -115,42 +136,23 @@ const Index = () => {
         <div className="mb-10">
           <h2 className="text-2xl font-black text-slate-800 dark:text-slate-100 mb-6 text-center md:text-left">Tvoje studijní sady</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center md:justify-items-stretch">
-            <div className="w-full max-w-sm md:max-w-none">
-              <CategoryCard 
-                title="Angličtina" 
-                count={getCategoryCount('english')} 
-                icon={Languages} 
-                color="bg-indigo-500" 
-                onClick={() => navigate('/study/english')}
-              />
-            </div>
-            <div className="w-full max-w-sm md:max-w-none">
-              <CategoryCard 
-                title="Biologie" 
-                count={getCategoryCount('biology')} 
-                icon={Microscope} 
-                color="bg-emerald-500" 
-                onClick={() => navigate('/study/biology')}
-              />
-            </div>
-            <div className="w-full max-w-sm md:max-w-none">
-              <CategoryCard 
-                title="Dějepis" 
-                count={getCategoryCount('history')} 
-                icon={History} 
-                color="bg-amber-500" 
-                onClick={() => navigate('/study/history')}
-              />
-            </div>
-            <div className="w-full max-w-sm md:max-w-none">
-              <CategoryCard 
-                title="Hudební nauka" 
-                count={getCategoryCount('music')} 
-                icon={Music} 
-                color="bg-rose-500" 
-                onClick={() => navigate('/study/music')}
-              />
-            </div>
+            {Object.values(studyData).map((cat, idx) => (
+              <div key={cat.id} className="w-full max-w-sm md:max-w-none">
+                <CategoryCard 
+                  title={cat.title} 
+                  count={cat.topics.reduce((acc, t) => acc + t.items.length, 0)} 
+                  icon={getIconForCategory(cat.title)} 
+                  color={getColorForCategory(idx)} 
+                  onClick={() => navigate(`/study/${cat.id}`)}
+                />
+              </div>
+            ))}
+            {Object.keys(studyData).length === 0 && (
+              <div className="col-span-full p-12 text-center bg-white dark:bg-slate-900 rounded-[3rem] border-2 border-dashed border-slate-200 dark:border-slate-800">
+                <p className="text-slate-500 font-medium mb-4">Zatím nemáš žádné studijní sady.</p>
+                <Button onClick={() => navigate('/edit')} className="rounded-2xl bg-indigo-600 font-bold">Vytvořit první sadu</Button>
+              </div>
+            )}
           </div>
         </div>
 

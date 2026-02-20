@@ -10,7 +10,7 @@ import MatchingGame from '@/components/Learning/MatchingGame';
 import StudyResults from '@/components/Learning/StudyResults';
 import { Button } from '@/components/ui/button';
 import { BookOpen, CheckSquare, Keyboard, Layers, ChevronLeft, BookText, Check, X } from 'lucide-react';
-import { CATEGORY_DATA, Topic, StudyItem } from '@/data/studyData';
+import { getStudyData, Topic, StudyItem } from '@/data/studyData';
 
 const StudySession = () => {
   const { categoryId, topicId } = useParams();
@@ -27,7 +27,8 @@ const StudySession = () => {
   const [isCardFlipped, setIsCardFlipped] = useState(false);
   const [seconds, setSeconds] = useState(0);
   
-  const category = CATEGORY_DATA[categoryId || 'english'] || CATEGORY_DATA.english;
+  const studyData = getStudyData();
+  const category = studyData[categoryId || ''] || Object.values(studyData)[0];
 
   useEffect(() => {
     let interval: any;
@@ -40,7 +41,7 @@ const StudySession = () => {
   }, [view]);
 
   useEffect(() => {
-    if (topicId) {
+    if (topicId && category) {
       const topic = category.topics.find(t => t.id === topicId);
       if (topic) {
         setSelectedTopic(topic);
@@ -54,6 +55,10 @@ const StudySession = () => {
       }
     }
   }, [topicId, category, searchParams]);
+
+  if (!category) {
+    return <div className="p-20 text-center">Načítání nebo kategorie nenalezena...</div>;
+  }
 
   const handleTopicSelect = (topic: Topic) => {
     setSelectedTopic(topic);
@@ -111,7 +116,7 @@ const StudySession = () => {
   const handleMatchingComplete = (incorrect: number) => {
     setIncorrectCount(incorrect);
     setCorrectCount(selectedTopic!.items.length - incorrect);
-    setMistakes([]); // prázdné pole, žádné konkrétní položky
+    setMistakes([]);
     updateStats(((selectedTopic!.items.length - incorrect) / selectedTopic!.items.length) * 100);
     setView('results');
   };
