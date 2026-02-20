@@ -65,7 +65,6 @@ const Index = () => {
     navigate('/onboarding');
   };
 
-  // Dynamické získání ikony podle názvu
   const getIcon = (iconName: string = 'BookText') => {
     const Icon = (LucideIcons as any)[iconName] || LucideIcons.BookText;
     return Icon;
@@ -81,24 +80,24 @@ const Index = () => {
               Vítej zpět, {user.name}! {user.grade && `(${user.grade})`}
             </span>
           </div>
-          <h1 className="text-4xl md:text-5xl font-black text-slate-800 dark:text-slate-100 leading-tight">
+          <h1 className="text-4xl md:text-5xl font-black text-foreground leading-tight">
             Co se dnes <br />
             <span className="text-indigo-600 dark:text-indigo-400 underline decoration-indigo-200 dark:decoration-indigo-900 underline-offset-8">naučíme?</span>
           </h1>
         </div>
         
         <div className="flex flex-col md:flex-row items-center gap-4">
-          <div className="bg-card p-6 rounded-[2rem] shadow-sm flex items-center gap-6 border-2 border-white dark:border-slate-800">
+          <div className="bg-card p-6 rounded-[2rem] shadow-sm flex items-center gap-6 border-2 border-border">
             <div className="flex flex-col items-center">
               <span className="text-3xl font-black text-indigo-600 dark:text-indigo-400">{stats.streak}</span>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Dní v řadě</span>
+              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-tighter">Dní v řadě</span>
             </div>
-            <div className="w-[1px] h-10 bg-slate-100 dark:bg-slate-800" />
+            <div className="w-[1px] h-10 bg-border" />
             <div className="flex flex-col items-center">
               <span className="text-3xl font-black text-emerald-500">{stats.average}%</span>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Průměr</span>
+              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-tighter">Průměr</span>
             </div>
-            <TrendingUp className="w-8 h-8 text-slate-200 dark:text-slate-700" />
+            <TrendingUp className="w-8 h-8 text-muted/30" />
           </div>
           
           <div className="flex gap-2">
@@ -107,7 +106,7 @@ const Index = () => {
               variant="ghost" 
               size="icon" 
               onClick={() => navigate('/edit')}
-              className="rounded-2xl h-14 w-14 bg-white dark:bg-slate-900 shadow-sm hover:bg-indigo-50 dark:hover:bg-slate-800 transition-colors"
+              className="rounded-2xl h-14 w-14 bg-card shadow-sm hover:bg-indigo-50 dark:hover:bg-slate-800 transition-colors border border-border"
               title="Editor témat"
             >
               <Edit3 className="w-6 h-6" />
@@ -116,7 +115,7 @@ const Index = () => {
               variant="ghost" 
               size="icon" 
               onClick={handleLogout}
-              className="rounded-2xl h-14 w-14 bg-white dark:bg-slate-900 shadow-sm hover:bg-red-50 dark:hover:bg-red-950 hover:text-red-500 transition-colors"
+              className="rounded-2xl h-14 w-14 bg-card shadow-sm hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-500 transition-colors border border-border"
               title="Odhlásit se"
             >
               <LogOut className="w-6 h-6" />
@@ -127,7 +126,7 @@ const Index = () => {
 
       <main className="max-w-6xl mx-auto flex-1 w-full">
         <div className="mb-10">
-          <h2 className="text-2xl font-black text-slate-800 dark:text-slate-100 mb-6 text-center md:text-left">Tvoje studijní sady</h2>
+          <h2 className="text-2xl font-black text-foreground mb-6 text-center md:text-left">Tvoje studijní sady</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center md:justify-items-stretch">
             {Object.values(studyData).map((cat) => (
               <div key={cat.id} className="w-full max-w-sm md:max-w-none">
@@ -141,8 +140,8 @@ const Index = () => {
               </div>
             ))}
             {Object.keys(studyData).length === 0 && (
-              <div className="col-span-full p-12 text-center bg-white dark:bg-slate-900 rounded-[3rem] border-2 border-dashed border-slate-200 dark:border-slate-800">
-                <p className="text-slate-500 font-medium mb-4">Zatím nemáš žádné studijní sady.</p>
+              <div className="col-span-full p-12 text-center bg-card rounded-[3rem] border-2 border-dashed border-border">
+                <p className="text-muted-foreground font-medium mb-4">Zatím nemáš žádné studijní sady.</p>
                 <Button onClick={() => navigate('/edit')} className="rounded-2xl bg-indigo-600 font-bold">Vytvořit první sadu</Button>
               </div>
             )}
@@ -178,7 +177,7 @@ const Index = () => {
       </main>
 
       <footer className="mt-auto pt-10 text-center">
-        <p className="text-slate-400 dark:text-slate-500 text-sm font-medium flex items-center justify-center gap-1">
+        <p className="text-muted-foreground text-sm font-medium flex items-center justify-center gap-1">
           Vytvořeno s <Heart className="w-3 h-3 text-red-400 fill-red-400" /> by <a href="https://plojharsim.cz" target="_blank" rel="noopener noreferrer" className="text-indigo-600 dark:text-indigo-400 font-bold hover:underline">plojharsim</a>
         </p>
       </footer>
