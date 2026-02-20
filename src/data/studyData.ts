@@ -20,6 +20,8 @@ export interface Topic {
 export interface Category {
   id: string;
   title: string;
+  iconName: string; // Např. 'Microscope', 'Languages', 'FlaskConical'
+  color: string;    // Např. 'bg-indigo-500'
   topics: Topic[];
   isCustom?: boolean;
 }
@@ -41,6 +43,8 @@ export const getStudyData = (): Record<string, Category> => {
     data['custom'] = {
       id: 'custom',
       title: 'Vlastní',
+      iconName: 'BookText',
+      color: 'bg-slate-500',
       isCustom: true,
       topics: userTopics
     };
