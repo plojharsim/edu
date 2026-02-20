@@ -28,15 +28,10 @@ export const decodeTopic = (code: string): Topic | null => {
       typeof parsed.name === 'string' &&
       Array.isArray(parsed.items)
     ) {
-      // Ensure IDs are unique for the new user's environment
-      const timestamp = Date.now();
+      // Ensure the topic has a fresh ID to avoid collisions
       return {
         ...parsed,
-        id: `imported_${timestamp}`,
-        items: parsed.items.map((item: any, idx: number) => ({
-          ...item,
-          id: `item_${timestamp}_${idx}`
-        }))
+        id: `imported_${Date.now()}`
       };
     }
     return null;
@@ -50,7 +45,6 @@ export const decodeTopic = (code: string): Topic | null => {
  * Formats a topic for the developer to include in PREDEFINED_DATA.
  */
 export const formatForDeveloper = (topic: Topic): string => {
-  // Remove local IDs to keep it clean
   const cleanTopic = {
     ...topic,
     id: topic.name.toLowerCase().replace(/\s+/g, '-'),

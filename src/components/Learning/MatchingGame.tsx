@@ -12,36 +12,36 @@ interface MatchingGameProps {
 }
 
 interface CardItem {
-  id: string;
+  id: string; // Internal React key
   content: string;
-  originalId: number;
+  originalIndex: number;
   type: 'term' | 'definition';
 }
 
 const MatchingGame = ({ items, onComplete }: MatchingGameProps) => {
   const [selected, setSelected] = useState<CardItem | null>(null);
-  const [matchedIds, setMatchedIds] = useState<number[]>([]);
+  const [matchedIndices, setMatchedIndices] = useState<number[]>([]);
   const [wrongPair, setWrongPair] = useState<[string, string] | null>(null);
-  const [incorrectIds, setIncorrectIds] = useState<Set<number>>(new Set());
+  const [incorrectIndices, setIncorrectIndices] = useState<Set<number>>(new Set());
 
   const cards = useMemo(() => {
-    const terms = items.map(item => ({
-      id: `term-${item.id}`,
+    const terms = items.map((item, idx) => ({
+      id: `term-${idx}`,
       content: item.term,
-      originalId: item.id,
+      originalIndex: idx,
       type: 'term' as const
     }));
-    const definitions = items.map(item => ({
-      id: `def-${item.id}`,
+    const definitions = items.map((item, idx) => ({
+      id: `def-${idx}`,
       content: item.definition,
-      originalId: item.id,
+      originalIndex: idx,
       type: 'definition' as const
     }));
     return [...terms, ...definitions].sort(() => Math.random() - 0.5);
   }, [items]);
 
   const handleCardClick = (card: CardItem) => {
-    if (matchedIds.includes(card.originalId) || wrongPair) return;
+    if (matchedIndices.includes(card.originalIndex) || wrongPair) return;
 
     if (!selected) {
       setSelected(card);
@@ -53,27 +53,24 @@ const MatchingGame = ({ items, onComplete }: MatchingGameProps) => {
       return;
     }
 
-    if (selected.originalId === card.originalId && selected.type !== card.type) {
+    if (selected.originalIndex === card.originalIndex && selected.type !== card.type) {
       // Match!
-      const newMatched = [...matchedIds, card.originalId];
-      setMatchedIds(newMatched);
+      const newMatched = [...matchedIndices, card.originalIndex];
+      setMatchedIndices(newMatched);
       setSelected(null);
       
       if (newMatched.length === items.length) {
         setTimeout(() => {
           showSuccess("Všechny dvojice nalezeny!");
-          onComplete(incorrectIds.size);
+          onComplete(incorrectIndices.size);
         }, 500);
       }
     } else {
       // Wrong match
       setWrongPair([selected.id, card.id]);
       
-      // Add to incorrectIds
-      const item = items.find(i => i.id === card.originalId || i.id === selected.originalId);
-      if (item) {
-        setIncorrectIds(prev => new Set(prev).add(item.id));
-      }
+      // Mark this index as incorrect at least once
+      setIncorrectIndices(prev => new Set(prev).add(card.originalIndex).add(selected.originalIndex));
 
       setTimeout(() => {
         setWrongPair(null);
@@ -86,7 +83,7 @@ const MatchingGame = ({ items, onComplete }: MatchingGameProps) => {
     <div className="w-full max-w-4xl mx-auto p-4">
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
         {cards.map((card) => {
-          const isMatched = matchedIds.includes(card.originalId);
+          const isMatched = matchedIndices.includes(card.originalIndex);
           const isSelected = selected?.id === card.id;
           const isWrong = wrongPair?.includes(card.id);
 

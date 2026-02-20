@@ -1,7 +1,6 @@
 export type StudyMode = 'flashcards' | 'abcd' | 'writing' | 'matching';
 
 export interface StudyItem {
-  id: string;
   term: string;
   definition: string;
   options: string[];
@@ -13,7 +12,7 @@ export interface Topic {
   name: string;
   items: StudyItem[];
   allowedModes?: StudyMode[];
-  randomizeDirection?: boolean; // Nové nastavení pro náhodný směr
+  randomizeDirection?: boolean;
 }
 
 export interface Category {
@@ -38,9 +37,9 @@ export const PREDEFINED_DATA: Record<string, Category> = {
         allowedModes: ['flashcards', 'abcd', 'writing', 'matching'],
         randomizeDirection: true,
         items: [
-          { id: "e1", term: "Dog", definition: "Pes", options: ["Kočka", "Pes", "Kůň", "Vlk"], isAbcdEnabled: true },
-          { id: "e2", term: "Cat", definition: "Kočka", options: ["Pes", "Kočka", "Myš", "Pták"], isAbcdEnabled: true },
-          { id: "e3", term: "Horse", definition: "Kůň", options: ["Kráva", "Kůň", "Ovce", "Prase"], isAbcdEnabled: true },
+          { term: "Dog", definition: "Pes", options: ["Kočka", "Pes", "Kůň", "Vlk"], isAbcdEnabled: true },
+          { term: "Cat", definition: "Kočka", options: ["Pes", "Kočka", "Myš", "Pták"], isAbcdEnabled: true },
+          { term: "Horse", definition: "Kůň", options: ["Kráva", "Kůň", "Ovce", "Prase"], isAbcdEnabled: true },
         ]
       }
     ]
@@ -57,9 +56,9 @@ export const PREDEFINED_DATA: Record<string, Category> = {
         allowedModes: ['flashcards', 'abcd', 'writing'],
         randomizeDirection: false,
         items: [
-          { id: "b1", term: "Mitochondrie", definition: "Energetické centrum buňky", options: ["Jádro", "Ribozom", "Vakuola"], isAbcdEnabled: true },
-          { id: "b2", term: "Chloroplast", definition: "Místo fotosyntézy", options: ["Cytoplazma", "Buněčná stěna", "Lysozom"], isAbcdEnabled: true },
-          { id: "b3", term: "DNA", definition: "Nositelka genetické informace", options: ["Bílkovina", "Cukr", "Tuk"], isAbcdEnabled: true },
+          { term: "Mitochondrie", definition: "Energetické centrum buňky", options: ["Jádro", "Ribozom", "Vakuola"], isAbcdEnabled: true },
+          { term: "Chloroplast", definition: "Místo fotosyntézy", options: ["Cytoplazma", "Buněčná stěna", "Lysozom"], isAbcdEnabled: true },
+          { term: "DNA", definition: "Nositelka genetické informace", options: ["Bílkovina", "Cukr", "Tuk"], isAbcdEnabled: true },
         ]
       }
     ]
@@ -76,9 +75,9 @@ export const PREDEFINED_DATA: Record<string, Category> = {
         allowedModes: ['flashcards', 'abcd', 'matching'],
         randomizeDirection: false,
         items: [
-          { id: "h1", term: "1348", definition: "Založení Karlovy univerzity", options: ["Bitva na Bílé hoře", "Upálení Jana Husa", "Zlatá bula sicilská"], isAbcdEnabled: true },
-          { id: "h2", term: "Karel IV.", definition: "Otec vlasti", options: ["Jan Žižka", "Jiří z Poděbrad", "Rudolf II."], isAbcdEnabled: true },
-          { id: "h3", term: "1415", definition: "Upálení mistra Jana Husa", options: ["Objevení Ameriky", "Bitva u Lipan", "Vpád Tatarů"], isAbcdEnabled: true },
+          { term: "1348", definition: "Založení Karlovy univerzity", options: ["Bitva na Bílé hoře", "Upálení Jana Husa", "Zlatá bula sicilská"], isAbcdEnabled: true },
+          { term: "Karel IV.", definition: "Otec vlasti", options: ["Jan Žižka", "Jiří z Poděbrad", "Rudolf II."], isAbcdEnabled: true },
+          { term: "1415", definition: "Upálení mistra Jana Husa", options: ["Objevení Ameriky", "Bitva u Lipan", "Vpád Tatarů"], isAbcdEnabled: true },
         ]
       }
     ]
@@ -95,9 +94,9 @@ export const PREDEFINED_DATA: Record<string, Category> = {
         allowedModes: ['flashcards', 'abcd', 'writing', 'matching'],
         randomizeDirection: true,
         items: [
-          { id: "m1", term: "B. Smetana", definition: "Má vlast", options: ["Rusalka", "Slovanské tance", "Osud"], isAbcdEnabled: true },
-          { id: "m2", term: "A. Dvořák", definition: "Z Nového světa", options: ["Libuše", "Prodaná nevěsta", "Don Giovanni"], isAbcdEnabled: true },
-          { id: "m3", term: "W. A. Mozart", definition: "Figarova svatba", options: ["Devátá symfonie", "Čtvero ročních dob", "Labutí jezero"], isAbcdEnabled: true },
+          { term: "B. Smetana", definition: "Má vlast", options: ["Rusalka", "Slovanské tance", "Osud"], isAbcdEnabled: true },
+          { term: "A. Dvořák", definition: "Z Nového světa", options: ["Libuše", "Prodaná nevěsta", "Don Giovanni"], isAbcdEnabled: true },
+          { term: "W. A. Mozart", definition: "Figarova svatba", options: ["Devátá symfonie", "Čtvero ročních dob", "Labutí jezero"], isAbcdEnabled: true },
         ]
       }
     ]

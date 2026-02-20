@@ -107,7 +107,6 @@ const EditTopics = () => {
     const topic = newTopics.find(t => t.id === topicId);
     if (topic) {
       topic.items.push({
-        id: `item_${Date.now()}`,
         term: "",
         definition: "",
         options: ["", "", ""],
@@ -117,23 +116,20 @@ const EditTopics = () => {
     }
   };
 
-  const updateItem = (topicId: string, itemId: string, field: keyof StudyItem, value: any) => {
+  const updateItem = (topicId: string, itemIdx: number, field: keyof StudyItem, value: any) => {
     const newTopics = [...topics];
     const topic = newTopics.find(t => t.id === topicId);
-    if (topic) {
-      const item = topic.items.find(i => i.id === itemId);
-      if (item) {
-        (item as any)[field] = value;
-        setTopics(newTopics);
-      }
+    if (topic && topic.items[itemIdx]) {
+      (topic.items[itemIdx] as any)[field] = value;
+      setTopics(newTopics);
     }
   };
 
-  const deleteItem = (topicId: string, itemId: string) => {
+  const deleteItem = (topicId: string, itemIdx: number) => {
     const newTopics = [...topics];
     const topic = newTopics.find(t => t.id === topicId);
     if (topic) {
-      topic.items = topic.items.filter(i => i.id !== itemId);
+      topic.items.splice(itemIdx, 1);
       setTopics(newTopics);
     }
   };
@@ -331,11 +327,11 @@ const EditTopics = () => {
 
               <div className="space-y-4">
                 {activeTopic.items.map((item, idx) => (
-                  <Card key={item.id} className="p-6 rounded-[2rem] border border-border shadow-sm bg-card relative overflow-hidden">
+                  <Card key={`${activeTopic.id}-item-${idx}`} className="p-6 rounded-[2rem] border border-border shadow-sm bg-card relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-1.5 h-full bg-indigo-500" />
                     <div className="flex items-center justify-between mb-6">
                       <span className="font-black text-indigo-500/20 dark:text-indigo-400/20">#{idx + 1}</span>
-                      <Button size="icon" variant="ghost" onClick={() => deleteItem(activeTopic.id, item.id)} className="text-red-400 hover:text-red-600 hover:bg-red-500/10">
+                      <Button size="icon" variant="ghost" onClick={() => deleteItem(activeTopic.id, idx)} className="text-red-400 hover:text-red-600 hover:bg-red-500/10">
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
@@ -345,7 +341,7 @@ const EditTopics = () => {
                         <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Termín (Otázka)</label>
                         <Input 
                           value={item.term}
-                          onChange={(e) => updateItem(activeTopic.id, item.id, 'term', e.target.value)}
+                          onChange={(e) => updateItem(activeTopic.id, idx, 'term', e.target.value)}
                           placeholder="Např. Dog"
                           className="h-12 rounded-xl border-border bg-background text-foreground"
                         />
@@ -354,7 +350,7 @@ const EditTopics = () => {
                         <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Definice (Odpověď)</label>
                         <Input 
                           value={item.definition}
-                          onChange={(e) => updateItem(activeTopic.id, item.id, 'definition', e.target.value)}
+                          onChange={(e) => updateItem(activeTopic.id, idx, 'definition', e.target.value)}
                           placeholder="Např. Pes"
                           className="h-12 rounded-xl border-border bg-background text-foreground"
                         />
@@ -372,7 +368,7 @@ const EditTopics = () => {
                               onChange={(e) => {
                                 const newOpts = [...item.options];
                                 newOpts[optIdx] = e.target.value;
-                                updateItem(activeTopic.id, item.id, 'options', newOpts);
+                                updateItem(activeTopic.id, idx, 'options', newOpts);
                               }}
                               placeholder={`Chyba ${optIdx + 1}`}
                               className="rounded-lg border-border h-10 text-sm bg-background text-foreground"

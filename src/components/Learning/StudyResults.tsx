@@ -48,8 +48,8 @@ const StudyResults = ({ total, correct, incorrect, mistakes, onRetry, onHome }: 
             Položky k procvičení
           </h3>
           <div className="space-y-3">
-            {mistakes.map((item) => (
-              <div key={item.id} className="p-4 bg-card border-2 border-slate-100 dark:border-slate-800 rounded-2xl flex items-center justify-between gap-4">
+            {mistakes.map((item, idx) => (
+              <div key={`${item.term}-${idx}`} className="p-4 bg-card border-2 border-slate-100 dark:border-slate-800 rounded-2xl flex items-center justify-between gap-4">
                 <span className="font-bold text-slate-800 dark:text-slate-200 flex-1">{item.term}</span>
                 <ArrowRight className="w-4 h-4 text-slate-300" />
                 <span className="text-indigo-600 dark:text-indigo-400 font-medium flex-1 text-right">{item.definition}</span>
