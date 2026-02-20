@@ -1,6 +1,6 @@
 import { Category } from "../studyData";
 
-export const english: Category = {
+const english: Category = {
   id: "english",
   title: "Angličtina",
   topics: [
@@ -15,3 +15,5 @@ export const english: Category = {
     }
   ]
 };
+
+export default english;

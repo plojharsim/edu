@@ -1,6 +1,6 @@
 import { Category } from "../studyData";
 
-export const history: Category = {
+const history: Category = {
   id: "history",
   title: "Dějepis",
   topics: [
@@ -15,3 +15,5 @@ export const history: Category = {
     }
   ]
 };
+
+export default history;
