@@ -8,38 +8,14 @@ import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
-import { 
-  Plus, 
-  Trash2, 
-  ChevronLeft, 
-  Save, 
-  BookText, 
-  Layers, 
-  CheckSquare, 
-  Keyboard, 
-  BookOpen, 
-  ArrowLeftRight,
-  Share2,
-  Download
-} from "lucide-react";
-import { 
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter
-} from "@/components/ui/dialog";
+import { Plus, Trash2, ChevronLeft, Save, BookText, Layers, CheckSquare, Keyboard, BookOpen, ArrowLeftRight } from "lucide-react";
 import { saveUserTopics, Topic, StudyItem, StudyMode } from '@/data/studyData';
-import { showSuccess, showError } from '@/utils/toast';
+import { showSuccess } from '@/utils/toast';
 
 const EditTopics = () => {
   const navigate = useNavigate();
   const [topics, setTopics] = useState<Topic[]>([]);
   const [activeTopicId, setActiveTopicId] = useState<string | null>(null);
-  const [importCode, setImportCode] = useState("");
-  const [isImportOpen, setIsImportOpen] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem('user_topics');
@@ -68,36 +44,6 @@ const EditTopics = () => {
   const deleteTopic = (id: string) => {
     setTopics(topics.filter(t => t.id !== id));
     if (activeTopicId === id) setActiveTopicId(null);
-  };
-
-  const shareTopic = (topic: Topic) => {
-    try {
-      // Create a clean copy for sharing (remove local IDs if necessary, but here we keep them)
-      const shareData = JSON.stringify(topic);
-      const code = btoa(unescape(encodeURIComponent(shareData)));
-      navigator.clipboard.writeText(code);
-      showSuccess("Kód tématu byl zkopírován do schránky!");
-    } catch (e) {
-      showError("Nepodařilo se vygenerovat kód.");
-    }
-  };
-
-  const handleImport = () => {
-    try {
-      const decodedData = decodeURIComponent(escape(atob(importCode)));
-      const importedTopic: Topic = JSON.parse(decodedData);
-      
-      // Ensure unique ID
-      importedTopic.id = `topic_${Date.now()}`;
-      
-      setTopics([...topics, importedTopic]);
-      setImportCode("");
-      setIsImportOpen(false);
-      setActiveTopicId(importedTopic.id);
-      showSuccess(`Téma "${importedTopic.name}" bylo importováno!`);
-    } catch (e) {
-      showError("Neplatný kód tématu.");
-    }
   };
 
   const toggleMode = (topicId: string, mode: StudyMode) => {
@@ -168,45 +114,16 @@ const EditTopics = () => {
 
   return (
     <div className="min-h-screen bg-background p-6 pb-20">
-      <header className="max-w-6xl mx-auto mb-10 flex flex-col sm:flex-row items-center justify-between gap-6">
+      <header className="max-w-6xl mx-auto mb-10 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button variant="ghost" onClick={() => navigate('/')} className="rounded-2xl h-12 w-12 bg-card shadow-sm">
             <ChevronLeft className="w-6 h-6" />
           </Button>
           <h1 className="text-3xl font-black text-slate-800 dark:text-slate-100">Moje témata</h1>
         </div>
-        <div className="flex items-center gap-2">
-          <Dialog open={isImportOpen} onOpenChange={setIsImportOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline" className="rounded-2xl h-12 px-6 border-2 border-slate-100 dark:border-slate-800 font-bold gap-2">
-                <Download className="w-5 h-5" /> Importovat
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="rounded-[2rem]">
-              <DialogHeader>
-                <DialogTitle>Importovat téma</DialogTitle>
-                <DialogDescription>
-                  Vložte kód tématu, který vám někdo nasdílel.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="py-4">
-                <Input 
-                  value={importCode}
-                  onChange={(e) => setImportCode(e.target.value)}
-                  placeholder="Vložte kód zde..."
-                  className="h-12 rounded-xl"
-                />
-              </div>
-              <DialogFooter>
-                <Button onClick={handleImport} className="rounded-xl bg-indigo-600 font-bold">Importovat</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-
-          <Button onClick={handleSave} className="rounded-2xl h-12 px-8 bg-indigo-600 hover:bg-indigo-700 text-white font-bold gap-2">
-            <Save className="w-5 h-5" /> Uložit změny
-          </Button>
-        </div>
+        <Button onClick={handleSave} className="rounded-2xl h-12 px-8 bg-indigo-600 hover:bg-indigo-700 text-white font-bold gap-2">
+          <Save className="w-5 h-5" /> Uložit změny
+        </Button>
       </header>
 
       <main className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-8">
@@ -225,48 +142,23 @@ const EditTopics = () => {
                 onClick={() => setActiveTopicId(topic.id)}
               >
                 <BookText className="mr-3 w-5 h-5 opacity-50" />
-                <span className="truncate pr-16">{topic.name}</span>
+                {topic.name}
               </Button>
-              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center opacity-0 group-hover:opacity-100 transition-all">
-                <button 
-                  onClick={(e) => { e.stopPropagation(); shareTopic(topic); }}
-                  className="p-2 text-indigo-400 hover:text-indigo-600"
-                  title="Sdílet téma"
-                >
-                  <Share2 className="w-4 h-4" />
-                </button>
-                <button 
-                  onClick={(e) => { e.stopPropagation(); deleteTopic(topic.id); }}
-                  className="p-2 text-red-400 hover:text-red-600"
-                  title="Smazat téma"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
+              <button 
+                onClick={(e) => { e.stopPropagation(); deleteTopic(topic.id); }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-red-400 opacity-0 group-hover:opacity-100 hover:text-red-600 transition-all"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
             </div>
           ))}
-          {topics.length === 0 && (
-            <div className="p-6 text-center border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-2xl">
-              <p className="text-slate-400 text-sm">Zatím žádná témata</p>
-            </div>
-          )}
         </div>
 
         <div className="md:col-span-8 space-y-6">
           {activeTopic ? (
             <>
               <div className="bg-card p-6 rounded-[2rem] shadow-sm mb-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="font-bold text-slate-500 uppercase text-xs tracking-widest">Základní nastavení</h2>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => shareTopic(activeTopic)}
-                    className="rounded-xl border-indigo-100 dark:border-indigo-900/30 text-indigo-600 font-bold gap-2 h-9 px-4"
-                  >
-                    <Share2 className="w-4 h-4" /> Sdílet toto téma
-                  </Button>
-                </div>
+                <h2 className="font-bold text-slate-500 uppercase text-xs tracking-widest mb-4">Základní nastavení</h2>
                 <Input 
                   value={activeTopic.name}
                   onChange={(e) => {
