@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import StudyHeader from '@/components/Learning/StudyHeader';
 import Flashcard from '@/components/Learning/Flashcard';
@@ -12,7 +12,7 @@ import { CATEGORY_DATA, Topic } from '@/data/studyData';
 import { showSuccess } from '@/utils/toast';
 
 const StudySession = () => {
-  const { categoryId } = useParams();
+  const { categoryId, topicId } = useParams();
   const navigate = useNavigate();
   const [view, setView] = useState<'topic-selection' | 'mode-selection' | 'study'>('topic-selection');
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
@@ -21,6 +21,17 @@ const StudySession = () => {
   const [correctAnswers, setCorrectAnswers] = useState(0);
   
   const category = CATEGORY_DATA[categoryId || 'english'] || CATEGORY_DATA.english;
+
+  // Pokud je v URL topicId, automaticky ho vybereme
+  useEffect(() => {
+    if (topicId) {
+      const topic = category.topics.find(t => t.id === topicId);
+      if (topic) {
+        setSelectedTopic(topic);
+        setView('mode-selection');
+      }
+    }
+  }, [topicId, category]);
 
   const handleTopicSelect = (topic: Topic) => {
     setSelectedTopic(topic);

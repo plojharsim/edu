@@ -44,6 +44,14 @@ const App = () => (
                 </ProtectedRoute>
               } 
             />
+            <Route 
+              path="/study/:categoryId/:topicId" 
+              element={
+                <ProtectedRoute>
+                  <StudySession />
+                </ProtectedRoute>
+              } 
+            />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

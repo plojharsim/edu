@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Languages, Microscope, History, Music, Sparkles, TrendingUp, LogOut } from 'lucide-react';
 import CategoryCard from '@/components/Dashboard/CategoryCard';
@@ -19,7 +19,6 @@ const Index = () => {
       setUser(JSON.parse(profile));
     }
 
-    // Načtení reálných statistik
     const savedStats = localStorage.getItem('study_stats');
     if (savedStats) {
       const parsed = JSON.parse(savedStats);
@@ -28,6 +27,27 @@ const Index = () => {
         average: Math.round(parsed.average || 0)
       });
     }
+  }, []);
+
+  // Výpočet denní výzvy na základě data
+  const dailyChallenge = useMemo(() => {
+    const allTopics = Object.values(CATEGORY_DATA).flatMap(cat => 
+      cat.topics.map(topic => ({ 
+        categoryId: cat.id, 
+        topicId: topic.id, 
+        topicName: topic.name,
+        categoryName: cat.title 
+      }))
+    );
+
+    if (allTopics.length === 0) return null;
+
+    const now = new Date();
+    // Vytvoříme unikátní číslo pro každý den (např. 20240520)
+    const dateSeed = now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
+    const index = dateSeed % allTopics.length;
+    
+    return allTopics[index];
   }, []);
 
   const handleLogout = () => {
@@ -122,23 +142,28 @@ const Index = () => {
           </div>
         </div>
 
-        <div className="bg-indigo-600 dark:bg-indigo-700 rounded-[3rem] p-8 md:p-12 text-white relative overflow-hidden shadow-2xl shadow-indigo-200 dark:shadow-none">
-          <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
-            <div className="max-w-md">
-              <h3 className="text-3xl font-bold mb-4">Dnešní výzva</h3>
-              <p className="text-indigo-100 text-lg mb-8 opacity-90">Zopakuj si libovolné téma a udrž si svou řadu {stats.streak} dní!</p>
-              <button 
-                onClick={() => navigate('/study/english')}
-                className="bg-white text-indigo-600 dark:text-indigo-700 font-black px-10 py-4 rounded-2xl hover:bg-indigo-50 transition-colors shadow-lg shadow-indigo-800/20"
-              >
-                Spustit výzvu
-              </button>
-            </div>
-            <div className="w-48 h-48 bg-indigo-500/30 rounded-full flex items-center justify-center border-4 border-white/20">
-              <Sparkles className="w-24 h-24 text-white opacity-40" />
+        {dailyChallenge && (
+          <div className="bg-indigo-600 dark:bg-indigo-700 rounded-[3rem] p-8 md:p-12 text-white relative overflow-hidden shadow-2xl shadow-indigo-200 dark:shadow-none">
+            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+              <div className="max-w-md">
+                <h3 className="text-3xl font-bold mb-2">Dnešní výzva</h3>
+                <p className="text-indigo-100 text-xl font-medium mb-2">
+                  {dailyChallenge.categoryName}: <span className="text-white font-black">{dailyChallenge.topicName}</span>
+                </p>
+                <p className="text-indigo-100/80 text-sm mb-8">Zopakuj si toto téma a udrž si svou řadu {stats.streak} dní!</p>
+                <button 
+                  onClick={() => navigate(`/study/${dailyChallenge.categoryId}/${dailyChallenge.topicId}`)}
+                  className="bg-white text-indigo-600 dark:text-indigo-700 font-black px-10 py-4 rounded-2xl hover:bg-indigo-50 transition-colors shadow-lg shadow-indigo-800/20"
+                >
+                  Spustit výzvu
+                </button>
+              </div>
+              <div className="w-48 h-48 bg-indigo-500/30 rounded-full flex items-center justify-center border-4 border-white/20">
+                <Sparkles className="w-24 h-24 text-white opacity-40" />
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </main>
     </div>
   );
