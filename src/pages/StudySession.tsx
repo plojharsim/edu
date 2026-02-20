@@ -19,6 +19,7 @@ const StudySession = () => {
   
   const [view, setView] = useState<'topic-selection' | 'mode-selection' | 'study' | 'results'>('topic-selection');
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
+  const [shuffledItems, setShuffledItems] = useState<StudyItem[]>([]);
   const [mode, setMode] = useState<StudyMode | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [correctCount, setCorrectCount] = useState(0);
@@ -47,8 +48,7 @@ const StudySession = () => {
         setSelectedTopic(topic);
         const forcedMode = searchParams.get('mode') as any;
         if (forcedMode && ['flashcards', 'abcd', 'writing', 'matching'].includes(forcedMode)) {
-          setMode(forcedMode);
-          setView('study');
+          handleModeSelect(forcedMode, topic);
         } else {
           setView('mode-selection');
         }
@@ -56,7 +56,7 @@ const StudySession = () => {
     }
   }, [topicId, category, searchParams]);
 
-  const currentItem = selectedTopic?.items[currentIndex];
+  const currentItem = shuffledItems[currentIndex];
 
   const shuffledOptions = useMemo(() => {
     if (!currentItem) return [];
@@ -73,7 +73,14 @@ const StudySession = () => {
     setView('mode-selection');
   };
 
-  const handleModeSelect = (selectedMode: StudyMode) => {
+  const handleModeSelect = (selectedMode: StudyMode, topicOverride?: Topic) => {
+    const topic = topicOverride || selectedTopic;
+    if (!topic) return;
+
+    // Náhodné promíchání otázek
+    const items = [...topic.items].sort(() => Math.random() - 0.5);
+    
+    setShuffledItems(items);
     setMode(selectedMode);
     setView('study');
     setCurrentIndex(0);
@@ -101,7 +108,7 @@ const StudySession = () => {
   };
 
   const handleNext = (isCorrect: boolean = true) => {
-    const item = selectedTopic!.items[currentIndex];
+    const item = shuffledItems[currentIndex];
     
     if (isCorrect) {
       setCorrectCount(prev => prev + 1);
@@ -110,12 +117,12 @@ const StudySession = () => {
       setMistakes(prev => [...prev, item]);
     }
 
-    if (currentIndex < selectedTopic!.items.length - 1) {
+    if (currentIndex < shuffledItems.length - 1) {
       setCurrentIndex(prev => prev + 1);
       setIsCardFlipped(false);
     } else {
       const finalCorrect = isCorrect ? correctCount + 1 : correctCount;
-      const finalScore = (finalCorrect / selectedTopic!.items.length) * 100;
+      const finalScore = (finalCorrect / shuffledItems.length) * 100;
       updateStats(finalScore);
       setView('results');
     }
