@@ -29,8 +29,8 @@ const MultipleChoice = ({ question, options, correctAnswer, onAnswer }: Multiple
 
   return (
     <div className="w-full max-w-xl mx-auto space-y-8 p-4">
-      <div className="bg-white p-8 rounded-[2rem] shadow-sm border-2 border-slate-50">
-        <h3 className="text-2xl font-bold text-slate-800 text-center">{question}</h3>
+      <div className="bg-card p-8 rounded-[2rem] shadow-sm border-2 border-slate-50 dark:border-slate-800">
+        <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-100 text-center">{question}</h3>
       </div>
 
       <div className="grid grid-cols-1 gap-4">
@@ -44,11 +44,11 @@ const MultipleChoice = ({ question, options, correctAnswer, onAnswer }: Multiple
               variant="outline"
               onClick={() => handleSelect(option)}
               className={cn(
-                "h-auto py-6 px-8 text-lg font-medium rounded-2xl border-2 transition-all duration-300 flex justify-between items-center",
-                !selected && "hover:border-indigo-400 hover:bg-indigo-50",
-                isSelected && isCorrect && "bg-emerald-50 border-emerald-500 text-emerald-700",
-                isSelected && !isCorrect && "bg-red-50 border-red-500 text-red-700",
-                selected && isCorrect && !isSelected && "bg-emerald-50 border-emerald-500 text-emerald-700 opacity-50"
+                "h-auto py-6 px-8 text-lg font-medium rounded-2xl border-2 transition-all duration-300 flex justify-between items-center bg-card",
+                !selected && "hover:border-indigo-400 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950/20",
+                isSelected && isCorrect && "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-500 text-emerald-700 dark:text-emerald-400",
+                isSelected && !isCorrect && "bg-red-50 dark:bg-red-950/30 border-red-500 text-red-700 dark:text-red-400",
+                selected && isCorrect && !isSelected && "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-500 text-emerald-700 dark:text-emerald-400 opacity-50"
               )}
               disabled={isLocked}
             >

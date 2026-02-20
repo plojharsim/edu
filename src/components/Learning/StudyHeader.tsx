@@ -21,14 +21,14 @@ const StudyHeader = ({ progress, title }: StudyHeaderProps) => {
           variant="ghost" 
           size="icon" 
           onClick={() => navigate('/')}
-          className="rounded-full hover:bg-red-50 hover:text-red-500 transition-colors"
+          className="rounded-full hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-500 transition-colors"
         >
           <X className="w-6 h-6" />
         </Button>
-        <h2 className="text-lg font-bold text-slate-700">{title}</h2>
+        <h2 className="text-lg font-bold text-slate-700 dark:text-slate-200">{title}</h2>
         <div className="w-10" /> {/* Spacer */}
       </div>
-      <Progress value={progress} className="h-3 rounded-full bg-slate-100" />
+      <Progress value={progress} className="h-3 rounded-full bg-slate-100 dark:bg-slate-800" />
     </div>
   );
 };
