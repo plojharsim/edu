@@ -29,7 +29,6 @@ const Index = () => {
     }
   }, []);
 
-  // Výpočet denní výzvy na základě data
   const dailyChallenge = useMemo(() => {
     const allTopics = Object.values(CATEGORY_DATA).flatMap(cat => 
       cat.topics.map(topic => ({ 
@@ -43,11 +42,16 @@ const Index = () => {
     if (allTopics.length === 0) return null;
 
     const now = new Date();
-    // Vytvoříme unikátní číslo pro každý den (např. 20240520)
     const dateSeed = now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
-    const index = dateSeed % allTopics.length;
+    const topicIndex = dateSeed % allTopics.length;
     
-    return allTopics[index];
+    const modes = ['flashcards', 'abcd', 'writing'];
+    const modeIndex = dateSeed % modes.length;
+    
+    return {
+      ...allTopics[topicIndex],
+      mode: modes[modeIndex]
+    };
   }, []);
 
   const handleLogout = () => {
@@ -150,9 +154,9 @@ const Index = () => {
                 <p className="text-indigo-100 text-xl font-medium mb-2">
                   {dailyChallenge.categoryName}: <span className="text-white font-black">{dailyChallenge.topicName}</span>
                 </p>
-                <p className="text-indigo-100/80 text-sm mb-8">Zopakuj si toto téma a udrž si svou řadu {stats.streak} dní!</p>
+                <p className="text-indigo-100/80 text-sm mb-8">Zopakuj si toto téma pomocí režimu <span className="font-bold">{dailyChallenge.mode === 'flashcards' ? 'Kartičky' : dailyChallenge.mode === 'abcd' ? 'Výběr' : 'Psaní'}</span>!</p>
                 <button 
-                  onClick={() => navigate(`/study/${dailyChallenge.categoryId}/${dailyChallenge.topicId}`)}
+                  onClick={() => navigate(`/study/${dailyChallenge.categoryId}/${dailyChallenge.topicId}?mode=${dailyChallenge.mode}`)}
                   className="bg-white text-indigo-600 dark:text-indigo-700 font-black px-10 py-4 rounded-2xl hover:bg-indigo-50 transition-colors shadow-lg shadow-indigo-800/20"
                 >
                   Spustit výzvu

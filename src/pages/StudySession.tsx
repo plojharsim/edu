@@ -1,19 +1,21 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import StudyHeader from '@/components/Learning/StudyHeader';
 import Flashcard from '@/components/Learning/Flashcard';
 import MultipleChoice from '@/components/Learning/MultipleChoice';
 import TranslationInput from '@/components/Learning/TranslationInput';
 import StudyResults from '@/components/Learning/StudyResults';
 import { Button } from '@/components/ui/button';
-import { BookOpen, CheckSquare, Keyboard, Layers, ChevronLeft, BookText } from 'lucide-react';
+import { BookOpen, CheckSquare, Keyboard, Layers, ChevronLeft, BookText, Check, X } from 'lucide-react';
 import { CATEGORY_DATA, Topic, StudyItem } from '@/data/studyData';
 
 const StudySession = () => {
   const { categoryId, topicId } = useParams();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  
   const [view, setView] = useState<'topic-selection' | 'mode-selection' | 'study' | 'results'>('topic-selection');
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
   const [mode, setMode] = useState<'flashcards' | 'abcd' | 'writing' | null>(null);
@@ -21,6 +23,7 @@ const StudySession = () => {
   const [correctCount, setCorrectCount] = useState(0);
   const [incorrectCount, setIncorrectCount] = useState(0);
   const [mistakes, setMistakes] = useState<StudyItem[]>([]);
+  const [isCardFlipped, setIsCardFlipped] = useState(false);
   
   const category = CATEGORY_DATA[categoryId || 'english'] || CATEGORY_DATA.english;
 
@@ -29,10 +32,16 @@ const StudySession = () => {
       const topic = category.topics.find(t => t.id === topicId);
       if (topic) {
         setSelectedTopic(topic);
-        setView('mode-selection');
+        const forcedMode = searchParams.get('mode') as any;
+        if (forcedMode && ['flashcards', 'abcd', 'writing'].includes(forcedMode)) {
+          setMode(forcedMode);
+          setView('study');
+        } else {
+          setView('mode-selection');
+        }
       }
     }
-  }, [topicId, category]);
+  }, [topicId, category, searchParams]);
 
   const handleTopicSelect = (topic: Topic) => {
     setSelectedTopic(topic);
@@ -46,6 +55,7 @@ const StudySession = () => {
     setCorrectCount(0);
     setIncorrectCount(0);
     setMistakes([]);
+    setIsCardFlipped(false);
   };
 
   const updateStats = (score: number) => {
@@ -76,6 +86,7 @@ const StudySession = () => {
 
     if (currentIndex < selectedTopic!.items.length - 1) {
       setCurrentIndex(prev => prev + 1);
+      setIsCardFlipped(false);
     } else {
       const finalCorrect = isCorrect ? correctCount + 1 : correctCount;
       const finalScore = (finalCorrect / selectedTopic!.items.length) * 100;
@@ -174,9 +185,29 @@ const StudySession = () => {
       />
       <div className="flex-1 flex items-center justify-center w-full px-4">
         {mode === 'flashcards' && (
-          <div className="flex flex-col items-center gap-12">
-            <Flashcard front={currentItem.term} back={currentItem.definition} />
-            <Button onClick={() => handleNext(true)} size="lg" className="rounded-2xl px-12 bg-indigo-600 hover:bg-indigo-700 h-14 text-lg font-bold">Další karta</Button>
+          <div className="flex flex-col items-center gap-8 w-full">
+            <Flashcard 
+              front={currentItem.term} 
+              back={currentItem.definition} 
+              isFlipped={isCardFlipped}
+              onFlip={() => setIsCardFlipped(true)}
+            />
+            
+            <div className={`flex gap-4 transition-all duration-500 ${isCardFlipped ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
+              <Button 
+                onClick={() => handleNext(false)} 
+                variant="outline"
+                className="h-16 px-8 rounded-2xl border-2 border-red-100 dark:border-red-900/30 text-red-600 dark:text-red-400 font-bold gap-2 hover:bg-red-50 dark:hover:bg-red-950/20"
+              >
+                <X className="w-5 h-5" /> Nevěděl jsem
+              </Button>
+              <Button 
+                onClick={() => handleNext(true)} 
+                className="h-16 px-8 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold gap-2 shadow-lg shadow-emerald-200 dark:shadow-none"
+              >
+                <Check className="w-5 h-5" /> Věděl jsem
+              </Button>
+            </div>
           </div>
         )}
         {mode === 'abcd' && (

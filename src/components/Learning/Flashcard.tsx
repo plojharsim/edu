@@ -1,21 +1,21 @@
 "use client";
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 interface FlashcardProps {
   front: string;
   back: string;
+  isFlipped: boolean;
+  onFlip: () => void;
 }
 
-const Flashcard = ({ front, back }: FlashcardProps) => {
-  const [isFlipped, setIsFlipped] = useState(false);
-
+const Flashcard = ({ front, back, isFlipped, onFlip }: FlashcardProps) => {
   return (
     <div 
       className="perspective-1000 w-full max-w-md aspect-[3/4] cursor-pointer group"
-      onClick={() => setIsFlipped(!isFlipped)}
+      onClick={onFlip}
     >
       <div className={cn(
         "relative w-full h-full transition-all duration-500 preserve-3d",
@@ -25,7 +25,7 @@ const Flashcard = ({ front, back }: FlashcardProps) => {
         <Card className="absolute inset-0 backface-hidden flex flex-col items-center justify-center p-8 bg-card border-4 border-indigo-100 dark:border-indigo-900/30 rounded-[2rem] shadow-xl group-hover:shadow-2xl transition-shadow">
           <span className="text-sm font-medium text-indigo-400 dark:text-indigo-500 mb-4 uppercase tracking-widest">Otázka</span>
           <h3 className="text-3xl font-bold text-center text-slate-800 dark:text-slate-100 leading-tight">{front}</h3>
-          <p className="mt-8 text-slate-400 dark:text-slate-500 text-sm animate-pulse">Klikni pro otočení</p>
+          {!isFlipped && <p className="mt-8 text-slate-400 dark:text-slate-500 text-sm animate-pulse">Klikni pro otočení</p>}
         </Card>
 
         {/* Zadní strana */}
