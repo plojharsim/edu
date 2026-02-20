@@ -1,6 +1,6 @@
 import { Category } from "../studyData";
 
-const music: Category = {
+export const music: Category = {
   id: "music",
   title: "Hudební výchova",
   topics: [
@@ -15,5 +15,3 @@ const music: Category = {
     }
   ]
 };
-
-export default music;
