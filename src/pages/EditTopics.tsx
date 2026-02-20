@@ -153,15 +153,15 @@ const EditTopics = () => {
       <header className="max-w-6xl mx-auto mb-10 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button variant="ghost" onClick={() => navigate('/')} className="rounded-2xl h-12 w-12 bg-card shadow-sm border border-border">
-            <ChevronLeft className="w-6 h-6" />
+            <ChevronLeft className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
           </Button>
           <h1 className="text-3xl font-black text-foreground">Moje témata</h1>
         </div>
         <div className="flex gap-2">
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant="outline" className="rounded-2xl h-12 px-6 font-bold gap-2 bg-card border-border">
-                <Download className="w-5 h-5" /> Importovat
+              <Button variant="outline" className="rounded-2xl h-12 px-6 font-bold gap-2 bg-card border-border text-foreground">
+                <Download className="w-5 h-5 text-indigo-500" /> Importovat
               </Button>
             </DialogTrigger>
             <DialogContent className="rounded-[2rem] bg-card border-border">
@@ -200,10 +200,10 @@ const EditTopics = () => {
             <div key={topic.id} className="group relative">
               <Button
                 variant={activeTopicId === topic.id ? "secondary" : "ghost"}
-                className={`w-full justify-start h-14 rounded-xl text-left font-bold transition-all border border-transparent ${activeTopicId === topic.id ? 'bg-indigo-600 text-white hover:bg-indigo-700 border-indigo-500' : 'bg-card shadow-sm border-border'}`}
+                className={`w-full justify-start h-14 rounded-xl text-left font-bold transition-all border border-transparent ${activeTopicId === topic.id ? 'bg-indigo-600 text-white hover:bg-indigo-700 border-indigo-500' : 'bg-card shadow-sm border-border text-foreground'}`}
                 onClick={() => setActiveTopicId(topic.id)}
               >
-                <BookText className={`mr-3 w-5 h-5 ${activeTopicId === topic.id ? 'opacity-100' : 'opacity-40'}`} />
+                <BookText className={`mr-3 w-5 h-5 ${activeTopicId === topic.id ? 'text-white' : 'text-indigo-500/50'}`} />
                 {topic.name}
               </Button>
               <button 
@@ -225,7 +225,7 @@ const EditTopics = () => {
                   <div className="flex gap-2">
                     <Dialog>
                       <DialogTrigger asChild>
-                        <Button variant="ghost" size="sm" className="gap-2 rounded-xl text-indigo-600 hover:text-indigo-700 hover:bg-indigo-500/10">
+                        <Button variant="ghost" size="sm" className="gap-2 rounded-xl text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/10">
                           <Share2 className="w-4 h-4" /> Sdílet
                         </Button>
                       </DialogTrigger>
@@ -248,7 +248,7 @@ const EditTopics = () => {
 
                     <Dialog>
                       <DialogTrigger asChild>
-                        <Button variant="ghost" size="sm" className="gap-2 rounded-xl text-muted-foreground hover:text-foreground">
+                        <Button variant="ghost" size="sm" className="gap-2 rounded-xl text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/10">
                           <Code className="w-4 h-4" /> Kód pro vývojáře
                         </Button>
                       </DialogTrigger>
@@ -336,7 +336,7 @@ const EditTopics = () => {
                   <Card key={item.id} className="p-6 rounded-[2rem] border border-border shadow-sm bg-card relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-1.5 h-full bg-indigo-500" />
                     <div className="flex items-center justify-between mb-6">
-                      <span className="font-black text-muted/30">#{idx + 1}</span>
+                      <span className="font-black text-indigo-500/20 dark:text-indigo-400/20">#{idx + 1}</span>
                       <Button size="icon" variant="ghost" onClick={() => deleteItem(activeTopic.id, item.id)} className="text-red-400 hover:text-red-600 hover:bg-red-500/10">
                         <Trash2 className="w-4 h-4" />
                       </Button>
@@ -389,7 +389,7 @@ const EditTopics = () => {
             </>
           ) : (
             <div className="h-full flex flex-col items-center justify-center p-12 text-center bg-card rounded-[3rem] border-2 border-dashed border-border">
-              <BookText className="w-16 h-16 text-muted/20 mb-4" />
+              <BookText className="w-16 h-16 text-indigo-500/20 dark:text-indigo-400/20 mb-4" />
               <h3 className="text-xl font-bold text-muted-foreground">Vyberte téma k úpravě</h3>
               <p className="text-muted-foreground text-sm max-w-xs mt-2">Nebo vytvořte nové téma pomocí tlačítka plus v levém sloupci.</p>
             </div>

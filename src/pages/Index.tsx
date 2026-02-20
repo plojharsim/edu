@@ -97,7 +97,7 @@ const Index = () => {
               <span className="text-3xl font-black text-emerald-500">{stats.average}%</span>
               <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-tighter">Průměr</span>
             </div>
-            <TrendingUp className="w-8 h-8 text-muted/30" />
+            <TrendingUp className="w-8 h-8 text-indigo-500/20 dark:text-indigo-400/20" />
           </div>
           
           <div className="flex gap-2">
@@ -109,7 +109,7 @@ const Index = () => {
               className="rounded-2xl h-14 w-14 bg-card shadow-sm hover:bg-indigo-50 dark:hover:bg-slate-800 transition-colors border border-border"
               title="Editor témat"
             >
-              <Edit3 className="w-6 h-6" />
+              <Edit3 className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
             </Button>
             <Button 
               variant="ghost" 
@@ -118,7 +118,7 @@ const Index = () => {
               className="rounded-2xl h-14 w-14 bg-card shadow-sm hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-500 transition-colors border border-border"
               title="Odhlásit se"
             >
-              <LogOut className="w-6 h-6" />
+              <LogOut className="w-6 h-6 text-red-500" />
             </Button>
           </div>
         </div>
