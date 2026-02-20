@@ -68,7 +68,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background p-6 pb-20 transition-colors duration-300">
-      <header className="max-w-6xl mx-auto pt-10 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+      <header className="max-w-6xl mx-auto pt-10 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-8">
         <div className="text-center md:text-left">
           <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
             <Sparkles className="w-5 h-5 text-indigo-500 fill-indigo-500" />
@@ -82,7 +82,7 @@ const Index = () => {
           </h1>
         </div>
         
-        <div className="flex items-center justify-center gap-4">
+        <div className="flex flex-col md:flex-row items-center gap-4">
           <div className="bg-card p-6 rounded-[2rem] shadow-sm flex items-center gap-6 border-2 border-white dark:border-slate-800">
             <div className="flex flex-col items-center">
               <span className="text-3xl font-black text-indigo-600 dark:text-indigo-400">{stats.streak}</span>
@@ -114,35 +114,43 @@ const Index = () => {
       <main className="max-w-6xl mx-auto">
         <div className="mb-10">
           <h2 className="text-2xl font-black text-slate-800 dark:text-slate-100 mb-6 text-center md:text-left">Tvoje studijní sady</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <CategoryCard 
-              title="Angličtina" 
-              count={getCategoryCount('english')} 
-              icon={Languages} 
-              color="bg-indigo-500" 
-              onClick={() => navigate('/study/english')}
-            />
-            <CategoryCard 
-              title="Biologie" 
-              count={getCategoryCount('biology')} 
-              icon={Microscope} 
-              color="bg-emerald-500" 
-              onClick={() => navigate('/study/biology')}
-            />
-            <CategoryCard 
-              title="Dějepis" 
-              count={getCategoryCount('history')} 
-              icon={History} 
-              color="bg-amber-500" 
-              onClick={() => navigate('/study/history')}
-            />
-            <CategoryCard 
-              title="Hudební nauka" 
-              count={getCategoryCount('music')} 
-              icon={Music} 
-              color="bg-rose-500" 
-              onClick={() => navigate('/study/music')}
-            />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center md:justify-items-stretch">
+            <div className="w-full max-w-sm md:max-w-none">
+              <CategoryCard 
+                title="Angličtina" 
+                count={getCategoryCount('english')} 
+                icon={Languages} 
+                color="bg-indigo-500" 
+                onClick={() => navigate('/study/english')}
+              />
+            </div>
+            <div className="w-full max-w-sm md:max-w-none">
+              <CategoryCard 
+                title="Biologie" 
+                count={getCategoryCount('biology')} 
+                icon={Microscope} 
+                color="bg-emerald-500" 
+                onClick={() => navigate('/study/biology')}
+              />
+            </div>
+            <div className="w-full max-w-sm md:max-w-none">
+              <CategoryCard 
+                title="Dějepis" 
+                count={getCategoryCount('history')} 
+                icon={History} 
+                color="bg-amber-500" 
+                onClick={() => navigate('/study/history')}
+              />
+            </div>
+            <div className="w-full max-w-sm md:max-w-none">
+              <CategoryCard 
+                title="Hudební nauka" 
+                count={getCategoryCount('music')} 
+                icon={Music} 
+                color="bg-rose-500" 
+                onClick={() => navigate('/study/music')}
+              />
+            </div>
           </div>
         </div>
 

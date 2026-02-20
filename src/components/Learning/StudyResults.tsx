@@ -1,9 +1,10 @@
+definice.">
 "use client";
 
 import React from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, XCircle, RotateCcw, Home, AlertCircle } from "lucide-react";
+import { CheckCircle2, XCircle, RotateCcw, Home, AlertCircle, ArrowRight } from "lucide-react";
 import { StudyItem } from "@/data/studyData";
 
 interface StudyResultsProps {
@@ -49,9 +50,10 @@ const StudyResults = ({ total, correct, incorrect, mistakes, onRetry, onHome }: 
           </h3>
           <div className="space-y-3">
             {mistakes.map((item) => (
-              <div key={item.id} className="p-4 bg-card border-2 border-slate-100 dark:border-slate-800 rounded-2xl flex justify-between items-center">
-                <span className="font-bold text-slate-800 dark:text-slate-200">{item.term}</span>
-                <span className="text-indigo-600 dark:text-indigo-400 font-medium">{item.definition}</span>
+              <div key={item.id} className="p-4 bg-card border-2 border-slate-100 dark:border-slate-800 rounded-2xl flex items-center justify-between gap-4">
+                <span className="font-bold text-slate-800 dark:text-slate-200 flex-1">{item.term}</span>
+                <ArrowRight className="w-4 h-4 text-slate-300" />
+                <span className="text-indigo-600 dark:text-indigo-400 font-medium flex-1 text-right">{item.definition}</span>
               </div>
             ))}
           </div>

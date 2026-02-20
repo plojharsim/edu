@@ -25,8 +25,19 @@ const StudySession = () => {
   const [incorrectCount, setIncorrectCount] = useState(0);
   const [mistakes, setMistakes] = useState<StudyItem[]>([]);
   const [isCardFlipped, setIsCardFlipped] = useState(false);
+  const [seconds, setSeconds] = useState(0);
   
   const category = CATEGORY_DATA[categoryId || 'english'] || CATEGORY_DATA.english;
+
+  useEffect(() => {
+    let interval: any;
+    if (view === 'study') {
+      interval = setInterval(() => {
+        setSeconds(s => s + 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [view]);
 
   useEffect(() => {
     if (topicId) {
@@ -57,6 +68,7 @@ const StudySession = () => {
     setIncorrectCount(0);
     setMistakes([]);
     setIsCardFlipped(false);
+    setSeconds(0);
   };
 
   const updateStats = (score: number) => {
@@ -191,6 +203,7 @@ const StudySession = () => {
         current={mode === 'matching' ? selectedTopic!.items.length : currentIndex + 1} 
         total={selectedTopic!.items.length} 
         title={`${category.title}: ${selectedTopic?.name}`} 
+        time={seconds}
       />
       <div className="flex-1 flex items-center justify-center w-full px-4">
         {mode === 'flashcards' && (
