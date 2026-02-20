@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import StudyHeader from '@/components/Learning/StudyHeader';
 import Flashcard from '@/components/Learning/Flashcard';
@@ -56,6 +56,15 @@ const StudySession = () => {
     }
   }, [topicId, category, searchParams]);
 
+  const currentItem = selectedTopic?.items[currentIndex];
+
+  // Připravíme zamíchané možnosti pro ABCD režim
+  const shuffledOptions = useMemo(() => {
+    if (!currentItem || !currentItem.isAbcdEnabled) return [];
+    const all = [currentItem.definition, ...currentItem.options.filter(o => o.trim() !== "")];
+    return all.sort(() => Math.random() - 0.5);
+  }, [currentItem]);
+
   if (!category) {
     return <div className="p-20 text-center">Načítání nebo kategorie nenalezena...</div>;
   }
@@ -93,13 +102,13 @@ const StudySession = () => {
   };
 
   const handleNext = (isCorrect: boolean = true) => {
-    const currentItem = selectedTopic!.items[currentIndex];
+    const item = selectedTopic!.items[currentIndex];
     
     if (isCorrect) {
       setCorrectCount(prev => prev + 1);
     } else {
       setIncorrectCount(prev => prev + 1);
-      setMistakes(prev => [...prev, currentItem]);
+      setMistakes(prev => [...prev, item]);
     }
 
     if (currentIndex < selectedTopic!.items.length - 1) {
@@ -168,9 +177,15 @@ const StudySession = () => {
             <Layers className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
             <span className="font-bold text-lg">Kartičky</span>
           </Button>
-          <Button variant="outline" className="h-32 w-full sm:w-[calc(50%-0.5rem)] rounded-[2rem] border-2 border-emerald-100 dark:border-emerald-900/30 bg-card flex flex-col gap-2 hover:border-emerald-500 dark:hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 transition-all" onClick={() => handleModeSelect('abcd')}>
+          <Button 
+            variant="outline" 
+            disabled={selectedTopic?.items.some(i => !i.isAbcdEnabled)}
+            className="h-32 w-full sm:w-[calc(50%-0.5rem)] rounded-[2rem] border-2 border-emerald-100 dark:border-emerald-900/30 bg-card flex flex-col gap-2 hover:border-emerald-500 dark:hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 transition-all disabled:opacity-50" 
+            onClick={() => handleModeSelect('abcd')}
+          >
             <CheckSquare className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
             <span className="font-bold text-lg">Výběr (ABCD)</span>
+            {selectedTopic?.items.some(i => !i.isAbcdEnabled) && <span className="text-[10px] text-slate-400">Není nastaveno u všech karet</span>}
           </Button>
           <Button variant="outline" className="h-32 w-full sm:w-[calc(50%-0.5rem)] rounded-[2rem] border-2 border-amber-100 dark:border-amber-900/30 bg-card flex flex-col gap-2 hover:border-amber-500 dark:hover:border-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/20 transition-all" onClick={() => handleModeSelect('writing')}>
             <Keyboard className="w-8 h-8 text-amber-600 dark:text-amber-400" />
@@ -200,8 +215,6 @@ const StudySession = () => {
     );
   }
 
-  const currentItem = selectedTopic!.items[currentIndex];
-
   return (
     <div className="min-h-screen bg-background py-12 flex flex-col items-center transition-colors duration-300">
       <StudyHeader 
@@ -211,7 +224,7 @@ const StudySession = () => {
         time={seconds}
       />
       <div className="flex-1 flex items-center justify-center w-full px-4">
-        {mode === 'flashcards' && (
+        {mode === 'flashcards' && currentItem && (
           <div className="flex flex-col items-center gap-8 w-full">
             <Flashcard 
               front={currentItem.term} 
@@ -237,10 +250,15 @@ const StudySession = () => {
             </div>
           </div>
         )}
-        {mode === 'abcd' && (
-          <MultipleChoice question={currentItem.term} options={currentItem.options} correctAnswer={currentItem.definition} onAnswer={(correct) => handleNext(correct)} />
+        {mode === 'abcd' && currentItem && (
+          <MultipleChoice 
+            question={currentItem.term} 
+            options={shuffledOptions} 
+            correctAnswer={currentItem.definition} 
+            onAnswer={(correct) => handleNext(correct)} 
+          />
         )}
-        {mode === 'writing' && (
+        {mode === 'writing' && currentItem && (
           <TranslationInput term={currentItem.term} correctTranslation={currentItem.definition} onAnswer={(correct) => handleNext(correct)} />
         )}
         {mode === 'matching' && (
