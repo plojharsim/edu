@@ -6,23 +6,24 @@ import StudyHeader from '@/components/Learning/StudyHeader';
 import Flashcard from '@/components/Learning/Flashcard';
 import MultipleChoice from '@/components/Learning/MultipleChoice';
 import TranslationInput from '@/components/Learning/TranslationInput';
+import StudyResults from '@/components/Learning/StudyResults';
 import { Button } from '@/components/ui/button';
 import { BookOpen, CheckSquare, Keyboard, Layers, ChevronLeft, BookText } from 'lucide-react';
-import { CATEGORY_DATA, Topic } from '@/data/studyData';
-import { showSuccess } from '@/utils/toast';
+import { CATEGORY_DATA, Topic, StudyItem } from '@/data/studyData';
 
 const StudySession = () => {
   const { categoryId, topicId } = useParams();
   const navigate = useNavigate();
-  const [view, setView] = useState<'topic-selection' | 'mode-selection' | 'study'>('topic-selection');
+  const [view, setView] = useState<'topic-selection' | 'mode-selection' | 'study' | 'results'>('topic-selection');
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
   const [mode, setMode] = useState<'flashcards' | 'abcd' | 'writing' | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [correctAnswers, setCorrectAnswers] = useState(0);
+  const [correctCount, setCorrectCount] = useState(0);
+  const [incorrectCount, setIncorrectCount] = useState(0);
+  const [mistakes, setMistakes] = useState<StudyItem[]>([]);
   
   const category = CATEGORY_DATA[categoryId || 'english'] || CATEGORY_DATA.english;
 
-  // Pokud je v URL topicId, automaticky ho vybereme
   useEffect(() => {
     if (topicId) {
       const topic = category.topics.find(t => t.id === topicId);
@@ -42,7 +43,9 @@ const StudySession = () => {
     setMode(selectedMode);
     setView('study');
     setCurrentIndex(0);
-    setCorrectAnswers(0);
+    setCorrectCount(0);
+    setIncorrectCount(0);
+    setMistakes([]);
   };
 
   const updateStats = (score: number) => {
@@ -62,15 +65,22 @@ const StudySession = () => {
   };
 
   const handleNext = (isCorrect: boolean = true) => {
-    if (isCorrect) setCorrectAnswers(prev => prev + 1);
+    const currentItem = selectedTopic!.items[currentIndex];
+    
+    if (isCorrect) {
+      setCorrectCount(prev => prev + 1);
+    } else {
+      setIncorrectCount(prev => prev + 1);
+      setMistakes(prev => [...prev, currentItem]);
+    }
 
-    if (selectedTopic && currentIndex < selectedTopic.items.length - 1) {
+    if (currentIndex < selectedTopic!.items.length - 1) {
       setCurrentIndex(prev => prev + 1);
     } else {
-      const finalScore = ((correctAnswers + (isCorrect ? 1 : 0)) / selectedTopic!.items.length) * 100;
+      const finalCorrect = isCorrect ? correctCount + 1 : correctCount;
+      const finalScore = (finalCorrect / selectedTopic!.items.length) * 100;
       updateStats(finalScore);
-      showSuccess(`Relace dokončena! Úspěšnost: ${Math.round(finalScore)}%`);
-      navigate('/');
+      setView('results');
     }
   };
 
@@ -134,6 +144,21 @@ const StudySession = () => {
             <span className="font-bold text-lg">Přiřazování</span>
           </Button>
         </div>
+      </div>
+    );
+  }
+
+  if (view === 'results') {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center transition-colors duration-300">
+        <StudyResults 
+          total={selectedTopic!.items.length}
+          correct={correctCount}
+          incorrect={incorrectCount}
+          mistakes={mistakes}
+          onRetry={() => setView('mode-selection')}
+          onHome={() => navigate('/')}
+        />
       </div>
     );
   }
