@@ -145,19 +145,19 @@ const EditTopics = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background p-6 pb-20">
-      <header className="max-w-6xl mx-auto mb-10 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" onClick={() => navigate('/')} className="rounded-2xl h-12 w-12 bg-card shadow-sm border border-border">
-            <ChevronLeft className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+    <div className="min-h-screen bg-background p-4 sm:p-6 pb-20">
+      <header className="max-w-6xl mx-auto mb-6 sm:mb-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
+          <Button variant="ghost" onClick={() => navigate('/')} className="rounded-2xl h-10 w-10 sm:h-12 sm:w-12 bg-card shadow-sm border border-border flex-shrink-0">
+            <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 text-indigo-600 dark:text-indigo-400" />
           </Button>
-          <h1 className="text-3xl font-black text-foreground">Moje témata</h1>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-foreground truncate">Moje témata</h1>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 w-full sm:w-auto justify-end sm:justify-start">
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant="outline" className="rounded-2xl h-12 px-6 font-bold gap-2 bg-card border-border text-foreground">
-                <Download className="w-5 h-5 text-indigo-500" /> Importovat
+              <Button variant="outline" className="flex-1 sm:flex-none rounded-xl sm:rounded-2xl h-10 sm:h-12 px-3 sm:px-6 font-bold gap-2 bg-card border-border text-foreground text-xs sm:text-sm">
+                <Download className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-500" /> Importovat
               </Button>
             </DialogTrigger>
             <DialogContent className="rounded-[2rem] bg-card border-border">
@@ -178,16 +178,16 @@ const EditTopics = () => {
               </DialogFooter>
             </DialogContent>
           </Dialog>
-          <Button onClick={handleSave} className="rounded-2xl h-12 px-8 bg-indigo-600 hover:bg-indigo-700 text-white font-bold gap-2">
-            <Save className="w-5 h-5" /> Uložit změny
+          <Button onClick={handleSave} className="flex-1 sm:flex-none rounded-xl sm:rounded-2xl h-10 sm:h-12 px-4 sm:px-8 bg-indigo-600 hover:bg-indigo-700 text-white font-bold gap-2 text-xs sm:text-sm">
+            <Save className="w-4 h-4 sm:w-5 sm:h-5" /> <span className="hidden xs:inline">Uložit změny</span><span className="xs:hidden">Uložit</span>
           </Button>
         </div>
       </header>
 
       <main className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-8">
         <div className="md:col-span-4 space-y-4">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-bold text-muted-foreground uppercase text-xs tracking-widest">Témata ve "Vlastní"</h2>
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="font-bold text-muted-foreground uppercase text-[10px] sm:text-xs tracking-widest">Témata ve "Vlastní"</h2>
             <Button size="icon" variant="ghost" onClick={addTopic} className="h-8 w-8 rounded-full bg-indigo-500/10 text-indigo-600">
               <Plus className="w-4 h-4" />
             </Button>
@@ -196,11 +196,11 @@ const EditTopics = () => {
             <div key={topic.id} className="group relative">
               <Button
                 variant={activeTopicId === topic.id ? "secondary" : "ghost"}
-                className={`w-full justify-start h-14 rounded-xl text-left font-bold transition-all border border-transparent ${activeTopicId === topic.id ? 'bg-indigo-600 text-white hover:bg-indigo-700 border-indigo-500' : 'bg-card shadow-sm border-border text-foreground'}`}
+                className={`w-full justify-start h-12 sm:h-14 rounded-xl text-left font-bold transition-all border border-transparent ${activeTopicId === topic.id ? 'bg-indigo-600 text-white hover:bg-indigo-700 border-indigo-500' : 'bg-card shadow-sm border-border text-foreground'}`}
                 onClick={() => setActiveTopicId(topic.id)}
               >
-                <BookText className={`mr-3 w-5 h-5 ${activeTopicId === topic.id ? 'text-white' : 'text-indigo-500/50'}`} />
-                {topic.name}
+                <BookText className={`mr-3 w-4 h-4 sm:w-5 sm:h-5 ${activeTopicId === topic.id ? 'text-white' : 'text-indigo-500/50'}`} />
+                <span className="truncate pr-6">{topic.name}</span>
               </Button>
               <button 
                 onClick={(e) => { e.stopPropagation(); deleteTopic(topic.id); }}
@@ -215,13 +215,13 @@ const EditTopics = () => {
         <div className="md:col-span-8 space-y-6">
           {activeTopic ? (
             <>
-              <div className="bg-card p-6 rounded-[2rem] shadow-sm mb-6 border border-border">
-                <div className="flex justify-between items-start mb-4">
-                  <h2 className="font-bold text-muted-foreground uppercase text-xs tracking-widest">Základní nastavení</h2>
-                  <div className="flex gap-2">
+              <div className="bg-card p-4 sm:p-6 rounded-[2rem] shadow-sm mb-6 border border-border">
+                <div className="flex flex-col xs:flex-row justify-between items-start xs:items-center gap-3 mb-6">
+                  <h2 className="font-bold text-muted-foreground uppercase text-[10px] sm:text-xs tracking-widest">Základní nastavení</h2>
+                  <div className="flex gap-2 w-full xs:w-auto justify-start xs:justify-end">
                     <Dialog>
                       <DialogTrigger asChild>
-                        <Button variant="ghost" size="sm" className="gap-2 rounded-xl text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/10">
+                        <Button variant="ghost" size="sm" className="flex-1 xs:flex-none gap-2 rounded-xl text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/10 text-xs">
                           <Share2 className="w-4 h-4" /> Sdílet
                         </Button>
                       </DialogTrigger>
@@ -244,8 +244,8 @@ const EditTopics = () => {
 
                     <Dialog>
                       <DialogTrigger asChild>
-                        <Button variant="ghost" size="sm" className="gap-2 rounded-xl text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/10">
-                          <Code className="w-4 h-4" /> Kód pro vývojáře
+                        <Button variant="ghost" size="sm" className="flex-1 xs:flex-none gap-2 rounded-xl text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/10 text-xs">
+                          <Code className="w-4 h-4" /> Vývojář
                         </Button>
                       </DialogTrigger>
                       <DialogContent className="rounded-[2rem] bg-card border-border max-w-2xl">
@@ -275,22 +275,22 @@ const EditTopics = () => {
                     if (t) t.name = e.target.value;
                     setTopics(newTopics);
                   }}
-                  className="mb-6 h-14 text-xl font-bold border-2 border-border bg-background text-foreground"
+                  className="mb-8 h-12 sm:h-14 text-lg sm:text-xl font-bold border-2 border-border bg-background text-foreground"
                   placeholder="Název tématu"
                 />
 
                 <div className="space-y-6">
                   <div>
                     <h3 className="text-sm font-bold text-foreground mb-4">Povolené studijní režimy</h3>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                       {MODES.map(mode => (
-                        <div key={mode.id} className="flex items-center space-x-3 p-4 bg-background rounded-2xl border border-border">
+                        <div key={mode.id} className="flex items-center space-x-3 p-3 sm:p-4 bg-background rounded-2xl border border-border">
                           <Checkbox 
                             id={`mode-${mode.id}`}
                             checked={(activeTopic.allowedModes || ['flashcards', 'abcd', 'writing', 'matching']).includes(mode.id)}
                             onCheckedChange={() => toggleMode(activeTopic.id, mode.id)}
                           />
-                          <Label htmlFor={`mode-${mode.id}`} className="flex items-center gap-2 cursor-pointer font-medium text-foreground">
+                          <Label htmlFor={`mode-${mode.id}`} className="flex items-center gap-2 cursor-pointer font-medium text-foreground text-sm">
                             <mode.icon className="w-4 h-4 text-indigo-500" />
                             {mode.label}
                           </Label>
@@ -302,11 +302,11 @@ const EditTopics = () => {
                   <div className="p-4 bg-indigo-500/5 rounded-2xl flex items-center justify-between border border-indigo-500/10">
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-indigo-500/10 rounded-xl">
-                        <ArrowLeftRight className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                        <ArrowLeftRight className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600 dark:text-indigo-400" />
                       </div>
                       <div>
-                        <Label htmlFor="random-direction" className="font-bold text-foreground block">Náhodný směr otázek</Label>
-                        <span className="text-xs text-muted-foreground">Randomizuje, co bude otázka a co odpověď.</span>
+                        <Label htmlFor="random-direction" className="font-bold text-foreground block text-sm sm:text-base">Náhodný směr</Label>
+                        <span className="text-[10px] sm:text-xs text-muted-foreground">Randomizuje otázku a odpověď.</span>
                       </div>
                     </div>
                     <Switch 
@@ -318,32 +318,32 @@ const EditTopics = () => {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between mb-4 pt-4 border-t border-border">
-                <h2 className="font-bold text-muted-foreground uppercase text-xs tracking-widest">Karty v tématu ({activeTopic.items.length})</h2>
-                <Button onClick={() => addItem(activeTopic.id)} className="rounded-xl bg-indigo-600 text-white font-bold gap-2">
+              <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-4 mb-4 pt-4 border-t border-border">
+                <h2 className="font-bold text-muted-foreground uppercase text-[10px] sm:text-xs tracking-widest">Karty v tématu ({activeTopic.items.length})</h2>
+                <Button onClick={() => addItem(activeTopic.id)} className="w-full xs:w-auto rounded-xl bg-indigo-600 text-white font-bold gap-2">
                   <Plus className="w-4 h-4" /> Přidat kartu
                 </Button>
               </div>
 
               <div className="space-y-4">
                 {activeTopic.items.map((item, idx) => (
-                  <Card key={`${activeTopic.id}-item-${idx}`} className="p-6 rounded-[2rem] border border-border shadow-sm bg-card relative overflow-hidden">
-                    <div className="absolute top-0 left-0 w-1.5 h-full bg-indigo-500" />
-                    <div className="flex items-center justify-between mb-6">
+                  <Card key={`${activeTopic.id}-item-${idx}`} className="p-4 sm:p-6 rounded-[2rem] border border-border shadow-sm bg-card relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-1 sm:w-1.5 h-full bg-indigo-500" />
+                    <div className="flex items-center justify-between mb-4 sm:mb-6">
                       <span className="font-black text-indigo-500/20 dark:text-indigo-400/20">#{idx + 1}</span>
-                      <Button size="icon" variant="ghost" onClick={() => deleteItem(activeTopic.id, idx)} className="text-red-400 hover:text-red-600 hover:bg-red-500/10">
+                      <Button size="icon" variant="ghost" onClick={() => deleteItem(activeTopic.id, idx)} className="text-red-400 hover:text-red-600 hover:bg-red-500/10 h-8 w-8">
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
                     
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-6">
                       <div className="space-y-2">
                         <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Termín (Otázka)</label>
                         <Input 
                           value={item.term}
                           onChange={(e) => updateItem(activeTopic.id, idx, 'term', e.target.value)}
                           placeholder="Např. Dog"
-                          className="h-12 rounded-xl border-border bg-background text-foreground"
+                          className="h-10 sm:h-12 rounded-xl border-border bg-background text-foreground text-sm"
                         />
                       </div>
                       <div className="space-y-2">
@@ -352,15 +352,15 @@ const EditTopics = () => {
                           value={item.definition}
                           onChange={(e) => updateItem(activeTopic.id, idx, 'definition', e.target.value)}
                           placeholder="Např. Pes"
-                          className="h-12 rounded-xl border-border bg-background text-foreground"
+                          className="h-10 sm:h-12 rounded-xl border-border bg-background text-foreground text-sm"
                         />
                       </div>
                     </div>
 
                     {isAbcdModeEnabled && (
-                      <div className="space-y-3 p-4 bg-muted/30 rounded-2xl border border-border">
+                      <div className="space-y-3 p-3 sm:p-4 bg-muted/30 rounded-2xl border border-border">
                         <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Špatné odpovědi</label>
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
                           {item.options.map((opt, optIdx) => (
                             <Input 
                               key={optIdx}
@@ -371,7 +371,7 @@ const EditTopics = () => {
                                 updateItem(activeTopic.id, idx, 'options', newOpts);
                               }}
                               placeholder={`Chyba ${optIdx + 1}`}
-                              className="rounded-lg border-border h-10 text-sm bg-background text-foreground"
+                              className="rounded-lg border-border h-9 text-xs sm:text-sm bg-background text-foreground"
                             />
                           ))}
                         </div>
@@ -382,10 +382,10 @@ const EditTopics = () => {
               </div>
             </>
           ) : (
-            <div className="h-full flex flex-col items-center justify-center p-12 text-center bg-card rounded-[3rem] border-2 border-dashed border-border">
-              <BookText className="w-16 h-16 text-indigo-500/20 dark:text-indigo-400/20 mb-4" />
-              <h3 className="text-xl font-bold text-muted-foreground">Vyberte téma k úpravě</h3>
-              <p className="text-muted-foreground text-sm max-w-xs mt-2">Nebo vytvořte nové téma pomocí tlačítka plus v levém sloupci.</p>
+            <div className="h-full min-h-[400px] flex flex-col items-center justify-center p-8 sm:p-12 text-center bg-card rounded-[3rem] border-2 border-dashed border-border">
+              <BookText className="w-12 h-12 sm:w-16 sm:h-16 text-indigo-500/20 dark:text-indigo-400/20 mb-4" />
+              <h3 className="text-lg sm:text-xl font-bold text-muted-foreground">Vyberte téma k úpravě</h3>
+              <p className="text-muted-foreground text-xs sm:text-sm max-w-xs mt-2">Nebo vytvořte nové téma pomocí tlačítka plus v levém sloupci.</p>
             </div>
           )}
         </div>
