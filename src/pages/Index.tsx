@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Languages, Microscope, History, Music, Sparkles, TrendingUp, LogOut } from 'lucide-react';
 import CategoryCard from '@/components/Dashboard/CategoryCard';
-import { MadeWithDyad } from "@/components/made-with-dyad";
 import { Button } from "@/components/ui/button";
 
 const Index = () => {
@@ -117,10 +116,6 @@ const Index = () => {
           </div>
         </div>
       </main>
-
-      <div className="mt-20">
-        <MadeWithDyad />
-      </div>
     </div>
   );
 };
