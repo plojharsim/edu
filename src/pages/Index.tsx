@@ -82,7 +82,7 @@ const Index = () => {
           </h1>
         </div>
         
-        <div className="flex flex-col md:flex-row items-center justify-center gap-4">
+        <div className="flex items-center justify-center gap-4">
           <div className="bg-card p-6 rounded-[2rem] shadow-sm flex items-center gap-6 border-2 border-white dark:border-slate-800">
             <div className="flex flex-col items-center">
               <span className="text-3xl font-black text-indigo-600 dark:text-indigo-400">{stats.streak}</span>
