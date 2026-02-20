@@ -9,10 +9,9 @@ import TranslationInput from '@/components/Learning/TranslationInput';
 import { Button } from '@/components/ui/button';
 import { BookOpen, CheckSquare, Keyboard, Layers } from 'lucide-react';
 
-const CATEGORY_DATA: Record<string, { title: string, topic: string, items: any[] }> = {
+const CATEGORY_DATA: Record<string, { title: string, items: any[] }> = {
   english: {
     title: "Angličtina",
-    topic: "Ovoce a dům",
     items: [
       { id: 1, term: "Apple", definition: "Jablko", options: ["Pomeranč", "Banan", "Jablko", "Hruška"] },
       { id: 2, term: "House", definition: "Dům", options: ["Auto", "Dům", "Město", "Strom"] },
@@ -20,7 +19,6 @@ const CATEGORY_DATA: Record<string, { title: string, topic: string, items: any[]
   },
   biology: {
     title: "Biologie",
-    topic: "Buňka a fotosyntéza",
     items: [
       { id: 1, term: "Mitochondrie", definition: "Energetické centrum buňky", options: ["Odpadní koš buňky", "Energetické centrum buňky", "Řídící centrum", "Výroba bílkovin"] },
       { id: 2, term: "Fotosyntéza", definition: "Přeměna světla na energii", options: ["Dýchání rostlin", "Přeměna světla na energii", "Rozklad listů", "Příjem vody kořeny"] },
@@ -28,7 +26,6 @@ const CATEGORY_DATA: Record<string, { title: string, topic: string, items: any[]
   },
   history: {
     title: "Dějepis",
-    topic: "Lucemburkové v Čechách",
     items: [
       { id: 1, term: "Založení Karlovy univerzity", definition: "1348", options: ["1212", "1348", "1415", "1620"] },
       { id: 2, term: "Upálení Jana Husa", definition: "1415", options: ["1348", "1415", "1526", "1618"] },
@@ -36,7 +33,6 @@ const CATEGORY_DATA: Record<string, { title: string, topic: string, items: any[]
   },
   music: {
     title: "Hudební nauka",
-    topic: "Základy notopisu",
     items: [
       { id: 1, term: "Houslový klíč", definition: "G klíč", options: ["F klíč", "C klíč", "G klíč", "A klíč"] },
       { id: 2, term: "Tempo Allegro", definition: "Rychle", options: ["Pomalu", "Mírně", "Rychle", "Velmi pomalu"] },
@@ -66,7 +62,6 @@ const StudySession = () => {
     return (
       <div className="min-h-screen bg-slate-50 p-6 flex flex-col items-center justify-center">
         <h1 className="text-4xl font-black text-slate-800 mb-2">{category.title}</h1>
-        <p className="text-indigo-600 font-bold mb-4 uppercase tracking-widest text-sm">{category.topic}</p>
         <p className="text-slate-500 mb-12 font-medium">Jak se chceš dnes učit?</p>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-2xl">
@@ -109,7 +104,7 @@ const StudySession = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 py-12 flex flex-col items-center">
-      <StudyHeader progress={progress} title={`${category.title}: ${category.topic}`} />
+      <StudyHeader progress={progress} title={category.title} />
       
       <div className="flex-1 flex items-center justify-center w-full px-4">
         {mode === 'flashcards' && (
