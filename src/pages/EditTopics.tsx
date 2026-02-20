@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Trash2, ChevronLeft, Save, BookText, Layers, CheckSquare, Keyboard, BookOpen } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Plus, Trash2, ChevronLeft, Save, BookText, Layers, CheckSquare, Keyboard, BookOpen, ArrowLeftRight } from "lucide-react";
 import { saveUserTopics, Topic, StudyItem, StudyMode } from '@/data/studyData';
 import { showSuccess } from '@/utils/toast';
 
@@ -33,7 +34,8 @@ const EditTopics = () => {
       id, 
       name: "Nové téma", 
       items: [],
-      allowedModes: ['flashcards', 'abcd', 'writing', 'matching']
+      allowedModes: ['flashcards', 'abcd', 'writing', 'matching'],
+      randomizeDirection: false
     };
     setTopics([...topics, newTopic]);
     setActiveTopicId(id);
@@ -58,6 +60,12 @@ const EditTopics = () => {
     setTopics(newTopics);
   };
 
+  const toggleRandomDirection = (topicId: string) => {
+    setTopics(topics.map(t => 
+      t.id === topicId ? { ...t, randomizeDirection: !t.randomizeDirection } : t
+    ));
+  };
+
   const addItem = (topicId: string) => {
     const newTopics = [...topics];
     const topic = newTopics.find(t => t.id === topicId);
@@ -67,7 +75,7 @@ const EditTopics = () => {
         term: "",
         definition: "",
         options: ["", "", ""],
-        isAbcdEnabled: true // Defaultně true, ale řídí se to tématem
+        isAbcdEnabled: true
       });
       setTopics(newTopics);
     }
@@ -163,22 +171,41 @@ const EditTopics = () => {
                   placeholder="Název tématu"
                 />
 
-                <div className="space-y-4">
-                  <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200">Povolené studijní režimy</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    {MODES.map(mode => (
-                      <div key={mode.id} className="flex items-center space-x-3 p-4 bg-background rounded-2xl border border-slate-100 dark:border-slate-800">
-                        <Checkbox 
-                          id={`mode-${mode.id}`}
-                          checked={(activeTopic.allowedModes || ['flashcards', 'abcd', 'writing', 'matching']).includes(mode.id)}
-                          onCheckedChange={() => toggleMode(activeTopic.id, mode.id)}
-                        />
-                        <Label htmlFor={`mode-${mode.id}`} className="flex items-center gap-2 cursor-pointer font-medium">
-                          <mode.icon className="w-4 h-4 text-indigo-500" />
-                          {mode.label}
-                        </Label>
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-4">Povolené studijní režimy</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      {MODES.map(mode => (
+                        <div key={mode.id} className="flex items-center space-x-3 p-4 bg-background rounded-2xl border border-slate-100 dark:border-slate-800">
+                          <Checkbox 
+                            id={`mode-${mode.id}`}
+                            checked={(activeTopic.allowedModes || ['flashcards', 'abcd', 'writing', 'matching']).includes(mode.id)}
+                            onCheckedChange={() => toggleMode(activeTopic.id, mode.id)}
+                          />
+                          <Label htmlFor={`mode-${mode.id}`} className="flex items-center gap-2 cursor-pointer font-medium">
+                            <mode.icon className="w-4 h-4 text-indigo-500" />
+                            {mode.label}
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="p-4 bg-indigo-50 dark:bg-indigo-950/20 rounded-2xl flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-indigo-100 dark:bg-indigo-900/50 rounded-xl">
+                        <ArrowLeftRight className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
                       </div>
-                    ))}
+                      <div>
+                        <Label htmlFor="random-direction" className="font-bold text-slate-800 dark:text-slate-100 block">Náhodný směr otázek</Label>
+                        <span className="text-xs text-slate-500 dark:text-slate-400">Randomizuje, co bude otázka a co odpověď.</span>
+                      </div>
+                    </div>
+                    <Switch 
+                      id="random-direction"
+                      checked={activeTopic.randomizeDirection}
+                      onCheckedChange={() => toggleRandomDirection(activeTopic.id)}
+                    />
                   </div>
                 </div>
               </div>
@@ -203,7 +230,7 @@ const EditTopics = () => {
                     
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
                       <div className="space-y-2">
-                        <label className="text-[10px] font-bold uppercase text-slate-400 tracking-widest">Termín</label>
+                        <label className="text-[10px] font-bold uppercase text-slate-400 tracking-widest">Termín (Otázka)</label>
                         <Input 
                           value={item.term}
                           onChange={(e) => updateItem(activeTopic.id, item.id, 'term', e.target.value)}
@@ -212,7 +239,7 @@ const EditTopics = () => {
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-[10px] font-bold uppercase text-slate-400 tracking-widest">Definice</label>
+                        <label className="text-[10px] font-bold uppercase text-slate-400 tracking-widest">Definice (Odpověď)</label>
                         <Input 
                           value={item.definition}
                           onChange={(e) => updateItem(activeTopic.id, item.id, 'definition', e.target.value)}

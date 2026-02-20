@@ -77,8 +77,25 @@ const StudySession = () => {
     const topic = topicOverride || selectedTopic;
     if (!topic) return;
 
-    // Náhodné promíchání otázek
-    const items = [...topic.items].sort(() => Math.random() - 0.5);
+    // Promíchání a případná randomizace směru
+    const items = topic.items.map(item => {
+      if (topic.randomizeDirection && Math.random() > 0.5) {
+        return {
+          ...item,
+          term: item.definition,
+          definition: item.term,
+          // Špatné odpovědi u ABCD/Matching by ideálně měly být také prohozeny, 
+          // ale jelikož nevíme, k čemu patří, necháme je prázdné nebo použijeme termíny jiných položek.
+          // Pro zjednodušení v random směru použijeme jen termíny jiných položek jako distraktory:
+          options: topic.items
+            .filter(i => i.id !== item.id)
+            .map(i => i.term)
+            .sort(() => Math.random() - 0.5)
+            .slice(0, 3)
+        };
+      }
+      return item;
+    }).sort(() => Math.random() - 0.5);
     
     setShuffledItems(items);
     setMode(selectedMode);
@@ -283,7 +300,7 @@ const StudySession = () => {
           <TranslationInput term={currentItem.term} correctTranslation={currentItem.definition} onAnswer={(correct) => handleNext(correct)} />
         )}
         {mode === 'matching' && (
-          <MatchingGame items={selectedTopic!.items} onComplete={handleMatchingComplete} />
+          <MatchingGame items={shuffledItems} onComplete={handleMatchingComplete} />
         )}
       </div>
     </div>

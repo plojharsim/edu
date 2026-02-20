@@ -12,7 +12,8 @@ export interface Topic {
   id: string;
   name: string;
   items: StudyItem[];
-  allowedModes?: StudyMode[]; // Seznam povolených režimů
+  allowedModes?: StudyMode[];
+  randomizeDirection?: boolean; // Nové nastavení pro náhodný směr
 }
 
 export interface Category {
@@ -35,6 +36,7 @@ export const PREDEFINED_DATA: Record<string, Category> = {
         id: "animals",
         name: "Zvířata",
         allowedModes: ['flashcards', 'abcd', 'writing', 'matching'],
+        randomizeDirection: true,
         items: [
           { id: "e1", term: "Dog", definition: "Pes", options: ["Kočka", "Pes", "Kůň", "Vlk"], isAbcdEnabled: true },
           { id: "e2", term: "Cat", definition: "Kočka", options: ["Pes", "Kočka", "Myš", "Pták"], isAbcdEnabled: true },
@@ -53,6 +55,7 @@ export const PREDEFINED_DATA: Record<string, Category> = {
         id: "cells",
         name: "Buňka",
         allowedModes: ['flashcards', 'abcd', 'writing'],
+        randomizeDirection: false,
         items: [
           { id: "b1", term: "Mitochondrie", definition: "Energetické centrum buňky", options: ["Jádro", "Ribozom", "Vakuola"], isAbcdEnabled: true },
           { id: "b2", term: "Chloroplast", definition: "Místo fotosyntézy", options: ["Cytoplazma", "Buněčná stěna", "Lysozom"], isAbcdEnabled: true },
@@ -71,6 +74,7 @@ export const PREDEFINED_DATA: Record<string, Category> = {
         id: "middle-ages",
         name: "Středověk",
         allowedModes: ['flashcards', 'abcd', 'matching'],
+        randomizeDirection: false,
         items: [
           { id: "h1", term: "1348", definition: "Založení Karlovy univerzity", options: ["Bitva na Bílé hoře", "Upálení Jana Husa", "Zlatá bula sicilská"], isAbcdEnabled: true },
           { id: "h2", term: "Karel IV.", definition: "Otec vlasti", options: ["Jan Žižka", "Jiří z Poděbrad", "Rudolf II."], isAbcdEnabled: true },
@@ -89,6 +93,7 @@ export const PREDEFINED_DATA: Record<string, Category> = {
         id: "composers",
         name: "Skladatelé",
         allowedModes: ['flashcards', 'abcd', 'writing', 'matching'],
+        randomizeDirection: true,
         items: [
           { id: "m1", term: "B. Smetana", definition: "Má vlast", options: ["Rusalka", "Slovanské tance", "Osud"], isAbcdEnabled: true },
           { id: "m2", term: "A. Dvořák", definition: "Z Nového světa", options: ["Libuše", "Prodaná nevěsta", "Don Giovanni"], isAbcdEnabled: true },
