@@ -20,22 +20,22 @@ const CATEGORY_DATA: Record<string, { title: string, items: any[] }> = {
   biology: {
     title: "Biologie",
     items: [
-      { id: 1, term: "Cell", definition: "Buňka", options: ["Tkáň", "Orgán", "Buňka", "Atom"] },
-      { id: 2, term: "DNA", definition: "DNA", options: ["RNA", "DNA", "Protein", "Gen"] },
+      { id: 1, term: "Mitochondrie", definition: "Energetické centrum buňky", options: ["Odpadní koš buňky", "Energetické centrum buňky", "Řídící centrum", "Výroba bílkovin"] },
+      { id: 2, term: "Fotosyntéza", definition: "Přeměna světla na energii", options: ["Dýchání rostlin", "Přeměna světla na energii", "Rozklad listů", "Příjem vody kořeny"] },
     ]
   },
   history: {
     title: "Dějepis",
     items: [
-      { id: 1, term: "1914", definition: "Začátek 1. sv. války", options: ["Konec války", "Začátek 1. sv. války", "Bitva u Lipan", "Zánik Říma"] },
-      { id: 2, term: "1945", definition: "Konec 2. sv. války", options: ["Konec 2. sv. války", "Bitva na Bílé Hoře", "Objevení Ameriky", "První let do vesmíru"] },
+      { id: 1, term: "Založení Karlovy univerzity", definition: "1348", options: ["1212", "1348", "1415", "1620"] },
+      { id: 2, term: "Upálení Jana Husa", definition: "1415", options: ["1348", "1415", "1526", "1618"] },
     ]
   },
   music: {
     title: "Hudební nauka",
     items: [
-      { id: 1, term: "Piano", definition: "Klavír", options: ["Housle", "Kytara", "Klavír", "Bubny"] },
-      { id: 2, term: "Forte", definition: "Nahlas", options: ["Potichu", "Pomalu", "Rychle", "Nahlas"] },
+      { id: 1, term: "Houslový klíč", definition: "G klíč", options: ["F klíč", "C klíč", "G klíč", "A klíč"] },
+      { id: 2, term: "Tempo Allegro", definition: "Rychle", options: ["Pomalu", "Mírně", "Rychle", "Velmi pomalu"] },
     ]
   }
 };

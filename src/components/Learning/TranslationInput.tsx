@@ -21,15 +21,15 @@ const TranslationInput = ({ term, correctTranslation, onNext }: TranslationInput
       onNext();
       setValue("");
     } else {
-      showError(`Chyba. Správně je: ${correctTranslation}`);
+      showError(`Chyba. Správná odpověď je: ${correctTranslation}`);
     }
   };
 
   return (
     <div className="w-full max-w-md mx-auto p-8 bg-white rounded-[2rem] shadow-xl border-4 border-amber-50">
       <div className="text-center mb-8">
-        <span className="text-sm font-bold text-amber-500 uppercase tracking-widest">Přelož slovo</span>
-        <h3 className="text-4xl font-black text-slate-800 mt-2">{term}</h3>
+        <span className="text-sm font-bold text-amber-500 uppercase tracking-widest">Doplň odpověď</span>
+        <h3 className="text-3xl font-black text-slate-800 mt-2 leading-tight">{term}</h3>
       </div>
       
       <form onSubmit={handleSubmit} className="space-y-4">
