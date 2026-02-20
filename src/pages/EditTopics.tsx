@@ -264,9 +264,9 @@ const EditTopics = () => {
                           value={formatForDeveloper(activeTopic)}
                           className="min-h-[300px] font-mono text-xs bg-muted border-border text-foreground rounded-xl"
                         />
-                        <Button onClick={() => copyToClipboard(formatForDeveloper(activeTopic))} className="w-full gap-2 rounded-xl bg-slate-800 dark:bg-slate-700">
+                        <Button onClick={() => copyToClipboard(formatForDeveloper(activeTopic))} className="w-full gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white">
                           {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                          Kopírovat kód pro Simona
+                          Kopírovat kód pro vývojáře
                         </Button>
                       </DialogContent>
                     </Dialog>
