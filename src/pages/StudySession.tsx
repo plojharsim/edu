@@ -59,7 +59,7 @@ const StudySession = () => {
   const currentItem = selectedTopic?.items[currentIndex];
 
   const shuffledOptions = useMemo(() => {
-    if (!currentItem || !currentItem.isAbcdEnabled) return [];
+    if (!currentItem) return [];
     const all = [currentItem.definition, ...currentItem.options.filter(o => o.trim() !== "")];
     return all.sort(() => Math.random() - 0.5);
   }, [currentItem]);
@@ -132,11 +132,6 @@ const StudySession = () => {
   const isModeAllowed = (m: StudyMode) => {
     if (!selectedTopic) return false;
     const allowed = selectedTopic.allowedModes || ['flashcards', 'abcd', 'writing', 'matching'];
-    
-    if (m === 'abcd') {
-      return allowed.includes('abcd') && !selectedTopic.items.some(i => !i.isAbcdEnabled);
-    }
-    
     return allowed.includes(m);
   };
 

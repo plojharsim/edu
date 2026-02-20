@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, Trash2, ChevronLeft, Save, BookText, Layers, CheckSquare, Keyboard, BookOpen } from "lucide-react";
@@ -68,7 +67,7 @@ const EditTopics = () => {
         term: "",
         definition: "",
         options: ["", "", ""],
-        isAbcdEnabled: false
+        isAbcdEnabled: true // Defaultně true, ale řídí se to tématem
       });
       setTopics(newTopics);
     }
@@ -96,6 +95,7 @@ const EditTopics = () => {
   };
 
   const activeTopic = topics.find(t => t.id === activeTopicId);
+  const isAbcdModeEnabled = activeTopic?.allowedModes?.includes('abcd') ?? true;
 
   const MODES: { id: StudyMode, label: string, icon: any }[] = [
     { id: 'flashcards', label: 'Kartičky', icon: Layers },
@@ -196,19 +196,9 @@ const EditTopics = () => {
                     <div className="absolute top-0 left-0 w-1.5 h-full bg-indigo-500" />
                     <div className="flex items-center justify-between mb-6">
                       <span className="font-black text-slate-300 dark:text-slate-700">#{idx + 1}</span>
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center space-x-2">
-                          <Switch 
-                            id={`abcd-${item.id}`} 
-                            checked={item.isAbcdEnabled}
-                            onCheckedChange={(val) => updateItem(activeTopic.id, item.id, 'isAbcdEnabled', val)}
-                          />
-                          <Label htmlFor={`abcd-${item.id}`} className="text-xs font-bold text-slate-500">Možnosti ABCD</Label>
-                        </div>
-                        <Button size="icon" variant="ghost" onClick={() => deleteItem(activeTopic.id, item.id)} className="text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30">
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
+                      <Button size="icon" variant="ghost" onClick={() => deleteItem(activeTopic.id, item.id)} className="text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30">
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
                     </div>
                     
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
@@ -232,7 +222,7 @@ const EditTopics = () => {
                       </div>
                     </div>
 
-                    {item.isAbcdEnabled && (
+                    {isAbcdModeEnabled && (
                       <div className="space-y-3 p-4 bg-slate-50 dark:bg-slate-950/50 rounded-2xl border border-slate-100 dark:border-slate-800">
                         <label className="text-[10px] font-bold uppercase text-slate-400 tracking-widest">Špatné odpovědi</label>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
