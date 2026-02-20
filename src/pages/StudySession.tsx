@@ -164,11 +164,14 @@ const StudySession = () => {
   }
 
   const currentItem = selectedTopic!.items[currentIndex];
-  const progress = (currentIndex / selectedTopic!.items.length) * 100;
 
   return (
     <div className="min-h-screen bg-background py-12 flex flex-col items-center transition-colors duration-300">
-      <StudyHeader progress={progress} title={`${category.title}: ${selectedTopic?.name}`} />
+      <StudyHeader 
+        current={currentIndex + 1} 
+        total={selectedTopic!.items.length} 
+        title={`${category.title}: ${selectedTopic?.name}`} 
+      />
       <div className="flex-1 flex items-center justify-center w-full px-4">
         {mode === 'flashcards' && (
           <div className="flex flex-col items-center gap-12">
@@ -177,7 +180,7 @@ const StudySession = () => {
           </div>
         )}
         {mode === 'abcd' && (
-          <MultipleChoice question={currentItem.term} options={currentItem.options} correctAnswer={currentItem.definition} onAnswer={(correct) => setTimeout(() => handleNext(correct), 1000)} />
+          <MultipleChoice question={currentItem.term} options={currentItem.options} correctAnswer={currentItem.definition} onAnswer={(correct) => handleNext(correct)} />
         )}
         {mode === 'writing' && (
           <TranslationInput term={currentItem.term} correctTranslation={currentItem.definition} onAnswer={(correct) => handleNext(correct)} />

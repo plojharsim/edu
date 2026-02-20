@@ -7,12 +7,14 @@ import { X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface StudyHeaderProps {
-  progress: number;
+  current: number;
+  total: number;
   title: string;
 }
 
-const StudyHeader = ({ progress, title }: StudyHeaderProps) => {
+const StudyHeader = ({ current, total, title }: StudyHeaderProps) => {
   const navigate = useNavigate();
+  const progress = (current / total) * 100;
 
   return (
     <div className="w-full max-w-2xl mx-auto mb-8 px-4">
@@ -25,7 +27,10 @@ const StudyHeader = ({ progress, title }: StudyHeaderProps) => {
         >
           <X className="w-6 h-6" />
         </Button>
-        <h2 className="text-lg font-bold text-slate-700 dark:text-slate-200">{title}</h2>
+        <div className="text-center">
+          <h2 className="text-lg font-bold text-slate-700 dark:text-slate-200">{title}</h2>
+          <p className="text-xs font-black text-indigo-500 uppercase tracking-widest">{current} z {total}</p>
+        </div>
         <div className="w-10" /> {/* Spacer */}
       </div>
       <Progress value={progress} className="h-3 rounded-full bg-slate-100 dark:bg-slate-800" />
