@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as LucideIcons from 'lucide-react';
-import { Sparkles, TrendingUp, LogOut, Edit3 } from 'lucide-react';
+import { Sparkles, TrendingUp, LogOut, Edit3, Heart } from 'lucide-react';
 import CategoryCard from '@/components/Dashboard/CategoryCard';
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -72,8 +72,8 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-6 pb-20 transition-colors duration-300">
-      <header className="max-w-6xl mx-auto pt-10 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-8">
+    <div className="min-h-screen bg-background p-6 pb-20 transition-colors duration-300 flex flex-col">
+      <header className="max-w-6xl mx-auto pt-10 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-8 w-full">
         <div className="text-center md:text-left">
           <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
             <Sparkles className="w-5 h-5 text-indigo-500 fill-indigo-500" />
@@ -125,7 +125,7 @@ const Index = () => {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto">
+      <main className="max-w-6xl mx-auto flex-1 w-full">
         <div className="mb-10">
           <h2 className="text-2xl font-black text-slate-800 dark:text-slate-100 mb-6 text-center md:text-left">Tvoje studijní sady</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center md:justify-items-stretch">
@@ -150,7 +150,7 @@ const Index = () => {
         </div>
 
         {dailyChallenge && (
-          <div className="bg-indigo-600 dark:bg-indigo-700 rounded-[3rem] p-8 md:p-12 text-white relative overflow-hidden shadow-2xl shadow-indigo-200 dark:shadow-none">
+          <div className="bg-indigo-600 dark:bg-indigo-700 rounded-[3rem] p-8 md:p-12 text-white relative overflow-hidden shadow-2xl shadow-indigo-200 dark:shadow-none mb-12">
             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8 text-center md:text-left">
               <div className="max-w-md">
                 <h3 className="text-3xl font-bold mb-2">Dnešní výzva</h3>
@@ -176,6 +176,12 @@ const Index = () => {
           </div>
         )}
       </main>
+
+      <footer className="mt-auto pt-10 text-center">
+        <p className="text-slate-400 dark:text-slate-500 text-sm font-medium flex items-center justify-center gap-1">
+          Vytvořeno s <Heart className="w-3 h-3 text-red-400 fill-red-400" /> by <span className="text-indigo-600 dark:text-indigo-400 font-bold">plojharsim</span>
+        </p>
+      </footer>
     </div>
   );
 };
