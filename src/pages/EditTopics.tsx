@@ -8,14 +8,31 @@ import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Trash2, ChevronLeft, Save, BookText, Layers, CheckSquare, Keyboard, BookOpen, ArrowLeftRight } from "lucide-react";
+import { 
+  Plus, Trash2, ChevronLeft, Save, BookText, Layers, 
+  CheckSquare, Keyboard, BookOpen, ArrowLeftRight, 
+  Share2, Download, Code, Copy, Check
+} from "lucide-react";
 import { saveUserTopics, Topic, StudyItem, StudyMode } from '@/data/studyData';
-import { showSuccess } from '@/utils/toast';
+import { showSuccess, showError } from '@/utils/toast';
+import { encodeTopic, decodeTopic, formatForDeveloper } from '@/lib/sharing';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 
 const EditTopics = () => {
   const navigate = useNavigate();
   const [topics, setTopics] = useState<Topic[]>([]);
   const [activeTopicId, setActiveTopicId] = useState<string | null>(null);
+  const [importCode, setImportCode] = useState("");
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem('user_topics');
@@ -39,6 +56,25 @@ const EditTopics = () => {
     };
     setTopics([...topics, newTopic]);
     setActiveTopicId(id);
+  };
+
+  const handleImport = () => {
+    const imported = decodeTopic(importCode);
+    if (imported) {
+      setTopics([...topics, imported]);
+      setActiveTopicId(imported.id);
+      setImportCode("");
+      showSuccess("Téma úspěšně importováno!");
+    } else {
+      showError("Neplatný kód pro import.");
+    }
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    showSuccess("Zkopírováno do schránky!");
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const deleteTopic = (id: string) => {
@@ -121,9 +157,35 @@ const EditTopics = () => {
           </Button>
           <h1 className="text-3xl font-black text-slate-800 dark:text-slate-100">Moje témata</h1>
         </div>
-        <Button onClick={handleSave} className="rounded-2xl h-12 px-8 bg-indigo-600 hover:bg-indigo-700 text-white font-bold gap-2">
-          <Save className="w-5 h-5" /> Uložit změny
-        </Button>
+        <div className="flex gap-2">
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline" className="rounded-2xl h-12 px-6 font-bold gap-2">
+                <Download className="w-5 h-5" /> Importovat
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="rounded-[2rem]">
+              <DialogHeader>
+                <DialogTitle>Importovat téma</DialogTitle>
+                <DialogDescription>
+                  Vložte kód tématu, který vám někdo nasdílel.
+                </DialogDescription>
+              </DialogHeader>
+              <Textarea 
+                value={importCode}
+                onChange={(e) => setImportCode(e.target.value)}
+                placeholder="Vložte kód zde..."
+                className="min-h-[100px] rounded-xl"
+              />
+              <DialogFooter>
+                <Button onClick={handleImport} className="rounded-xl bg-indigo-600">Importovat</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          <Button onClick={handleSave} className="rounded-2xl h-12 px-8 bg-indigo-600 hover:bg-indigo-700 text-white font-bold gap-2">
+            <Save className="w-5 h-5" /> Uložit změny
+          </Button>
+        </div>
       </header>
 
       <main className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-8">
@@ -158,7 +220,59 @@ const EditTopics = () => {
           {activeTopic ? (
             <>
               <div className="bg-card p-6 rounded-[2rem] shadow-sm mb-6">
-                <h2 className="font-bold text-slate-500 uppercase text-xs tracking-widest mb-4">Základní nastavení</h2>
+                <div className="flex justify-between items-start mb-4">
+                  <h2 className="font-bold text-slate-500 uppercase text-xs tracking-widest">Základní nastavení</h2>
+                  <div className="flex gap-2">
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button variant="ghost" size="sm" className="gap-2 rounded-xl text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50">
+                          <Share2 className="w-4 h-4" /> Sdílet
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="rounded-[2rem] max-w-md">
+                        <DialogHeader>
+                          <DialogTitle>Nasdílej toto téma</DialogTitle>
+                          <DialogDescription>
+                            Tento kód si může kdokoliv jiný vložit do své aplikace.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-slate-100 dark:border-slate-800 break-all text-xs font-mono text-slate-500 max-h-[200px] overflow-y-auto">
+                          {encodeTopic(activeTopic)}
+                        </div>
+                        <Button onClick={() => copyToClipboard(encodeTopic(activeTopic))} className="w-full gap-2 rounded-xl bg-indigo-600">
+                          {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                          Kopírovat kód pro kamaráda
+                        </Button>
+                      </DialogContent>
+                    </Dialog>
+
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button variant="ghost" size="sm" className="gap-2 rounded-xl text-slate-500 hover:text-slate-700">
+                          <Code className="w-4 h-4" /> Kód pro vývojáře
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="rounded-[2rem] max-w-2xl">
+                        <DialogHeader>
+                          <DialogTitle>Kód pro veřejné téma</DialogTitle>
+                          <DialogDescription>
+                            Tento kód pošli mně (vývojáři) a já ho přidám jako stálou součást aplikace pro všechny!
+                          </DialogDescription>
+                        </DialogHeader>
+                        <Textarea 
+                          readOnly
+                          value={formatForDeveloper(activeTopic)}
+                          className="min-h-[300px] font-mono text-xs bg-slate-50 dark:bg-slate-900 rounded-xl"
+                        />
+                        <Button onClick={() => copyToClipboard(formatForDeveloper(activeTopic))} className="w-full gap-2 rounded-xl bg-slate-800">
+                          {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                          Kopírovat kód pro Simona
+                        </Button>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                </div>
+                
                 <Input 
                   value={activeTopic.name}
                   onChange={(e) => {
