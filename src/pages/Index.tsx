@@ -71,6 +71,7 @@ const Index = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <CategoryCard 
               title="Angličtina" 
+              topic="Ovoce a dům"
               count={124} 
               icon={Languages} 
               color="bg-indigo-500" 
@@ -78,6 +79,7 @@ const Index = () => {
             />
             <CategoryCard 
               title="Biologie" 
+              topic="Buňka a fotosyntéza"
               count={45} 
               icon={Microscope} 
               color="bg-emerald-500" 
@@ -85,6 +87,7 @@ const Index = () => {
             />
             <CategoryCard 
               title="Dějepis" 
+              topic="Lucemburkové v Čechách"
               count={82} 
               icon={History} 
               color="bg-amber-500" 
@@ -92,6 +95,7 @@ const Index = () => {
             />
             <CategoryCard 
               title="Hudební nauka" 
+              topic="Základy notopisu"
               count={30} 
               icon={Music} 
               color="bg-rose-500" 
