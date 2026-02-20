@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { StudyItem } from "@/data/studyData";
@@ -22,6 +22,7 @@ const MatchingGame = ({ items, onComplete }: MatchingGameProps) => {
   const [selected, setSelected] = useState<CardItem | null>(null);
   const [matchedIds, setMatchedIds] = useState<number[]>([]);
   const [wrongPair, setWrongPair] = useState<[string, string] | null>(null);
+  const [mistakes, setMistakes] = useState<Set<number>>(new Set());
 
   const cards = useMemo(() => {
     const terms = items.map(item => ({
@@ -53,7 +54,6 @@ const MatchingGame = ({ items, onComplete }: MatchingGameProps) => {
     }
 
     if (selected.originalId === card.originalId && selected.type !== card.type) {
-      // Match!
       const newMatched = [...matchedIds, card.originalId];
       setMatchedIds(newMatched);
       setSelected(null);
@@ -61,12 +61,13 @@ const MatchingGame = ({ items, onComplete }: MatchingGameProps) => {
       if (newMatched.length === items.length) {
         setTimeout(() => {
           showSuccess("Všechny dvojice nalezeny!");
-          onComplete([]);
+          const mistakeItems = items.filter(item => mistakes.has(item.id));
+          onComplete(mistakeItems);
         }, 500);
       }
     } else {
-      // Wrong match
       setWrongPair([selected.id, card.id]);
+      setMistakes(prev => new Set(prev).add(selected.originalId).add(card.originalId));
       setTimeout(() => {
         setWrongPair(null);
         setSelected(null);

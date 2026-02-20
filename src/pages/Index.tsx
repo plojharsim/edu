@@ -82,7 +82,7 @@ const Index = () => {
           </h1>
         </div>
         
-        <div className="flex items-center justify-center gap-4">
+        <div className="flex flex-col md:flex-row items-center justify-center gap-4">
           <div className="bg-card p-6 rounded-[2rem] shadow-sm flex items-center gap-6 border-2 border-white dark:border-slate-800">
             <div className="flex flex-col items-center">
               <span className="text-3xl font-black text-indigo-600 dark:text-indigo-400">{stats.streak}</span>
@@ -114,7 +114,7 @@ const Index = () => {
       <main className="max-w-6xl mx-auto">
         <div className="mb-10">
           <h2 className="text-2xl font-black text-slate-800 dark:text-slate-100 mb-6 text-center md:text-left">Tvoje studijní sady</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
             <CategoryCard 
               title="Angličtina" 
               count={getCategoryCount('english')} 
