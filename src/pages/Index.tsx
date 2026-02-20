@@ -1,13 +1,27 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Languages, Microscope, History, Music, Sparkles, TrendingUp } from 'lucide-react';
+import { Languages, Microscope, History, Music, Sparkles, TrendingUp, LogOut } from 'lucide-react';
 import CategoryCard from '@/components/Dashboard/CategoryCard';
 import { MadeWithDyad } from "@/components/made-with-dyad";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
   const navigate = useNavigate();
+  const [user, setUser] = useState({ name: 'Studente', grade: '' });
+
+  useEffect(() => {
+    const profile = localStorage.getItem('user_profile');
+    if (profile) {
+      setUser(JSON.parse(profile));
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('user_profile');
+    navigate('/onboarding');
+  };
 
   return (
     <div className="min-h-screen bg-[#F8FAFF] p-6 pb-20">
@@ -16,22 +30,38 @@ const Index = () => {
         <div>
           <div className="flex items-center gap-2 mb-2">
             <Sparkles className="w-5 h-5 text-indigo-500 fill-indigo-500" />
-            <span className="text-indigo-600 font-bold uppercase tracking-widest text-xs">Vítej zpět, Lukáši!</span>
+            <span className="text-indigo-600 font-bold uppercase tracking-widest text-xs">
+              Vítej zpět, {user.name}! {user.grade && `(${user.grade})`}
+            </span>
           </div>
-          <h1 className="text-5xl font-black text-slate-800 leading-tight">Co se dnes <br /><span className="text-indigo-600 underline decoration-indigo-200 underline-offset-8">naučíme?</span></h1>
+          <h1 className="text-5xl font-black text-slate-800 leading-tight">
+            Co se dnes <br />
+            <span className="text-indigo-600 underline decoration-indigo-200 underline-offset-8">naučíme?</span>
+          </h1>
         </div>
         
-        <div className="bg-white p-6 rounded-[2rem] shadow-sm flex items-center gap-6 border-2 border-white">
-          <div className="flex flex-col items-center">
-            <span className="text-3xl font-black text-indigo-600">12</span>
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Dní v řadě</span>
+        <div className="flex items-center gap-4">
+          <div className="bg-white p-6 rounded-[2rem] shadow-sm flex items-center gap-6 border-2 border-white">
+            <div className="flex flex-col items-center">
+              <span className="text-3xl font-black text-indigo-600">12</span>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Dní v řadě</span>
+            </div>
+            <div className="w-[1px] h-10 bg-slate-100" />
+            <div className="flex flex-col items-center">
+              <span className="text-3xl font-black text-emerald-500">84%</span>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Průměr</span>
+            </div>
+            <TrendingUp className="w-8 h-8 text-slate-200" />
           </div>
-          <div className="w-[1px] h-10 bg-slate-100" />
-          <div className="flex flex-col items-center">
-            <span className="text-3xl font-black text-emerald-500">84%</span>
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Průměr</span>
-          </div>
-          <TrendingUp className="w-8 h-8 text-slate-200" />
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={handleLogout}
+            className="rounded-2xl h-14 w-14 bg-white shadow-sm hover:bg-red-50 hover:text-red-500 transition-colors"
+            title="Resetovat profil"
+          >
+            <LogOut className="w-6 h-6" />
+          </Button>
         </div>
       </header>
 
