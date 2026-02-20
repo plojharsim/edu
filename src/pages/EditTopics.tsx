@@ -239,7 +239,7 @@ const EditTopics = () => {
                         <div className="bg-muted p-4 rounded-xl border border-border break-all text-xs font-mono text-foreground/70 max-h-[200px] overflow-y-auto">
                           {encodeTopic(activeTopic)}
                         </div>
-                        <Button onClick={() => copyToClipboard(encodeTopic(activeTopic))} className="w-full gap-2 rounded-xl bg-indigo-600">
+                        <Button onClick={() => copyToClipboard(encodeTopic(activeTopic))} className="w-full gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold mt-4">
                           {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                           Kopírovat kód pro kamaráda
                         </Button>
@@ -259,12 +259,10 @@ const EditTopics = () => {
                             Tento kód pošli mně (vývojáři) a já ho přidám jako stálou součást aplikace pro všechny!
                           </DialogDescription>
                         </DialogHeader>
-                        <Textarea 
-                          readOnly
-                          value={formatForDeveloper(activeTopic)}
-                          className="min-h-[300px] font-mono text-xs bg-muted border-border text-foreground rounded-xl"
-                        />
-                        <Button onClick={() => copyToClipboard(formatForDeveloper(activeTopic))} className="w-full gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white">
+                        <div className="bg-muted p-4 rounded-xl border border-border text-xs font-mono text-foreground/70 max-h-[300px] overflow-y-auto whitespace-pre-wrap">
+                          {formatForDeveloper(activeTopic)}
+                        </div>
+                        <Button onClick={() => copyToClipboard(formatForDeveloper(activeTopic))} className="w-full gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold mt-4">
                           {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                           Kopírovat kód pro vývojáře
                         </Button>
