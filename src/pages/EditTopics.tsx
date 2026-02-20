@@ -8,14 +8,19 @@ import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Trash2, ChevronLeft, Save, BookText, Layers, CheckSquare, Keyboard, BookOpen, ArrowLeftRight } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Plus, Trash2, ChevronLeft, Save, BookText, Layers, CheckSquare, Keyboard, BookOpen, ArrowLeftRight, Share2, Download } from "lucide-react";
 import { saveUserTopics, Topic, StudyItem, StudyMode } from '@/data/studyData';
-import { showSuccess } from '@/utils/toast';
+import { showSuccess, showError } from '@/utils/toast';
+import { encodeTopicCode, decodeTopicCode } from '@/utils/sharing';
 
 const EditTopics = () => {
   const navigate = useNavigate();
   const [topics, setTopics] = useState<Topic[]>([]);
   const [activeTopicId, setActiveTopicId] = useState<string | null>(null);
+  const [importCode, setImportCode] = useState("");
+  const [isImportOpen, setIsImportOpen] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem('user_topics');
@@ -102,6 +107,25 @@ const EditTopics = () => {
     }
   };
 
+  const handleShare = (topic: Topic) => {
+    const code = encodeTopicCode(topic);
+    navigator.clipboard.writeText(code);
+    showSuccess("Kód tématu byl zkopírován do schránky!");
+  };
+
+  const handleImport = () => {
+    const importedTopic = decodeTopicCode(importCode);
+    if (importedTopic) {
+      setTopics([...topics, importedTopic]);
+      setActiveTopicId(importedTopic.id);
+      setImportCode("");
+      setIsImportOpen(false);
+      showSuccess(`Téma "${importedTopic.name}" bylo úspěšně importováno!`);
+    } else {
+      showError("Neplatný kód tématu. Zkontrolujte, zda je kód kompletní a správný.");
+    }
+  };
+
   const activeTopic = topics.find(t => t.id === activeTopicId);
   const isAbcdModeEnabled = activeTopic?.allowedModes?.includes('abcd') ?? true;
 
@@ -114,22 +138,48 @@ const EditTopics = () => {
 
   return (
     <div className="min-h-screen bg-background p-6 pb-20">
-      <header className="max-w-6xl mx-auto mb-10 flex items-center justify-between">
+      <header className="max-w-6xl mx-auto mb-10 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <Button variant="ghost" onClick={() => navigate('/')} className="rounded-2xl h-12 w-12 bg-card shadow-sm">
             <ChevronLeft className="w-6 h-6" />
           </Button>
           <h1 className="text-3xl font-black text-slate-800 dark:text-slate-100">Moje témata</h1>
         </div>
-        <Button onClick={handleSave} className="rounded-2xl h-12 px-8 bg-indigo-600 hover:bg-indigo-700 text-white font-bold gap-2">
-          <Save className="w-5 h-5" /> Uložit změny
-        </Button>
+        <div className="flex gap-2">
+          <Dialog open={isImportOpen} onOpenChange={setIsImportOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" className="rounded-2xl h-12 px-6 border-2 font-bold gap-2">
+                <Download className="w-5 h-5" /> Importovat
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="rounded-[2rem] max-w-md">
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-black">Importovat téma</DialogTitle>
+              </DialogHeader>
+              <div className="py-4">
+                <Label className="mb-2 block font-bold text-slate-500 uppercase text-xs">Vložte sdílecí kód</Label>
+                <Textarea 
+                  value={importCode}
+                  onChange={(e) => setImportCode(e.target.value)}
+                  placeholder="Vložte kód zde..."
+                  className="min-h-[150px] rounded-2xl border-2 border-slate-100 focus:border-indigo-400"
+                />
+              </div>
+              <DialogFooter>
+                <Button onClick={handleImport} className="w-full h-12 rounded-xl bg-indigo-600 font-bold">Importovat téma</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          <Button onClick={handleSave} className="rounded-2xl h-12 px-8 bg-indigo-600 hover:bg-indigo-700 text-white font-bold gap-2">
+            <Save className="w-5 h-5" /> Uložit vše
+          </Button>
+        </div>
       </header>
 
       <main className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-8">
         <div className="md:col-span-4 space-y-4">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-bold text-slate-500 uppercase text-xs tracking-widest">Témata ve "Vlastní"</h2>
+            <h2 className="font-bold text-slate-500 uppercase text-xs tracking-widest">Seznam témat</h2>
             <Button size="icon" variant="ghost" onClick={addTopic} className="h-8 w-8 rounded-full bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600">
               <Plus className="w-4 h-4" />
             </Button>
@@ -144,12 +194,22 @@ const EditTopics = () => {
                 <BookText className="mr-3 w-5 h-5 opacity-50" />
                 {topic.name}
               </Button>
-              <button 
-                onClick={(e) => { e.stopPropagation(); deleteTopic(topic.id); }}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-red-400 opacity-0 group-hover:opacity-100 hover:text-red-600 transition-all"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                <button 
+                  onClick={(e) => { e.stopPropagation(); handleShare(topic); }}
+                  className="p-2 text-indigo-400 hover:text-indigo-600 transition-colors"
+                  title="Sdílet téma"
+                >
+                  <Share2 className="w-4 h-4" />
+                </button>
+                <button 
+                  onClick={(e) => { e.stopPropagation(); deleteTopic(topic.id); }}
+                  className="p-2 text-red-400 hover:text-red-600 transition-colors"
+                  title="Smazat téma"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -158,7 +218,12 @@ const EditTopics = () => {
           {activeTopic ? (
             <>
               <div className="bg-card p-6 rounded-[2rem] shadow-sm mb-6">
-                <h2 className="font-bold text-slate-500 uppercase text-xs tracking-widest mb-4">Základní nastavení</h2>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="font-bold text-slate-500 uppercase text-xs tracking-widest">Základní nastavení</h2>
+                  <Button variant="outline" size="sm" onClick={() => handleShare(activeTopic)} className="rounded-xl font-bold gap-2 text-indigo-600 border-indigo-100">
+                    <Share2 className="w-4 h-4" /> Sdílet toto téma
+                  </Button>
+                </div>
                 <Input 
                   value={activeTopic.name}
                   onChange={(e) => {
@@ -277,7 +342,7 @@ const EditTopics = () => {
             <div className="h-full flex flex-col items-center justify-center p-12 text-center bg-card rounded-[3rem] border-2 border-dashed border-slate-100 dark:border-slate-800">
               <BookText className="w-16 h-16 text-slate-200 dark:text-slate-800 mb-4" />
               <h3 className="text-xl font-bold text-slate-400">Vyberte téma k úpravě</h3>
-              <p className="text-slate-400 text-sm max-w-xs mt-2">Nebo vytvořte nové téma pomocí tlačítka plus v levém sloupci.</p>
+              <p className="text-slate-400 text-sm max-w-xs mt-2">Nebo importujte téma od kamaráda pomocí tlačítka Importovat.</p>
             </div>
           )}
         </div>
