@@ -16,6 +16,8 @@ export interface Category {
   id: string;
   title: string;
   topics: Topic[];
+  iconName?: string; // Název ikony z Lucide (např. 'Languages')
+  color?: string;    // Tailwind třída (např. 'bg-indigo-500')
   isCustom?: boolean;
 }
 
@@ -23,6 +25,8 @@ export const PREDEFINED_DATA: Record<string, Category> = {
   english: {
     id: "english",
     title: "Angličtina",
+    iconName: "Languages",
+    color: "bg-indigo-500",
     topics: [
       {
         id: "animals",
@@ -38,6 +42,8 @@ export const PREDEFINED_DATA: Record<string, Category> = {
   biology: {
     id: "biology",
     title: "Biologie",
+    iconName: "Microscope",
+    color: "bg-emerald-500",
     topics: [
       {
         id: "cells",
@@ -53,6 +59,8 @@ export const PREDEFINED_DATA: Record<string, Category> = {
   history: {
     id: "history",
     title: "Dějepis",
+    iconName: "History",
+    color: "bg-amber-500",
     topics: [
       {
         id: "middle-ages",
@@ -68,6 +76,8 @@ export const PREDEFINED_DATA: Record<string, Category> = {
   music: {
     id: "music",
     title: "Hudební výchova",
+    iconName: "Music",
+    color: "bg-rose-500",
     topics: [
       {
         id: "composers",
@@ -92,6 +102,8 @@ export const getStudyData = (): Record<string, Category> => {
     data['custom'] = {
       id: 'custom',
       title: 'Vlastní',
+      iconName: 'BookText',
+      color: 'bg-indigo-600',
       isCustom: true,
       topics: userTopics
     };

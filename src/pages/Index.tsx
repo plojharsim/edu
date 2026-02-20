@@ -2,7 +2,8 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Languages, Microscope, History, Music, Sparkles, TrendingUp, LogOut, Edit3, BookText } from 'lucide-react';
+import * as LucideIcons from 'lucide-react';
+import { Sparkles, TrendingUp, LogOut, Edit3 } from 'lucide-react';
 import CategoryCard from '@/components/Dashboard/CategoryCard';
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -64,18 +65,10 @@ const Index = () => {
     navigate('/onboarding');
   };
 
-  const getIconForCategory = (title: string) => {
-    const lower = title.toLowerCase();
-    if (lower.includes('angličtina')) return Languages;
-    if (lower.includes('biologie')) return Microscope;
-    if (lower.includes('dějepis')) return History;
-    if (lower.includes('hudební')) return Music;
-    return BookText;
-  };
-
-  const getColorForCategory = (idx: number) => {
-    const colors = ['bg-indigo-500', 'bg-emerald-500', 'bg-amber-500', 'bg-rose-500', 'bg-violet-500', 'bg-cyan-500'];
-    return colors[idx % colors.length];
+  // Dynamické získání ikony podle názvu
+  const getIcon = (iconName: string = 'BookText') => {
+    const Icon = (LucideIcons as any)[iconName] || LucideIcons.BookText;
+    return Icon;
   };
 
   return (
@@ -136,13 +129,13 @@ const Index = () => {
         <div className="mb-10">
           <h2 className="text-2xl font-black text-slate-800 dark:text-slate-100 mb-6 text-center md:text-left">Tvoje studijní sady</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center md:justify-items-stretch">
-            {Object.values(studyData).map((cat, idx) => (
+            {Object.values(studyData).map((cat) => (
               <div key={cat.id} className="w-full max-w-sm md:max-w-none">
                 <CategoryCard 
                   title={cat.title} 
                   count={cat.topics.reduce((acc, t) => acc + t.items.length, 0)} 
-                  icon={getIconForCategory(cat.title)} 
-                  color={getColorForCategory(idx)} 
+                  icon={getIcon(cat.iconName)} 
+                  color={cat.color || 'bg-slate-500'} 
                   onClick={() => navigate(`/study/${cat.id}`)}
                 />
               </div>
@@ -177,7 +170,7 @@ const Index = () => {
                 </button>
               </div>
               <div className="w-48 h-48 bg-indigo-500/30 rounded-full flex items-center justify-center border-4 border-white/20">
-                <Sparkles className="w-24 h-24 text-white opacity-40" />
+                <LucideIcons.Sparkles className="w-24 h-24 text-white opacity-40" />
               </div>
             </div>
           </div>
