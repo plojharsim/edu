@@ -45,28 +45,28 @@ const Index = () => {
               count={124} 
               icon={Languages} 
               color="bg-indigo-500" 
-              onClick={() => navigate('/study')}
+              onClick={() => navigate('/study/english')}
             />
             <CategoryCard 
               title="Biologie" 
               count={45} 
               icon={Microscope} 
               color="bg-emerald-500" 
-              onClick={() => navigate('/study')}
+              onClick={() => navigate('/study/biology')}
             />
             <CategoryCard 
               title="Dějepis" 
               count={82} 
               icon={History} 
               color="bg-amber-500" 
-              onClick={() => navigate('/study')}
+              onClick={() => navigate('/study/history')}
             />
             <CategoryCard 
               title="Hudební nauka" 
               count={30} 
               icon={Music} 
               color="bg-rose-500" 
-              onClick={() => navigate('/study')}
+              onClick={() => navigate('/study/music')}
             />
           </div>
         </div>
@@ -85,9 +85,6 @@ const Index = () => {
               <Sparkles className="w-24 h-24 text-white opacity-40" />
             </div>
           </div>
-          {/* Decorative shapes */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl" />
-          <div className="absolute bottom-0 left-0 w-32 h-32 bg-indigo-400/20 rounded-full translate-y-1/2 -translate-x-1/2 blur-2xl" />
         </div>
       </main>
 
