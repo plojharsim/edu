@@ -179,7 +179,7 @@ const Index = () => {
 
       <footer className="mt-auto pt-10 text-center">
         <p className="text-slate-400 dark:text-slate-500 text-sm font-medium flex items-center justify-center gap-1">
-          Vytvořeno s <Heart className="w-3 h-3 text-red-400 fill-red-400" /> by <span className="text-indigo-600 dark:text-indigo-400 font-bold">plojharsim</span>
+          Vytvořeno s <Heart className="w-3 h-3 text-red-400 fill-red-400" /> by <a href="https://plojharsim.cz" target="_blank" rel="noopener noreferrer" className="text-indigo-600 dark:text-indigo-400 font-bold hover:underline">plojharsim</a>
         </p>
       </footer>
     </div>
