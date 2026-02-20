@@ -6,6 +6,7 @@ import StudyHeader from '@/components/Learning/StudyHeader';
 import Flashcard from '@/components/Learning/Flashcard';
 import MultipleChoice from '@/components/Learning/MultipleChoice';
 import TranslationInput from '@/components/Learning/TranslationInput';
+import MatchingGame from '@/components/Learning/MatchingGame';
 import StudyResults from '@/components/Learning/StudyResults';
 import { Button } from '@/components/ui/button';
 import { BookOpen, CheckSquare, Keyboard, Layers, ChevronLeft, BookText, Check, X } from 'lucide-react';
@@ -18,7 +19,7 @@ const StudySession = () => {
   
   const [view, setView] = useState<'topic-selection' | 'mode-selection' | 'study' | 'results'>('topic-selection');
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
-  const [mode, setMode] = useState<'flashcards' | 'abcd' | 'writing' | null>(null);
+  const [mode, setMode] = useState<'flashcards' | 'abcd' | 'writing' | 'matching' | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [correctCount, setCorrectCount] = useState(0);
   const [incorrectCount, setIncorrectCount] = useState(0);
@@ -33,7 +34,7 @@ const StudySession = () => {
       if (topic) {
         setSelectedTopic(topic);
         const forcedMode = searchParams.get('mode') as any;
-        if (forcedMode && ['flashcards', 'abcd', 'writing'].includes(forcedMode)) {
+        if (forcedMode && ['flashcards', 'abcd', 'writing', 'matching'].includes(forcedMode)) {
           setMode(forcedMode);
           setView('study');
         } else {
@@ -48,7 +49,7 @@ const StudySession = () => {
     setView('mode-selection');
   };
 
-  const handleModeSelect = (selectedMode: 'flashcards' | 'abcd' | 'writing') => {
+  const handleModeSelect = (selectedMode: 'flashcards' | 'abcd' | 'writing' | 'matching') => {
     setMode(selectedMode);
     setView('study');
     setCurrentIndex(0);
@@ -93,6 +94,14 @@ const StudySession = () => {
       updateStats(finalScore);
       setView('results');
     }
+  };
+
+  const handleMatchingComplete = (matchingMistakes: StudyItem[]) => {
+    setMistakes(matchingMistakes);
+    setCorrectCount(selectedTopic!.items.length - matchingMistakes.length);
+    setIncorrectCount(matchingMistakes.length);
+    updateStats(((selectedTopic!.items.length - matchingMistakes.length) / selectedTopic!.items.length) * 100);
+    setView('results');
   };
 
   if (view === 'topic-selection') {
@@ -150,7 +159,7 @@ const StudySession = () => {
             <Keyboard className="w-8 h-8 text-amber-600 dark:text-amber-400" />
             <span className="font-bold text-lg">Psaní</span>
           </Button>
-          <Button variant="outline" className="h-32 w-full sm:w-[calc(50%-0.5rem)] rounded-[2rem] border-2 border-rose-100 dark:border-rose-900/30 bg-card flex flex-col gap-2 hover:border-rose-500 dark:hover:border-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 opacity-50 cursor-not-allowed" disabled>
+          <Button variant="outline" className="h-32 w-full sm:w-[calc(50%-0.5rem)] rounded-[2rem] border-2 border-rose-100 dark:border-rose-900/30 bg-card flex flex-col gap-2 hover:border-rose-500 dark:hover:border-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all" onClick={() => handleModeSelect('matching')}>
             <BookOpen className="w-8 h-8 text-rose-600 dark:text-rose-400" />
             <span className="font-bold text-lg">Přiřazování</span>
           </Button>
@@ -179,7 +188,7 @@ const StudySession = () => {
   return (
     <div className="min-h-screen bg-background py-12 flex flex-col items-center transition-colors duration-300">
       <StudyHeader 
-        current={currentIndex + 1} 
+        current={mode === 'matching' ? selectedTopic!.items.length : currentIndex + 1} 
         total={selectedTopic!.items.length} 
         title={`${category.title}: ${selectedTopic?.name}`} 
       />
@@ -215,6 +224,9 @@ const StudySession = () => {
         )}
         {mode === 'writing' && (
           <TranslationInput term={currentItem.term} correctTranslation={currentItem.definition} onAnswer={(correct) => handleNext(correct)} />
+        )}
+        {mode === 'matching' && (
+          <MatchingGame items={selectedTopic!.items} onComplete={handleMatchingComplete} />
         )}
       </div>
     </div>
