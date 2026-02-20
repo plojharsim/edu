@@ -32,15 +32,14 @@ const Onboarding = () => {
   return (
     <div className="min-h-screen bg-[#F8FAFF] flex items-center justify-center p-6">
       <Card className="w-full max-w-lg p-10 rounded-[3rem] border-none shadow-2xl bg-white relative overflow-hidden">
+        {/* Decorative background element */}
         <div className="absolute -top-20 -right-20 w-64 h-64 bg-indigo-50 rounded-full blur-3xl opacity-50" />
         
         <div className="relative z-10">
-          <div className="flex flex-col items-center mb-10">
-            <div className="p-4 bg-indigo-600 rounded-3xl shadow-lg shadow-indigo-200 mb-4">
+          <div className="flex justify-center mb-8">
+            <div className="p-4 bg-indigo-600 rounded-3xl shadow-lg shadow-indigo-200">
               <Sparkles className="w-8 h-8 text-white" />
             </div>
-            <h2 className="text-xl font-black text-slate-800 tracking-tight">Učička</h2>
-            <p className="text-[10px] font-medium text-slate-400 lowercase -mt-1">by plojharsim</p>
           </div>
 
           {step === 1 ? (

@@ -65,6 +65,7 @@ const Index = () => {
     navigate('/onboarding');
   };
 
+  // Dynamické získání ikony podle názvu
   const getIcon = (iconName: string = 'BookText') => {
     const Icon = (LucideIcons as any)[iconName] || LucideIcons.BookText;
     return Icon;
@@ -74,17 +75,8 @@ const Index = () => {
     <div className="min-h-screen bg-background p-6 pb-20 transition-colors duration-300">
       <header className="max-w-6xl mx-auto pt-10 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-8">
         <div className="text-center md:text-left">
-          <div className="flex items-center justify-center md:justify-start gap-3 mb-6">
-            <div className="bg-indigo-600 p-2 rounded-xl">
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-2xl font-black text-slate-800 dark:text-slate-100 tracking-tight leading-none">Učička</span>
-              <span className="text-[10px] font-medium text-slate-400 lowercase">by plojharsim</span>
-            </div>
-          </div>
-          
           <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
+            <Sparkles className="w-5 h-5 text-indigo-500 fill-indigo-500" />
             <span className="text-indigo-600 dark:text-indigo-400 font-bold uppercase tracking-widest text-xs">
               Vítej zpět, {user.name}! {user.grade && `(${user.grade})`}
             </span>
