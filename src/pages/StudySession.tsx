@@ -73,9 +73,14 @@ const StudySession = () => {
           <h1 className="text-4xl font-black text-slate-800 dark:text-slate-100 mb-2">{category.title}</h1>
           <p className="text-slate-500 dark:text-slate-400 font-medium">Vyber si téma, které chceš procvičit</p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-2xl">
+        <div className="flex flex-wrap justify-center gap-4 w-full max-w-4xl">
           {category.topics.map((topic) => (
-            <Button key={topic.id} variant="outline" className="h-24 rounded-[2rem] border-2 border-white dark:border-slate-800 bg-card shadow-sm hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-900 flex items-center justify-start px-8 gap-4 transition-all" onClick={() => handleTopicSelect(topic)}>
+            <Button 
+              key={topic.id} 
+              variant="outline" 
+              className="h-24 w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.33%-1rem)] rounded-[2rem] border-2 border-white dark:border-slate-800 bg-card shadow-sm hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-900 flex items-center justify-start px-8 gap-4 transition-all" 
+              onClick={() => handleTopicSelect(topic)}
+            >
               <div className="p-3 bg-indigo-50 dark:bg-indigo-950/30 rounded-2xl">
                 <BookText className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
               </div>
@@ -100,20 +105,20 @@ const StudySession = () => {
           <span className="text-indigo-600 dark:text-indigo-400 font-bold uppercase tracking-widest text-xs mb-2 block">{selectedTopic?.name}</span>
           <h1 className="text-4xl font-black text-slate-800 dark:text-slate-100 mb-2">Jak se chceš učit?</h1>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-2xl">
-          <Button variant="outline" className="h-32 rounded-[2rem] border-2 border-indigo-100 dark:border-indigo-900/30 bg-card flex flex-col gap-2 hover:border-indigo-500 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 transition-all" onClick={() => handleModeSelect('flashcards')}>
+        <div className="flex flex-wrap justify-center gap-4 w-full max-w-2xl">
+          <Button variant="outline" className="h-32 w-full sm:w-[calc(50%-0.5rem)] rounded-[2rem] border-2 border-indigo-100 dark:border-indigo-900/30 bg-card flex flex-col gap-2 hover:border-indigo-500 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 transition-all" onClick={() => handleModeSelect('flashcards')}>
             <Layers className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
             <span className="font-bold text-lg">Kartičky</span>
           </Button>
-          <Button variant="outline" className="h-32 rounded-[2rem] border-2 border-emerald-100 dark:border-emerald-900/30 bg-card flex flex-col gap-2 hover:border-emerald-500 dark:hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 transition-all" onClick={() => handleModeSelect('abcd')}>
+          <Button variant="outline" className="h-32 w-full sm:w-[calc(50%-0.5rem)] rounded-[2rem] border-2 border-emerald-100 dark:border-emerald-900/30 bg-card flex flex-col gap-2 hover:border-emerald-500 dark:hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 transition-all" onClick={() => handleModeSelect('abcd')}>
             <CheckSquare className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
             <span className="font-bold text-lg">Výběr (ABCD)</span>
           </Button>
-          <Button variant="outline" className="h-32 rounded-[2rem] border-2 border-amber-100 dark:border-amber-900/30 bg-card flex flex-col gap-2 hover:border-amber-500 dark:hover:border-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/20 transition-all" onClick={() => handleModeSelect('writing')}>
+          <Button variant="outline" className="h-32 w-full sm:w-[calc(50%-0.5rem)] rounded-[2rem] border-2 border-amber-100 dark:border-amber-900/30 bg-card flex flex-col gap-2 hover:border-amber-500 dark:hover:border-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/20 transition-all" onClick={() => handleModeSelect('writing')}>
             <Keyboard className="w-8 h-8 text-amber-600 dark:text-amber-400" />
             <span className="font-bold text-lg">Psaní</span>
           </Button>
-          <Button variant="outline" className="h-32 rounded-[2rem] border-2 border-rose-100 dark:border-rose-900/30 bg-card flex flex-col gap-2 hover:border-rose-500 dark:hover:border-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 opacity-50 cursor-not-allowed" disabled>
+          <Button variant="outline" className="h-32 w-full sm:w-[calc(50%-0.5rem)] rounded-[2rem] border-2 border-rose-100 dark:border-rose-900/30 bg-card flex flex-col gap-2 hover:border-rose-500 dark:hover:border-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 opacity-50 cursor-not-allowed" disabled>
             <BookOpen className="w-8 h-8 text-rose-600 dark:text-rose-400" />
             <span className="font-bold text-lg">Přiřazování</span>
           </Button>
