@@ -108,11 +108,11 @@ const StudySession = () => {
     }
   };
 
-  const handleMatchingComplete = (matchingMistakes: StudyItem[]) => {
-    setMistakes(matchingMistakes);
-    setCorrectCount(selectedTopic!.items.length - matchingMistakes.length);
-    setIncorrectCount(matchingMistakes.length);
-    updateStats(((selectedTopic!.items.length - matchingMistakes.length) / selectedTopic!.items.length) * 100);
+  const handleMatchingComplete = (incorrect: number) => {
+    setIncorrectCount(incorrect);
+    setCorrectCount(selectedTopic!.items.length - incorrect);
+    setMistakes([]); // prázdné pole, žádné konkrétní položky
+    updateStats(((selectedTopic!.items.length - incorrect) / selectedTopic!.items.length) * 100);
     setView('results');
   };
 

@@ -8,7 +8,7 @@ import { showSuccess } from "@/utils/toast";
 
 interface MatchingGameProps {
   items: StudyItem[];
-  onComplete: (mistakes: StudyItem[]) => void;
+  onComplete: (incorrectCount: number) => void;
 }
 
 interface CardItem {
@@ -22,7 +22,7 @@ const MatchingGame = ({ items, onComplete }: MatchingGameProps) => {
   const [selected, setSelected] = useState<CardItem | null>(null);
   const [matchedIds, setMatchedIds] = useState<number[]>([]);
   const [wrongPair, setWrongPair] = useState<[string, string] | null>(null);
-  const [mistakes, setMistakes] = useState<StudyItem[]>([]);
+  const [incorrectIds, setIncorrectIds] = useState<Set<number>>(new Set());
 
   const cards = useMemo(() => {
     const terms = items.map(item => ({
@@ -62,17 +62,17 @@ const MatchingGame = ({ items, onComplete }: MatchingGameProps) => {
       if (newMatched.length === items.length) {
         setTimeout(() => {
           showSuccess("Všechny dvojice nalezeny!");
-          onComplete(mistakes);
+          onComplete(incorrectIds.size);
         }, 500);
       }
     } else {
       // Wrong match
       setWrongPair([selected.id, card.id]);
       
-      // Add to mistakes if not already there
+      // Add to incorrectIds
       const item = items.find(i => i.id === card.originalId || i.id === selected.originalId);
-      if (item && !mistakes.some(m => m.id === item.id)) {
-        setMistakes(prev => [...prev, item]);
+      if (item) {
+        setIncorrectIds(prev => new Set(prev).add(item.id));
       }
 
       setTimeout(() => {
