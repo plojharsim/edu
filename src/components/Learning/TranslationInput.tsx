@@ -8,21 +8,25 @@ import { showSuccess, showError } from "@/utils/toast";
 interface TranslationInputProps {
   term: string;
   correctTranslation: string;
-  onNext: () => void;
+  onAnswer: (isCorrect: boolean) => void;
 }
 
-const TranslationInput = ({ term, correctTranslation, onNext }: TranslationInputProps) => {
+const TranslationInput = ({ term, correctTranslation, onAnswer }: TranslationInputProps) => {
   const [value, setValue] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (value.trim().toLowerCase() === correctTranslation.toLowerCase()) {
+    const isCorrect = value.trim().toLowerCase() === correctTranslation.toLowerCase();
+    
+    if (isCorrect) {
       showSuccess("Skvěle! To je správně.");
-      onNext();
-      setValue("");
     } else {
-      showError(`Chyba. Správná odpověď je: ${correctTranslation}`);
+      showError(`Chyba. Správná odpověď byla: ${correctTranslation}`);
     }
+
+    // Okamžitě přejdeme na další otázku
+    onAnswer(isCorrect);
+    setValue("");
   };
 
   return (
@@ -39,6 +43,7 @@ const TranslationInput = ({ term, correctTranslation, onNext }: TranslationInput
           placeholder="Napiš odpověď..."
           className="h-14 text-lg rounded-xl border-2 border-slate-100 dark:border-slate-800 focus:border-amber-400 focus:ring-amber-400 bg-background"
           autoFocus
+          autoComplete="off"
         />
         <Button 
           type="submit" 

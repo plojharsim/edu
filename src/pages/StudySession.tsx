@@ -180,7 +180,7 @@ const StudySession = () => {
           <MultipleChoice question={currentItem.term} options={currentItem.options} correctAnswer={currentItem.definition} onAnswer={(correct) => setTimeout(() => handleNext(correct), 1000)} />
         )}
         {mode === 'writing' && (
-          <TranslationInput term={currentItem.term} correctTranslation={currentItem.definition} onNext={() => handleNext(true)} />
+          <TranslationInput term={currentItem.term} correctTranslation={currentItem.definition} onAnswer={(correct) => handleNext(correct)} />
         )}
       </div>
     </div>
