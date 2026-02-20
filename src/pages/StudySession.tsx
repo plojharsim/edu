@@ -84,9 +84,6 @@ const StudySession = () => {
           ...item,
           term: item.definition,
           definition: item.term,
-          // Špatné odpovědi u ABCD/Matching by ideálně měly být také prohozeny, 
-          // ale jelikož nevíme, k čemu patří, necháme je prázdné nebo použijeme termíny jiných položek.
-          // Pro zjednodušení v random směru použijeme jen termíny jiných položek jako distraktory:
           options: topic.items
             .filter(i => i.id !== item.id)
             .map(i => i.term)
@@ -197,43 +194,43 @@ const StudySession = () => {
         <Button variant="ghost" onClick={() => setView('topic-selection')} className="absolute top-8 left-8 rounded-2xl hover:bg-card dark:hover:bg-slate-800">
           <ChevronLeft className="mr-2 w-5 h-5" /> Změnit téma
         </Button>
-        <div className="text-center mb-12">
+        <div className="text-center mb-12 px-4">
           <span className="text-indigo-600 dark:text-indigo-400 font-bold uppercase tracking-widest text-xs mb-2 block">{selectedTopic?.name}</span>
           <h1 className="text-4xl font-black text-slate-800 dark:text-slate-100 mb-2">Jak se chceš učit?</h1>
         </div>
-        <div className="flex flex-wrap justify-center gap-4 w-full max-w-2xl">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 w-full max-w-2xl px-2">
           {isModeAllowed('flashcards') && (
-            <Button variant="outline" className="h-32 w-full sm:w-[calc(50%-0.5rem)] rounded-[2rem] border-2 border-indigo-100 dark:border-indigo-900/30 bg-card flex flex-col gap-2 hover:border-indigo-500 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 transition-all" onClick={() => handleModeSelect('flashcards')}>
-              <Layers className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
-              <span className="font-bold text-lg">Kartičky</span>
+            <Button variant="outline" className="h-28 sm:h-32 w-full rounded-[2rem] border-2 border-indigo-100 dark:border-indigo-900/30 bg-card flex flex-col gap-2 hover:border-indigo-500 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 transition-all" onClick={() => handleModeSelect('flashcards')}>
+              <Layers className="w-7 h-7 sm:w-8 sm:h-8 text-indigo-600 dark:text-indigo-400" />
+              <span className="font-bold text-base sm:text-lg">Kartičky</span>
             </Button>
           )}
           {isModeAllowed('abcd') && (
             <Button 
               variant="outline" 
-              className="h-32 w-full sm:w-[calc(50%-0.5rem)] rounded-[2rem] border-2 border-emerald-100 dark:border-emerald-900/30 bg-card flex flex-col gap-2 hover:border-emerald-500 dark:hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 transition-all" 
+              className="h-28 sm:h-32 w-full rounded-[2rem] border-2 border-emerald-100 dark:border-emerald-900/30 bg-card flex flex-col gap-2 hover:border-emerald-500 dark:hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 transition-all" 
               onClick={() => handleModeSelect('abcd')}
             >
-              <CheckSquare className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
-              <span className="font-bold text-lg">Výběr (ABCD)</span>
+              <CheckSquare className="w-7 h-7 sm:w-8 sm:h-8 text-emerald-600 dark:text-emerald-400" />
+              <span className="font-bold text-base sm:text-lg">Výběr (ABCD)</span>
             </Button>
           )}
           {isModeAllowed('writing') && (
-            <Button variant="outline" className="h-32 w-full sm:w-[calc(50%-0.5rem)] rounded-[2rem] border-2 border-amber-100 dark:border-amber-900/30 bg-card flex flex-col gap-2 hover:border-amber-500 dark:hover:border-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/20 transition-all" onClick={() => handleModeSelect('writing')}>
-              <Keyboard className="w-8 h-8 text-amber-600 dark:text-amber-400" />
-              <span className="font-bold text-lg">Psaní</span>
+            <Button variant="outline" className="h-28 sm:h-32 w-full rounded-[2rem] border-2 border-amber-100 dark:border-amber-900/30 bg-card flex flex-col gap-2 hover:border-amber-500 dark:hover:border-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/20 transition-all" onClick={() => handleModeSelect('writing')}>
+              <Keyboard className="w-7 h-7 sm:w-8 sm:h-8 text-amber-600 dark:text-amber-400" />
+              <span className="font-bold text-base sm:text-lg">Psaní</span>
             </Button>
           )}
           {isModeAllowed('matching') && (
-            <Button variant="outline" className="h-32 w-full sm:w-[calc(50%-0.5rem)] rounded-[2rem] border-2 border-rose-100 dark:border-rose-900/30 bg-card flex flex-col gap-2 hover:border-rose-500 dark:hover:border-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all" onClick={() => handleModeSelect('matching')}>
-              <BookOpen className="w-8 h-8 text-rose-600 dark:text-rose-400" />
-              <span className="font-bold text-lg">Přiřazování</span>
+            <Button variant="outline" className="h-28 sm:h-32 w-full rounded-[2rem] border-2 border-rose-100 dark:border-rose-900/30 bg-card flex flex-col gap-2 hover:border-rose-500 dark:hover:border-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all" onClick={() => handleModeSelect('matching')}>
+              <BookOpen className="w-7 h-7 sm:w-8 sm:h-8 text-rose-600 dark:text-rose-400" />
+              <span className="font-bold text-base sm:text-lg">Přiřazování</span>
             </Button>
           )}
-          {(!isModeAllowed('flashcards') && !isModeAllowed('abcd') && !isModeAllowed('writing') && !isModeAllowed('matching')) && (
-            <p className="text-slate-400 font-medium italic">Pro toto téma nejsou povoleny žádné režimy.</p>
-          )}
         </div>
+        {(!isModeAllowed('flashcards') && !isModeAllowed('abcd') && !isModeAllowed('writing') && !isModeAllowed('matching')) && (
+          <p className="text-slate-400 font-medium italic mt-8">Pro toto téma nejsou povoleny žádné režimy.</p>
+        )}
       </div>
     );
   }
