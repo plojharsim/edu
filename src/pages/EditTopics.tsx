@@ -8,14 +8,30 @@ import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Trash2, ChevronLeft, Save, BookText, Layers, CheckSquare, Keyboard, BookOpen, ArrowLeftRight } from "lucide-react";
+import { 
+  Plus, Trash2, ChevronLeft, Save, BookText, Layers, 
+  CheckSquare, Keyboard, BookOpen, ArrowLeftRight, 
+  Share2, Download, Upload, Copy, Check
+} from "lucide-react";
+import { 
+  Dialog, DialogContent, DialogHeader, DialogTitle, 
+  DialogDescription, DialogFooter 
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import { saveUserTopics, Topic, StudyItem, StudyMode } from '@/data/studyData';
-import { showSuccess } from '@/utils/toast';
+import { showSuccess, showError } from '@/utils/toast';
 
 const EditTopics = () => {
   const navigate = useNavigate();
   const [topics, setTopics] = useState<Topic[]>([]);
   const [activeTopicId, setActiveTopicId] = useState<string | null>(null);
+  
+  // Dialog states
+  const [isShareOpen, setIsShareOpen] = useState(false);
+  const [isImportOpen, setIsImportOpen] = useState(false);
+  const [shareCode, setShareCode] = useState("");
+  const [importCode, setImportCode] = useState("");
+  const [hasCopied, setHasCopied] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem('user_topics');
@@ -28,17 +44,23 @@ const EditTopics = () => {
     navigate('/');
   };
 
-  const addTopic = () => {
-    const id = `topic_${Date.now()}`;
-    const newTopic: Topic = { 
+  const addTopic = (newTopicData?: Topic) => {
+    const id = newTopicData?.id || `topic_${Date.now()}`;
+    const newTopic: Topic = newTopicData || { 
       id, 
       name: "Nové téma", 
       items: [],
       allowedModes: ['flashcards', 'abcd', 'writing', 'matching'],
       randomizeDirection: false
     };
+    
+    // Zamezení duplicitních ID při importu
+    if (newTopicData && topics.find(t => t.id === newTopic.id)) {
+      newTopic.id = `topic_${Date.now()}`;
+    }
+
     setTopics([...topics, newTopic]);
-    setActiveTopicId(id);
+    setActiveTopicId(newTopic.id);
   };
 
   const deleteTopic = (id: string) => {
@@ -102,6 +124,39 @@ const EditTopics = () => {
     }
   };
 
+  // Export/Import Logic
+  const handleShare = (topic: Topic) => {
+    const jsonString = JSON.stringify(topic);
+    const code = btoa(unescape(encodeURIComponent(jsonString))); // Base64 encoding supporting UTF-8
+    setShareCode(code);
+    setIsShareOpen(true);
+  };
+
+  const handleImport = () => {
+    try {
+      const jsonString = decodeURIComponent(escape(atob(importCode.trim())));
+      const topic = JSON.parse(jsonString) as Topic;
+      
+      if (!topic.name || !Array.isArray(topic.items)) {
+        throw new Error("Neplatný formát tématu");
+      }
+
+      addTopic(topic);
+      showSuccess(`Téma "${topic.name}" bylo úspěšně importováno!`);
+      setIsImportOpen(false);
+      setImportCode("");
+    } catch (e) {
+      showError("Chyba při importu: Neplatný kód tématu.");
+    }
+  };
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(shareCode);
+    setHasCopied(true);
+    setTimeout(() => setHasCopied(false), 2000);
+    showSuccess("Kód byl zkopírován do schránky.");
+  };
+
   const activeTopic = topics.find(t => t.id === activeTopicId);
   const isAbcdModeEnabled = activeTopic?.allowedModes?.includes('abcd') ?? true;
 
@@ -121,16 +176,21 @@ const EditTopics = () => {
           </Button>
           <h1 className="text-3xl font-black text-slate-800 dark:text-slate-100">Moje témata</h1>
         </div>
-        <Button onClick={handleSave} className="rounded-2xl h-12 px-8 bg-indigo-600 hover:bg-indigo-700 text-white font-bold gap-2">
-          <Save className="w-5 h-5" /> Uložit změny
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setIsImportOpen(true)} className="rounded-2xl h-12 px-6 font-bold gap-2 bg-card border-none shadow-sm">
+            <Upload className="w-5 h-5" /> Importovat
+          </Button>
+          <Button onClick={handleSave} className="rounded-2xl h-12 px-8 bg-indigo-600 hover:bg-indigo-700 text-white font-bold gap-2 shadow-lg shadow-indigo-200 dark:shadow-none">
+            <Save className="w-5 h-5" /> Uložit změny
+          </Button>
+        </div>
       </header>
 
       <main className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-8">
         <div className="md:col-span-4 space-y-4">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-bold text-slate-500 uppercase text-xs tracking-widest">Témata ve "Vlastní"</h2>
-            <Button size="icon" variant="ghost" onClick={addTopic} className="h-8 w-8 rounded-full bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600">
+            <Button size="icon" variant="ghost" onClick={() => addTopic()} className="h-8 w-8 rounded-full bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600">
               <Plus className="w-4 h-4" />
             </Button>
           </div>
@@ -158,7 +218,12 @@ const EditTopics = () => {
           {activeTopic ? (
             <>
               <div className="bg-card p-6 rounded-[2rem] shadow-sm mb-6">
-                <h2 className="font-bold text-slate-500 uppercase text-xs tracking-widest mb-4">Základní nastavení</h2>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="font-bold text-slate-500 uppercase text-xs tracking-widest">Základní nastavení</h2>
+                  <Button variant="ghost" size="sm" onClick={() => handleShare(activeTopic)} className="text-indigo-600 font-bold gap-2 hover:bg-indigo-50 rounded-xl">
+                    <Share2 className="w-4 h-4" /> Sdílet téma
+                  </Button>
+                </div>
                 <Input 
                   value={activeTopic.name}
                   onChange={(e) => {
@@ -282,6 +347,65 @@ const EditTopics = () => {
           )}
         </div>
       </main>
+
+      {/* Share Dialog */}
+      <Dialog open={isShareOpen} onOpenChange={setIsShareOpen}>
+        <DialogContent className="sm:max-w-md rounded-[2rem]">
+          <DialogHeader>
+            <DialogTitle>Sdílet téma</DialogTitle>
+            <DialogDescription>
+              Pošli tento kód někomu jinému, aby si mohl téma importovat.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col space-y-4">
+            <div className="relative">
+              <Textarea 
+                readOnly 
+                value={shareCode} 
+                className="min-h-[150px] font-mono text-xs rounded-xl bg-slate-50 dark:bg-slate-950 pr-12"
+              />
+              <Button 
+                size="icon" 
+                variant="ghost" 
+                onClick={copyToClipboard}
+                className="absolute right-2 top-2 hover:bg-white dark:hover:bg-slate-900"
+              >
+                {hasCopied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+              </Button>
+            </div>
+            <p className="text-[10px] text-slate-400 italic">Tento kód je v JSON formátu (Base64), který odpovídá rozhraní Topic v studyData.ts.</p>
+          </div>
+          <DialogFooter>
+            <Button onClick={() => setIsShareOpen(false)} className="rounded-xl font-bold">Zavřít</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Import Dialog */}
+      <Dialog open={isImportOpen} onOpenChange={setIsImportOpen}>
+        <DialogContent className="sm:max-w-md rounded-[2rem]">
+          <DialogHeader>
+            <DialogTitle>Importovat téma</DialogTitle>
+            <DialogDescription>
+              Vlož kód tématu, který jsi obdržel od jiného uživatele.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Textarea 
+              value={importCode}
+              onChange={(e) => setImportCode(e.target.value)}
+              placeholder="Vlož kód sem..."
+              className="min-h-[150px] font-mono text-xs rounded-xl"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setIsImportOpen(false)} className="rounded-xl">Zrušit</Button>
+            <Button onClick={handleImport} disabled={!importCode.trim()} className="rounded-xl bg-indigo-600 font-bold px-6">
+              Importovat
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
