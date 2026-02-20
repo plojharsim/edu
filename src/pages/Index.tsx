@@ -68,7 +68,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background p-6 pb-20 transition-colors duration-300">
-      <header className="max-w-6xl mx-auto pt-10 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+      <header className="max-w-6xl mx-auto pt-10 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-8">
         <div className="text-center md:text-left">
           <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
             <Sparkles className="w-5 h-5 text-indigo-500 fill-indigo-500" />
@@ -82,7 +82,7 @@ const Index = () => {
           </h1>
         </div>
         
-        <div className="flex items-center justify-center gap-4">
+        <div className="flex flex-col items-center gap-4">
           <div className="bg-card p-6 rounded-[2rem] shadow-sm flex items-center gap-6 border-2 border-white dark:border-slate-800">
             <div className="flex flex-col items-center">
               <span className="text-3xl font-black text-indigo-600 dark:text-indigo-400">{stats.streak}</span>
@@ -96,7 +96,7 @@ const Index = () => {
             <TrendingUp className="w-8 h-8 text-slate-200 dark:text-slate-700" />
           </div>
           
-          <div className="flex gap-2">
+          <div className="flex gap-2 w-full justify-center md:justify-end">
             <ThemeToggle />
             <Button 
               variant="ghost" 
