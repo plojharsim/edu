@@ -11,7 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { 
   Plus, Trash2, ChevronLeft, Save, BookText, Layers, 
   CheckSquare, Keyboard, BookOpen, ArrowLeftRight, 
-  Share2, Download, Code, Copy, Check, LayoutGrid
+  Share2, Download, Code, Copy, Check
 } from "lucide-react";
 import { saveUserTopics, Topic, StudyItem, StudyMode } from '@/data/studyData';
 import { showSuccess, showError } from '@/utils/toast';
@@ -51,7 +51,7 @@ const EditTopics = () => {
       id, 
       name: "Nové téma", 
       items: [],
-      allowedModes: ['flashcards', 'abcd', 'writing', 'matching', 'sorting'],
+      allowedModes: ['flashcards', 'abcd', 'writing', 'matching'],
       randomizeDirection: false
     };
     setTopics([...topics, newTopic]);
@@ -85,7 +85,7 @@ const EditTopics = () => {
   const toggleMode = (topicId: string, mode: StudyMode) => {
     const newTopics = topics.map(t => {
       if (t.id === topicId) {
-        const modes = t.allowedModes || ['flashcards', 'abcd', 'writing', 'matching', 'sorting'];
+        const modes = t.allowedModes || ['flashcards', 'abcd', 'writing', 'matching'];
         const newModes = modes.includes(mode) 
           ? modes.filter(m => m !== mode)
           : [...modes, mode];
@@ -109,8 +109,7 @@ const EditTopics = () => {
       topic.items.push({
         term: "",
         definition: "",
-        options: ["", "", ""],
-        group: ""
+        options: ["", "", ""]
       });
       setTopics(newTopics);
     }
@@ -136,14 +135,12 @@ const EditTopics = () => {
 
   const activeTopic = topics.find(t => t.id === activeTopicId);
   const isAbcdModeEnabled = activeTopic?.allowedModes?.includes('abcd') ?? true;
-  const isSortingModeEnabled = activeTopic?.allowedModes?.includes('sorting') ?? true;
 
   const MODES: { id: StudyMode, label: string, icon: any }[] = [
     { id: 'flashcards', label: 'Kartičky', icon: Layers },
     { id: 'abcd', label: 'Výběr (ABCD)', icon: CheckSquare },
     { id: 'writing', label: 'Psaní', icon: Keyboard },
     { id: 'matching', label: 'Přiřazování', icon: BookOpen },
-    { id: 'sorting', label: 'Kategorie', icon: LayoutGrid },
   ];
 
   return (
@@ -289,7 +286,7 @@ const EditTopics = () => {
                         <div key={mode.id} className="flex items-center space-x-3 p-3 sm:p-4 bg-background rounded-2xl border border-border">
                           <Checkbox 
                             id={`mode-${mode.id}`}
-                            checked={(activeTopic.allowedModes || ['flashcards', 'abcd', 'writing', 'matching', 'sorting']).includes(mode.id)}
+                            checked={(activeTopic.allowedModes || ['flashcards', 'abcd', 'writing', 'matching']).includes(mode.id)}
                             onCheckedChange={() => toggleMode(activeTopic.id, mode.id)}
                           />
                           <Label htmlFor={`mode-${mode.id}`} className="flex items-center gap-2 cursor-pointer font-medium text-foreground text-sm">
@@ -359,40 +356,26 @@ const EditTopics = () => {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {isSortingModeEnabled && (
-                        <div className="space-y-2 p-4 bg-indigo-500/5 rounded-2xl border border-border">
-                          <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Kategorie (pro Rozřazování)</label>
-                          <Input 
-                            value={item.group || ""}
-                            onChange={(e) => updateItem(activeTopic.id, idx, 'group', e.target.value)}
-                            placeholder="Např. Zvířata"
-                            className="h-10 rounded-xl border-border bg-background text-foreground text-sm"
-                          />
+                    {isAbcdModeEnabled && (
+                      <div className="space-y-3 p-3 sm:p-4 bg-muted/30 rounded-2xl border border-border">
+                        <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Špatné odpovědi</label>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
+                          {item.options.map((opt, optIdx) => (
+                            <Input 
+                              key={optIdx}
+                              value={opt}
+                              onChange={(e) => {
+                                const newOpts = [...item.options];
+                                newOpts[optIdx] = e.target.value;
+                                updateItem(activeTopic.id, idx, 'options', newOpts);
+                              }}
+                              placeholder={`Chyba ${optIdx + 1}`}
+                              className="rounded-lg border-border h-9 text-xs sm:text-sm bg-background text-foreground"
+                            />
+                          ))}
                         </div>
-                      )}
-
-                      {isAbcdModeEnabled && (
-                        <div className="space-y-3 p-4 bg-muted/30 rounded-2xl border border-border">
-                          <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Špatné odpovědi (pro ABCD)</label>
-                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                            {item.options.map((opt, optIdx) => (
-                              <Input 
-                                key={optIdx}
-                                value={opt}
-                                onChange={(e) => {
-                                  const newOpts = [...item.options];
-                                  newOpts[optIdx] = e.target.value;
-                                  updateItem(activeTopic.id, idx, 'options', newOpts);
-                                }}
-                                placeholder={`Chyba ${optIdx + 1}`}
-                                className="rounded-lg border-border h-9 text-xs sm:text-sm bg-background text-foreground"
-                              />
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </Card>
                 ))}
               </div>

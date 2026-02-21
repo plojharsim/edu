@@ -7,10 +7,9 @@ import Flashcard from '@/components/Learning/Flashcard';
 import MultipleChoice from '@/components/Learning/MultipleChoice';
 import TranslationInput from '@/components/Learning/TranslationInput';
 import MatchingGame from '@/components/Learning/MatchingGame';
-import SortingGame from '@/components/Learning/SortingGame';
 import StudyResults from '@/components/Learning/StudyResults';
 import { Button } from '@/components/ui/button';
-import { BookOpen, CheckSquare, Keyboard, Layers, ChevronLeft, BookText, Check, X, LayoutGrid } from 'lucide-react';
+import { BookOpen, CheckSquare, Keyboard, Layers, ChevronLeft, BookText, Check, X } from 'lucide-react';
 import { getStudyData, Topic, StudyItem, StudyMode } from '@/data/studyData';
 
 const StudySession = () => {
@@ -49,7 +48,7 @@ const StudySession = () => {
       if (topic) {
         setSelectedTopic(topic);
         const forcedMode = searchParams.get('mode') as any;
-        if (forcedMode && ['flashcards', 'abcd', 'writing', 'matching', 'sorting'].includes(forcedMode)) {
+        if (forcedMode && ['flashcards', 'abcd', 'writing', 'matching'].includes(forcedMode)) {
           handleModeSelect(forcedMode, topic);
         } else {
           setView('mode-selection');
@@ -80,7 +79,7 @@ const StudySession = () => {
     if (!topic) return;
 
     const items = topic.items.map(item => {
-      const canRandomize = topic.randomizeDirection && !['abcd', 'sorting'].includes(selectedMode) && Math.random() > 0.5;
+      const canRandomize = topic.randomizeDirection && selectedMode !== 'abcd' && Math.random() > 0.5;
 
       if (canRandomize) {
         return {
@@ -148,6 +147,7 @@ const StudySession = () => {
       if (mode === 'flashcards' && isCardFlipped) {
         setIsTransitioning(true);
         setIsCardFlipped(false);
+        // Počkáme na dotočení karty zpět na přední stranu (400ms - původní rychlost)
         setTimeout(() => {
           setCurrentIndex(prev => prev + 1);
           setIsTransitioning(false);
@@ -159,17 +159,17 @@ const StudySession = () => {
     }
   };
 
-  const handleSessionComplete = (incorrect: number) => {
+  const handleMatchingComplete = (incorrect: number) => {
     setIncorrectCount(incorrect);
     setCorrectCount(selectedTopic!.items.length - incorrect);
-    setMistakes([]); // V těchto režimech seznam chyb zatím neukládáme detailně jako u ABCD
+    setMistakes([]);
     updateStats(((selectedTopic!.items.length - incorrect) / selectedTopic!.items.length) * 100);
     setView('results');
   };
 
   const isModeAllowed = (m: StudyMode) => {
     if (!selectedTopic) return false;
-    const allowed = selectedTopic.allowedModes || ['flashcards', 'abcd', 'writing', 'matching', 'sorting'];
+    const allowed = selectedTopic.allowedModes || ['flashcards', 'abcd', 'writing', 'matching'];
     return allowed.includes(m);
   };
 
@@ -252,12 +252,6 @@ const StudySession = () => {
               <span className="font-bold text-base sm:text-lg">Přiřazování</span>
             </Button>
           )}
-          {isModeAllowed('sorting') && (
-            <Button variant="outline" className="h-28 sm:h-32 w-full rounded-[2rem] border-2 border-sky-100 dark:border-sky-900/30 bg-card flex flex-col gap-2 hover:border-sky-500 dark:hover:border-sky-500 hover:bg-sky-50 dark:hover:bg-sky-950/20 transition-all" onClick={() => handleModeSelect('sorting')}>
-              <LayoutGrid className="w-7 h-7 sm:w-8 sm:h-8 text-sky-600 dark:text-sky-400" />
-              <span className="font-bold text-base sm:text-lg">Rozřazování</span>
-            </Button>
-          )}
         </div>
       </div>
     );
@@ -281,7 +275,7 @@ const StudySession = () => {
   return (
     <div className="min-h-screen bg-background pt-20 pb-12 md:py-12 flex flex-col items-center transition-colors duration-300">
       <StudyHeader 
-        current={['matching', 'sorting'].includes(mode || '') ? selectedTopic!.items.length : currentIndex + 1} 
+        current={mode === 'matching' ? selectedTopic!.items.length : currentIndex + 1} 
         total={selectedTopic!.items.length} 
         title={`${category.title}: ${selectedTopic?.name}`} 
         time={seconds}
@@ -327,10 +321,7 @@ const StudySession = () => {
           <TranslationInput term={currentItem.term} correctTranslation={currentItem.definition} onAnswer={(correct) => handleNext(correct)} />
         )}
         {mode === 'matching' && (
-          <MatchingGame items={shuffledItems} onComplete={(inc) => handleSessionComplete(inc)} />
-        )}
-        {mode === 'sorting' && (
-          <SortingGame items={shuffledItems} onComplete={(inc) => handleSessionComplete(inc)} />
+          <MatchingGame items={shuffledItems} onComplete={handleMatchingComplete} />
         )}
       </div>
     </div>
