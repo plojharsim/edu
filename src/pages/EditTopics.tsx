@@ -16,6 +16,8 @@ import {
 import { saveUserTopics, Topic, StudyItem, StudyMode } from '@/data/studyData';
 import { showSuccess, showError } from '@/utils/toast';
 import { encodeTopic, decodeTopic, formatForDeveloper } from '@/lib/sharing';
+import { unlockBadge } from '@/data/badges';
+import { showSuccess as notifyBadge } from '@/utils/toast';
 import {
   Dialog,
   DialogContent,
@@ -41,6 +43,9 @@ const EditTopics = () => {
 
   const handleSave = () => {
     saveUserTopics(topics);
+    if (topics.length > 0 && unlockBadge('creator')) {
+      notifyBadge("Získán odznak: Tvůrce!");
+    }
     showSuccess("Vlastní témata byla uložena!");
     navigate('/');
   };
