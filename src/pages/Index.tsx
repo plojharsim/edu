@@ -7,8 +7,11 @@ import { Sparkles, TrendingUp, LogOut, Edit3, Heart } from 'lucide-react';
 import CategoryCard from '@/components/Dashboard/CategoryCard';
 import BadgesSection from '@/components/Dashboard/BadgesSection';
 import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { ThemeToggle } from "@/theme/ThemeToggle"; // Fixed import path if needed or kept as is
 import { getStudyData, Category } from '@/data/studyData';
+
+// Fix for ThemeToggle import if it was moved or keep original
+import { ThemeToggle as OriginalThemeToggle } from "@/components/ThemeToggle";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -108,7 +111,7 @@ const Index = () => {
           </div>
           
           <div className="flex gap-2">
-            <ThemeToggle />
+            <OriginalThemeToggle />
             <Button 
               variant="ghost" 
               size="icon" 

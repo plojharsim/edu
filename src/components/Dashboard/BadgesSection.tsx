@@ -1,7 +1,11 @@
 "use client";
 
 import React from 'react';
-import { Trophy, Flame, Target, BookOpen, Star, Sparkles } from "lucide-react";
+import { 
+  Trophy, Flame, Target, BookOpen, Star, Sparkles, 
+  Zap, GraduationCap, Library, Crown, Medal, Award,
+  CheckCircle, Lightbulb
+} from "lucide-react";
 import Badge from './Badge';
 
 interface BadgesSectionProps {
@@ -10,11 +14,13 @@ interface BadgesSectionProps {
     sessions: number;
     perfectSessions?: number;
     customTopicsCount: number;
+    average?: number;
   };
 }
 
 const BadgesSection = ({ stats }: BadgesSectionProps) => {
   const BADGES = [
+    // --- LEHKÉ (EASY) ---
     {
       id: 'first-step',
       label: 'První krůček',
@@ -32,6 +38,32 @@ const BadgesSection = ({ stats }: BadgesSectionProps) => {
       unlocked: stats.streak >= 3
     },
     {
+      id: 'creator',
+      label: 'Tvořitel',
+      description: 'Vytvoř si vlastní studijní téma.',
+      icon: Star,
+      color: 'bg-purple-500',
+      unlocked: stats.customTopicsCount >= 1
+    },
+
+    // --- STŘEDNÍ (MEDIUM) ---
+    {
+      id: 'diligent',
+      label: 'Snaživec',
+      description: 'Dokonči celkem 10 studijních lekcí.',
+      icon: Medal,
+      color: 'bg-amber-500',
+      unlocked: stats.sessions >= 10
+    },
+    {
+      id: 'fire-starter',
+      label: 'Plamen',
+      description: 'Udržuj si denní sérii 5 dní.',
+      icon: Zap,
+      color: 'bg-red-500',
+      unlocked: stats.streak >= 5
+    },
+    {
       id: 'perfectionist',
       label: 'Perfekcionista',
       description: 'Dokonči lekci na 100 % bez jediné chyby.',
@@ -40,20 +72,22 @@ const BadgesSection = ({ stats }: BadgesSectionProps) => {
       unlocked: (stats.perfectSessions || 0) >= 1
     },
     {
-      id: 'creator',
-      label: 'Tvořitel',
-      description: 'Vytvoř si vlastní studijní téma.',
-      icon: Star,
-      color: 'bg-purple-500',
-      unlocked: stats.customTopicsCount >= 1
+      id: 'library-builder',
+      label: 'Stavitel',
+      description: 'Vytvoř si alespoň 5 vlastních témat.',
+      icon: Library,
+      color: 'bg-indigo-500',
+      unlocked: stats.customTopicsCount >= 5
     },
+
+    // --- TĚŽKÉ (HARD) ---
     {
-      id: 'diligent',
-      label: 'Snaživec',
-      description: 'Dokonči celkem 10 studijních lekcí.',
-      icon: Trophy,
-      color: 'bg-amber-500',
-      unlocked: stats.sessions >= 10
+      id: 'scholar',
+      label: 'Akademik',
+      description: 'Dokonči celkem 50 studijních lekcí.',
+      icon: GraduationCap,
+      color: 'bg-cyan-600',
+      unlocked: stats.sessions >= 50
     },
     {
       id: 'legend',
@@ -62,6 +96,48 @@ const BadgesSection = ({ stats }: BadgesSectionProps) => {
       icon: Sparkles,
       color: 'bg-indigo-600',
       unlocked: stats.streak >= 7
+    },
+    {
+      id: 'elite-student',
+      label: 'Elita',
+      description: 'Získej 10x hodnocení 100 %.',
+      icon: Award,
+      color: 'bg-rose-500',
+      unlocked: (stats.perfectSessions || 0) >= 10
+    },
+    {
+      id: 'knowledge-master',
+      label: 'Mistr',
+      description: 'Udržuj si průměrnou úspěšnost nad 95 % (min. 10 lekcí).',
+      icon: Lightbulb,
+      color: 'bg-yellow-500',
+      unlocked: (stats.average || 0) >= 95 && stats.sessions >= 10
+    },
+
+    // --- LEGENDÁRNÍ (EXTREME) ---
+    {
+      id: 'unstoppable',
+      label: 'Dříč',
+      description: 'Udržuj si denní sérii 14 dní v řadě.',
+      icon: Flame,
+      color: 'bg-orange-700',
+      unlocked: stats.streak >= 14
+    },
+    {
+      id: 'professor',
+      label: 'Profesor',
+      description: 'Dokonči celkem 200 studijních lekcí.',
+      icon: Crown,
+      color: 'bg-slate-800',
+      unlocked: stats.sessions >= 200
+    },
+    {
+      id: 'content-king',
+      label: 'Král obsahu',
+      description: 'Vytvoř si celkem 15 vlastních témat.',
+      icon: CheckCircle,
+      color: 'bg-emerald-700',
+      unlocked: stats.customTopicsCount >= 15
     }
   ];
 
@@ -74,7 +150,7 @@ const BadgesSection = ({ stats }: BadgesSectionProps) => {
         </span>
       </div>
       
-      <div className="grid grid-cols-3 sm:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-4">
         {BADGES.map(badge => (
           <Badge key={badge.id} {...badge} />
         ))}
