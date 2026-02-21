@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Wand2, Sparkles, Key, Loader2, AlertCircle } from "lucide-react";
+import { Wand2, Sparkles, Key, Loader2, Save } from "lucide-react";
 import { showSuccess, showError } from "@/utils/toast";
 import { Topic } from "@/data/studyData";
 
@@ -25,15 +25,21 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
   const [isLoading, setIsLoading] = useState(false);
   const [showKeyInput, setShowKeyInput] = useState(!apiKey);
 
-  const generateTopic = async () => {
-    if (!apiKey) {
-      setShowKeyInput(true);
+  const handleAction = async () => {
+    if (showKeyInput) {
+      if (!apiKey.trim()) {
+        showError("Prosím vlož platný API klíč.");
+        return;
+      }
+      localStorage.setItem('gemini_api_key', apiKey);
+      setShowKeyInput(false);
+      showSuccess("API klíč uložen.");
       return;
     }
+
     if (!prompt.trim()) return;
 
     setIsLoading(true);
-    localStorage.setItem('gemini_api_key', apiKey);
 
     try {
       const genAI = new GoogleGenerativeAI(apiKey);
@@ -59,7 +65,6 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
       const response = await result.response;
       const text = response.text();
       
-      // Čištění textu od případných markdown bloků
       const jsonStr = text.replace(/```json|```/gi, "").trim();
       const data = JSON.parse(jsonStr);
 
@@ -94,7 +99,9 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
           </div>
           <DialogTitle className="text-2xl font-black text-center text-foreground">AI Generátor</DialogTitle>
           <DialogDescription className="text-center text-muted-foreground">
-            Napiš, co se chceš naučit, a AI ti vytvoří studijní sadu během pár vteřin.
+            {showKeyInput 
+              ? "Pro používání AI je potřeba vložit tvůj osobní API klíč." 
+              : "Napiš, co se chceš naučit, a AI ti vytvoří studijní sadu během pár vteřin."}
           </DialogDescription>
         </DialogHeader>
 
@@ -103,26 +110,19 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
             <div className="space-y-3 p-4 bg-amber-50 dark:bg-amber-950/20 rounded-2xl border border-amber-200 dark:border-amber-900/30">
               <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400 mb-2">
                 <Key className="w-4 h-4" />
-                <span className="text-xs font-bold uppercase tracking-wider">Potřebuješ Gemini API Klíč</span>
+                <span className="text-xs font-bold uppercase tracking-wider">Vlož Gemini API Klíč</span>
               </div>
               <Input 
                 type="password"
-                placeholder="Vlož svůj Google AI API klíč..."
+                placeholder="AI API klíč..."
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
                 className="bg-background border-amber-200 dark:border-amber-900/50"
+                autoFocus
               />
               <p className="text-[10px] text-amber-600/70 dark:text-amber-400/50 italic">
                 Klíč získáš zdarma na Google AI Studio. Uložíme ho pouze u tebe v prohlížeči.
               </p>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="w-full text-[10px] font-bold"
-                onClick={() => setShowKeyInput(false)}
-              >
-                Už mám klíč, zpět k zadání
-              </Button>
             </div>
           ) : (
             <div className="space-y-4">
@@ -133,7 +133,7 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
                 className="min-h-[120px] rounded-2xl border-2 border-border bg-background text-lg p-4 resize-none focus:border-indigo-500"
                 autoFocus
               />
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-end">
                 <Button 
                   variant="ghost" 
                   size="sm" 
@@ -149,13 +149,17 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
 
         <DialogFooter className="sm:justify-center">
           <Button 
-            onClick={generateTopic} 
-            disabled={isLoading || (!prompt && !showKeyInput)}
+            onClick={handleAction} 
+            disabled={isLoading || (showKeyInput && !apiKey) || (!showKeyInput && !prompt)}
             className="w-full h-14 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-lg gap-2 shadow-lg shadow-indigo-200 dark:shadow-none"
           >
             {isLoading ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin" /> Generuji...
+              </>
+            ) : showKeyInput ? (
+              <>
+                <Save className="w-5 h-5" /> Uložit klíč a pokračovat
               </>
             ) : (
               <>
