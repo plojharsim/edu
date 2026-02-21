@@ -158,7 +158,7 @@ const StudySession = () => {
 
   if (view === 'topic-selection') {
     return (
-      <div className="min-h-screen bg-background p-6 flex flex-col items-center justify-center transition-colors duration-300">
+      <div className="min-h-screen bg-background p-6 pt-20 md:pt-6 flex flex-col items-center justify-center transition-colors duration-300">
         <Button variant="ghost" onClick={() => navigate('/')} className="absolute top-8 left-8 rounded-2xl hover:bg-card dark:hover:bg-slate-800">
           <ChevronLeft className="mr-2 w-5 h-5" /> Zpět na přehled
         </Button>
@@ -190,7 +190,7 @@ const StudySession = () => {
 
   if (view === 'mode-selection') {
     return (
-      <div className="min-h-screen bg-background p-6 flex flex-col items-center justify-center transition-colors duration-300">
+      <div className="min-h-screen bg-background p-6 pt-20 md:pt-6 flex flex-col items-center justify-center transition-colors duration-300">
         <Button variant="ghost" onClick={() => setView('topic-selection')} className="absolute top-8 left-8 rounded-2xl hover:bg-card dark:hover:bg-slate-800">
           <ChevronLeft className="mr-2 w-5 h-5" /> Změnit téma
         </Button>
@@ -216,7 +216,7 @@ const StudySession = () => {
             </Button>
           )}
           {isModeAllowed('writing') && (
-            <Button variant="outline" className="h-28 sm:h-32 w-full rounded-[2rem] border-2 border-amber-100 dark:border-amber-900/30 bg-card flex flex-col gap-2 hover:border-amber-500 dark:hover:border-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/20 transition-all" onClick={() => handleModeSelect('writing')}>
+            <Button variant="outline" className="h-28 sm:h-32 w-full rounded-[2rem] border-2 border-amber-100 dark:border-amber-900/30 bg-card flex flex-col gap-2 hover:border-amber-500 dark:hover:border-amber-500 hover:bg-amber-50 dark:hover:bg-indigo-950/20 transition-all" onClick={() => handleModeSelect('writing')}>
               <Keyboard className="w-7 h-7 sm:w-8 sm:h-8 text-amber-600 dark:text-amber-400" />
               <span className="font-bold text-base sm:text-lg">Psaní</span>
             </Button>
@@ -251,7 +251,7 @@ const StudySession = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background py-12 flex flex-col items-center transition-colors duration-300">
+    <div className="min-h-screen bg-background pt-20 pb-12 md:py-12 flex flex-col items-center transition-colors duration-300">
       <StudyHeader 
         current={mode === 'matching' ? selectedTopic!.items.length : currentIndex + 1} 
         total={selectedTopic!.items.length} 
