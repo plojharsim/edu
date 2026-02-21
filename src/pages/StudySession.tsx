@@ -147,11 +147,11 @@ const StudySession = () => {
       if (mode === 'flashcards' && isCardFlipped) {
         setIsTransitioning(true);
         setIsCardFlipped(false);
-        // Počkáme na dotočení karty zpět na přední stranu (500ms)
+        // Počkáme na dotočení karty zpět na přední stranu (400ms)
         setTimeout(() => {
           setCurrentIndex(prev => prev + 1);
           setIsTransitioning(false);
-        }, 500);
+        }, 400);
       } else {
         setCurrentIndex(prev => prev + 1);
         setIsCardFlipped(false);
