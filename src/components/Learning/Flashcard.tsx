@@ -18,7 +18,7 @@ const Flashcard = ({ front, back, isFlipped, onFlip }: FlashcardProps) => {
       onClick={onFlip}
     >
       <div className={cn(
-        "relative w-full h-full transition-all duration-400 preserve-3d",
+        "relative w-full h-full transition-all duration-500 preserve-3d",
         isFlipped ? "rotate-y-180" : ""
       )}>
         {/* Přední strana */}
