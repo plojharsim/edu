@@ -24,8 +24,6 @@ Moderní webová aplikace pro efektivní učení a procvičování učiva formou
 - [x] **Dark Mode**: Kompletní vizuální styly pro světlý i tmavý režim.
 
 ### ⏳ V plánu (Backlog)
-- [ ] **Nový způsob**: Implementace dalšího inovativního herního režimu pro ještě efektivnější zapamatování.
-- [ ] **Přiřazování do kategorií**: Možnost dynamicky třídit vlastní témata do složek nebo kategorií (aktuálně padají všechna do sekce "Vlastní").
 - [ ] **Cloud synchronizace**: Možnost zálohování dat mimo LocalStorage.
 
 ---
