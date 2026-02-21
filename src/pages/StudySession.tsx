@@ -26,6 +26,7 @@ const StudySession = () => {
   const [incorrectCount, setIncorrectCount] = useState(0);
   const [mistakes, setMistakes] = useState<StudyItem[]>([]);
   const [isCardFlipped, setIsCardFlipped] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const [seconds, setSeconds] = useState(0);
   
   const studyData = getStudyData();
@@ -77,9 +78,7 @@ const StudySession = () => {
     const topic = topicOverride || selectedTopic;
     if (!topic) return;
 
-    // Promíchání a případná randomizace směru
     const items = topic.items.map(item => {
-      // ABCD režim nebude nikdy náhodně otáčet směr, aby fungovaly zadané možnosti
       const canRandomize = topic.randomizeDirection && selectedMode !== 'abcd' && Math.random() > 0.5;
 
       if (canRandomize) {
@@ -105,6 +104,7 @@ const StudySession = () => {
     setIncorrectCount(0);
     setMistakes([]);
     setIsCardFlipped(false);
+    setIsTransitioning(false);
     setSeconds(0);
   };
 
@@ -125,6 +125,8 @@ const StudySession = () => {
   };
 
   const handleNext = (isCorrect: boolean = true) => {
+    if (isTransitioning) return;
+    
     const item = shuffledItems[currentIndex];
     
     if (isCorrect) {
@@ -134,14 +136,26 @@ const StudySession = () => {
       setMistakes(prev => [...prev, item]);
     }
 
-    if (currentIndex < shuffledItems.length - 1) {
-      setCurrentIndex(prev => prev + 1);
-      setIsCardFlipped(false);
-    } else {
+    const isLast = currentIndex >= shuffledItems.length - 1;
+
+    if (isLast) {
       const finalCorrect = isCorrect ? correctCount + 1 : correctCount;
       const finalScore = (finalCorrect / shuffledItems.length) * 100;
       updateStats(finalScore);
       setView('results');
+    } else {
+      if (mode === 'flashcards' && isCardFlipped) {
+        setIsTransitioning(true);
+        setIsCardFlipped(false);
+        // Počkáme na dotočení karty zpět na přední stranu (400ms)
+        setTimeout(() => {
+          setCurrentIndex(prev => prev + 1);
+          setIsTransitioning(false);
+        }, 400);
+      } else {
+        setCurrentIndex(prev => prev + 1);
+        setIsCardFlipped(false);
+      }
     }
   };
 
@@ -239,9 +253,6 @@ const StudySession = () => {
             </Button>
           )}
         </div>
-        {(!isModeAllowed('flashcards') && !isModeAllowed('abcd') && !isModeAllowed('writing') && !isModeAllowed('matching')) && (
-          <p className="text-slate-400 font-medium italic mt-8">Pro toto téma nejsou povoleny žádné režimy.</p>
-        )}
       </div>
     );
   }
@@ -276,19 +287,21 @@ const StudySession = () => {
               front={currentItem.term} 
               back={currentItem.definition} 
               isFlipped={isCardFlipped}
-              onFlip={() => setIsCardFlipped(true)}
+              onFlip={() => !isTransitioning && setIsCardFlipped(true)}
             />
             
             <div className={`flex gap-4 transition-all duration-500 ${isCardFlipped ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
               <Button 
                 onClick={() => handleNext(false)} 
                 variant="outline"
+                disabled={isTransitioning}
                 className="h-16 px-8 rounded-2xl border-2 border-red-100 dark:border-red-900/30 text-red-600 dark:text-red-400 font-bold gap-2 hover:bg-red-50 dark:hover:bg-red-950/20"
               >
                 <X className="w-5 h-5" /> Nevěděl jsem
               </Button>
               <Button 
                 onClick={() => handleNext(true)} 
+                disabled={isTransitioning}
                 className="h-16 px-8 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold gap-2 shadow-lg shadow-emerald-200 dark:shadow-none"
               >
                 <Check className="w-5 h-5" /> Věděl jsem
