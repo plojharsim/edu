@@ -51,8 +51,7 @@ export const formatForDeveloper = (topic: Topic): string => {
     items: topic.items.map(item => ({
       term: item.term,
       definition: item.definition,
-      options: item.options,
-      isAbcdEnabled: item.isAbcdEnabled
+      options: item.options
     }))
   };
   return JSON.stringify(cleanTopic, null, 2);

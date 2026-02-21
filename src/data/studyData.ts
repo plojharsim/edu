@@ -4,7 +4,6 @@ export interface StudyItem {
   term: string;
   definition: string;
   options: string[];
-  isAbcdEnabled?: boolean;
 }
 
 export interface Topic {
@@ -40,50 +39,42 @@ export const PREDEFINED_DATA: Record<string, Category> = {
           {
             term: 'Česko',
             definition: 'Praha',
-            options: ['Brno', 'Bratislava', 'Vídeň'],
-            isAbcdEnabled: true
+            options: ['Brno', 'Bratislava', 'Vídeň']
           },
           {
             term: 'Slovensko',
             definition: 'Bratislava',
-            options: ['Košice', 'Praha', 'Budapešť'],
-            isAbcdEnabled: true
+            options: ['Košice', 'Praha', 'Budapešť']
           },
           {
             term: 'Francie',
             definition: 'Paříž',
-            options: ['Lyon', 'Marseille', 'Londýn'],
-            isAbcdEnabled: true
+            options: ['Lyon', 'Marseille', 'Londýn']
           },
           {
             term: 'Německo',
             definition: 'Berlín',
-            options: ['Mnichov', 'Hamburk', 'Frankfurt'],
-            isAbcdEnabled: true
+            options: ['Mnichov', 'Hamburk', 'Frankfurt']
           },
           {
             term: 'Itálie',
             definition: 'Řím',
-            options: ['Milán', 'Neapol', 'Benátky'],
-            isAbcdEnabled: true
+            options: ['Milán', 'Neapol', 'Benátky']
           },
           {
             term: 'Španělsko',
             definition: 'Madrid',
-            options: ['Barcelona', 'Valencie', 'Sevilla'],
-            isAbcdEnabled: true
+            options: ['Barcelona', 'Valencie', 'Sevilla']
           },
           {
             term: 'Rakousko',
             definition: 'Vídeň',
-            options: ['Linec', 'Salcburk', 'Štýrský Hradec'],
-            isAbcdEnabled: true
+            options: ['Linec', 'Salcburk', 'Štýrský Hradec']
           },
           {
             term: 'Polsko',
             definition: 'Varšava',
-            options: ['Krakov', 'Vratislav', 'Gdaňsk'],
-            isAbcdEnabled: true
+            options: ['Krakov', 'Vratislav', 'Gdaňsk']
           }
         ]
       }

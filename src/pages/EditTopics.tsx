@@ -109,8 +109,7 @@ const EditTopics = () => {
       topic.items.push({
         term: "",
         definition: "",
-        options: ["", "", ""],
-        isAbcdEnabled: true
+        options: ["", "", ""]
       });
       setTopics(newTopics);
     }
