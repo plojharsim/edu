@@ -49,7 +49,7 @@ const Index = () => {
     const dateSeed = now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
     const topicIndex = dateSeed % allTopics.length;
     
-    const modes = ['flashcards', 'abcd', 'writing', 'matching', 'sorting'];
+    const modes = ['flashcards', 'abcd', 'writing', 'matching'];
     const modeIndex = dateSeed % modes.length;
     
     return {
@@ -159,8 +159,7 @@ const Index = () => {
                 <p className="text-indigo-100/80 text-sm mb-8">Zopakuj si toto téma pomocí režimu <span className="font-bold">{
                   dailyChallenge.mode === 'flashcards' ? 'Kartičky' : 
                   dailyChallenge.mode === 'abcd' ? 'Výběr' : 
-                  dailyChallenge.mode === 'writing' ? 'Psaní' : 
-                  dailyChallenge.mode === 'matching' ? 'Přiřazování' : 'Rozřazování'
+                  dailyChallenge.mode === 'writing' ? 'Psaní' : 'Přiřazování'
                 }</span>!</p>
                 <button 
                   onClick={() => navigate(`/study/${dailyChallenge.categoryId}/${dailyChallenge.topicId}?mode=${dailyChallenge.mode}`)}

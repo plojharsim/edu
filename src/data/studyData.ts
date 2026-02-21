@@ -1,4 +1,4 @@
-export type StudyMode = 'flashcards' | 'abcd' | 'writing' | 'matching' | 'sorting';
+export type StudyMode = 'flashcards' | 'abcd' | 'writing' | 'matching';
 
 export interface StudyItem {
   term: string;
@@ -33,7 +33,7 @@ export const PREDEFINED_DATA: Record<string, Category> = {
       {
         id: 'gogetter-4-unit-5',
         name: 'GoGetter 4 – Unit 5',
-        allowedModes: ['flashcards', 'abcd', 'writing', 'matching', 'sorting'],
+        allowedModes: ['flashcards', 'abcd', 'writing', 'matching'],
         randomizeDirection: true,
         items: [
           { term: 'vážná hudba', definition: 'classical', options: ['folk', 'jazz', 'opera'] },
@@ -110,7 +110,7 @@ export const PREDEFINED_DATA: Record<string, Category> = {
       {
         id: 'evropa-mesta',
         name: 'Hlavní města Evropy',
-        allowedModes: ['flashcards', 'abcd', 'writing', 'matching', 'sorting'],
+        allowedModes: ['flashcards', 'abcd', 'writing', 'matching'],
         randomizeDirection: true,
         items: [
           {
