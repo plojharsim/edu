@@ -43,7 +43,8 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
 
     try {
       const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      // Využití nejnovějšího modelu gemini-2.0-flash pro nejlepší výsledky
+      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
       const systemPrompt = `Jsi asistent pro tvorbu studijních materiálů. Tvým úkolem je vytvořit seznam termínů a definic pro studijní aplikaci na základě uživatelského zadání. 
       Odpověz VŽDY A POUZE ve formátu JSON, který odpovídá této struktuře:
