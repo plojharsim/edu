@@ -12,6 +12,7 @@ import StudyResults from '@/components/Learning/StudyResults';
 import { Button } from '@/components/ui/button';
 import { BookOpen, CheckSquare, Keyboard, Layers, ChevronLeft, BookText, Check, X, LayoutPanelTop } from 'lucide-react';
 import { getStudyData, Topic, StudyItem, StudyMode } from '@/data/studyData';
+import { checkStudyBadges } from '@/utils/badges';
 
 const StudySession = () => {
   const { categoryId, topicId } = useParams();
@@ -123,6 +124,9 @@ const StudySession = () => {
     stats.sessions += 1;
     
     localStorage.setItem('study_stats', JSON.stringify(stats));
+
+    // Kontrola odznaků po aktualizaci statistik
+    checkStudyBadges(score);
   };
 
   const handleNext = (isCorrect: boolean = true) => {
