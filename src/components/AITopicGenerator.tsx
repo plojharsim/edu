@@ -72,7 +72,7 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
       };
 
       onTopicGenerated(newTopic);
-      showSuccess("AI úspěšně vykouzlila nové téma!");
+      showSuccess("AI úspěšně vygenerovala nové téma!");
       onOpenChange(false);
       setPrompt("");
     } catch (error) {
@@ -92,7 +92,7 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
               <Sparkles className="w-8 h-8 text-white" />
             </div>
           </div>
-          <DialogTitle className="text-2xl font-black text-center text-foreground">AI Kouzelník</DialogTitle>
+          <DialogTitle className="text-2xl font-black text-center text-foreground">AI Generátor</DialogTitle>
           <DialogDescription className="text-center text-muted-foreground">
             Napiš, co se chceš naučit, a AI ti vytvoří studijní sadu během pár vteřin.
           </DialogDescription>
@@ -155,11 +155,11 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
           >
             {isLoading ? (
               <>
-                <Loader2 className="w-5 h-5 animate-spin" /> Čaruji...
+                <Loader2 className="w-5 h-5 animate-spin" /> Generuji...
               </>
             ) : (
               <>
-                <Wand2 className="w-5 h-5" /> Vykouzlit téma
+                <Wand2 className="w-5 h-5" /> Vygenerovat téma
               </>
             )}
           </Button>

@@ -160,7 +160,7 @@ const EditTopics = () => {
       <header className="max-w-6xl mx-auto mb-6 sm:mb-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
           <Button variant="ghost" onClick={() => navigate('/')} className="rounded-2xl h-10 w-10 sm:h-12 sm:w-12 bg-card shadow-sm border border-border flex-shrink-0">
-            <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 text-indigo-600 dark:text-indigo-400" />
+            <ChevronLeft className="w-5 h-5 sm:w-6 h-6 text-indigo-600 dark:text-indigo-400" />
           </Button>
           <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-foreground truncate">Moje témata</h1>
         </div>
@@ -169,7 +169,7 @@ const EditTopics = () => {
             onClick={() => setIsAIGeneratorOpen(true)} 
             className="flex-1 sm:flex-none rounded-xl sm:rounded-2xl h-10 sm:h-12 px-3 sm:px-6 bg-indigo-500/10 text-indigo-600 hover:bg-indigo-500/20 font-black border-2 border-indigo-500/30 gap-2 text-xs sm:text-sm animate-pulse"
           >
-            <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" /> AI Kouzelník
+            <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" /> AI
           </Button>
           
           <Dialog>
