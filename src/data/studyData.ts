@@ -80,6 +80,7 @@ export const PREDEFINED_DATA: Record<string, Category> = {
       }
     ]
   },
+  
   anglictina: {
     id: 'anglictina',
     title: 'Angličtina',
