@@ -42,9 +42,15 @@ const SortingGame = ({ items, onComplete }: SortingGameProps) => {
   const [incorrectAttempts, setIncorrectAttempts] = useState(0);
 
   const activeItems = gameState.filter(i => i.status !== 'correct');
+  
   const currentItem = selectedItemId 
     ? gameState.find(i => i.id === selectedItemId)
     : activeItems[0];
+
+  // Seznam položek ve frontě (všechny zbývající kromě té aktuálně vybrané)
+  const queueItems = useMemo(() => 
+    activeItems.filter(i => i.id !== currentItem?.id),
+  [activeItems, currentItem]);
 
   const handleCategorySelect = (category: string) => {
     if (!currentItem) return;
@@ -58,7 +64,6 @@ const SortingGame = ({ items, onComplete }: SortingGameProps) => {
     } else {
       setIncorrectAttempts(prev => prev + 1);
       showError(`Chyba. ${currentItem.content} tam nepatří.`);
-      // Krátký vizuální feedback pro chybu by tu mohl být, ale sonner toast stačí
     }
   };
 
@@ -112,18 +117,15 @@ const SortingGame = ({ items, onComplete }: SortingGameProps) => {
         <div className="w-full">
           <div className="flex items-center gap-2 mb-4">
             <LayoutGrid className="w-4 h-4 text-slate-400" />
-            <span className="text-xs font-bold text-slate-400 uppercase">Zbývá: {activeItems.length}</span>
+            <span className="text-xs font-bold text-slate-400 uppercase">Zbývá ve frontě: {queueItems.length}</span>
           </div>
           <div className="flex flex-wrap justify-center gap-2">
-            {activeItems.map((item) => (
+            {queueItems.map((item) => (
               <button
                 key={item.id}
                 onClick={() => setSelectedItemId(item.id)}
                 className={cn(
-                  "px-4 py-2 rounded-xl text-sm font-bold border-2 transition-all",
-                  selectedItemId === item.id 
-                    ? "bg-indigo-100 border-indigo-500 text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-400" 
-                    : "bg-card border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:border-slate-300"
+                  "px-4 py-2 rounded-xl text-sm font-bold border-2 transition-all bg-card border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:border-slate-300"
                 )}
               >
                 {item.content}
