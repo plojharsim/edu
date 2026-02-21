@@ -72,7 +72,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background p-6 pb-20 transition-colors duration-300 flex flex-col">
-      <header className="max-w-6xl mx-auto pt-20 md:pt-10 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-8 w-full">
+      <header className="max-w-6xl mx-auto pt-10 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-8 w-full">
         <div className="text-center md:text-left">
           <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
             <Sparkles className="w-5 h-5 text-indigo-500 fill-indigo-500" />

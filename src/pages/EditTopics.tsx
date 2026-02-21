@@ -145,7 +145,7 @@ const EditTopics = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background p-4 sm:p-6 pb-20 pt-20 md:pt-10">
+    <div className="min-h-screen bg-background p-4 sm:p-6 pb-20">
       <header className="max-w-6xl mx-auto mb-6 sm:mb-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
           <Button variant="ghost" onClick={() => navigate('/')} className="rounded-2xl h-10 w-10 sm:h-12 sm:w-12 bg-card shadow-sm border border-border flex-shrink-0">
