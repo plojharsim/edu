@@ -12,8 +12,6 @@ import StudyResults from '@/components/Learning/StudyResults';
 import { Button } from '@/components/ui/button';
 import { BookOpen, CheckSquare, Keyboard, Layers, ChevronLeft, BookText, Check, X, LayoutPanelTop } from 'lucide-react';
 import { getStudyData, Topic, StudyItem, StudyMode } from '@/data/studyData';
-import { unlockBadge } from '@/data/badges';
-import { showSuccess as notifyBadge } from '@/utils/toast';
 
 const StudySession = () => {
   const { categoryId, topicId } = useParams();
@@ -125,12 +123,6 @@ const StudySession = () => {
     stats.sessions += 1;
     
     localStorage.setItem('study_stats', JSON.stringify(stats));
-
-    // Badge Logic
-    if (unlockBadge('first_session')) notifyBadge("Získán odznak: První krůček!");
-    if (score === 100 && unlockBadge('perfect_score')) notifyBadge("Získán odznak: Génius!");
-    if (stats.streak >= 3 && unlockBadge('streak_3')) notifyBadge("Získán odznak: Pravidelný student!");
-    if (stats.sessions >= 10 && unlockBadge('marathoner')) notifyBadge("Získán odznak: Maratonec!");
   };
 
   const handleNext = (isCorrect: boolean = true) => {
@@ -173,10 +165,9 @@ const StudySession = () => {
       ? shuffledItems.filter(i => i.category && i.category.trim() !== "").length 
       : shuffledItems.length;
       
-    const correctItems = totalItems - incorrect;
-    setCorrectCount(correctItems);
+    setCorrectCount(totalItems - incorrect);
     setMistakes([]);
-    updateStats((correctItems / totalItems) * 100);
+    updateStats(((totalItems - incorrect) / totalItems) * 100);
     setView('results');
   };
 

@@ -3,20 +3,17 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as LucideIcons from 'lucide-react';
-import { Sparkles, TrendingUp, LogOut, Edit3, Heart, Award } from 'lucide-react';
+import { Sparkles, TrendingUp, LogOut, Edit3, Heart } from 'lucide-react';
 import CategoryCard from '@/components/Dashboard/CategoryCard';
-import BadgeCard from '@/components/Dashboard/BadgeCard';
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { getStudyData, Category } from '@/data/studyData';
-import { ALL_BADGES, getUnlockedBadges } from '@/data/badges';
 
 const Index = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState({ name: 'Studente', grade: '' });
   const [stats, setStats] = useState({ streak: 0, average: 0 });
   const [studyData, setStudyData] = useState<Record<string, Category>>({});
-  const [unlockedBadges, setUnlockedBadges] = useState<string[]>([]);
 
   useEffect(() => {
     const profile = localStorage.getItem('user_profile');
@@ -34,7 +31,6 @@ const Index = () => {
     }
 
     setStudyData(getStudyData());
-    setUnlockedBadges(getUnlockedBadges());
   }, []);
 
   const dailyChallenge = useMemo(() => {
@@ -53,7 +49,7 @@ const Index = () => {
     const dateSeed = now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
     const topicIndex = dateSeed % allTopics.length;
     
-    const modes = ['flashcards', 'abcd', 'writing', 'matching', 'sorting'];
+    const modes = ['flashcards', 'abcd', 'writing', 'matching'];
     const modeIndex = dateSeed % modes.length;
     
     return {
@@ -66,8 +62,6 @@ const Index = () => {
     localStorage.removeItem('user_profile');
     localStorage.removeItem('study_stats');
     localStorage.removeItem('study_data');
-    localStorage.removeItem('unlocked_badges');
-    localStorage.removeItem('user_topics');
     navigate('/onboarding');
   };
 
@@ -130,24 +124,8 @@ const Index = () => {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto flex-1 w-full space-y-12">
-        {/* ODZNAKY */}
-        <div>
-          <h2 className="text-2xl font-black text-foreground mb-6 flex items-center gap-2">
-            <Award className="w-6 h-6 text-amber-500" /> Tvoje úspěchy
-          </h2>
-          <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
-            {ALL_BADGES.map(badge => (
-              <BadgeCard 
-                key={badge.id} 
-                badge={badge} 
-                isUnlocked={unlockedBadges.includes(badge.id)} 
-              />
-            ))}
-          </div>
-        </div>
-
-        <div>
+      <main className="max-w-6xl mx-auto flex-1 w-full">
+        <div className="mb-10">
           <h2 className="text-2xl font-black text-foreground mb-6 text-center md:text-left">Tvoje studijní sady</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center md:justify-items-stretch">
             {Object.values(studyData).map((cat) => (
