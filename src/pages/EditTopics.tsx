@@ -11,7 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { 
   Plus, Trash2, ChevronLeft, Save, BookText, Layers, 
   CheckSquare, Keyboard, BookOpen, ArrowLeftRight, 
-  Share2, Download, Code, Copy, Check
+  Share2, Download, Code, Copy, Check, LayoutGrid
 } from "lucide-react";
 import { saveUserTopics, Topic, StudyItem, StudyMode } from '@/data/studyData';
 import { showSuccess, showError } from '@/utils/toast';
@@ -51,7 +51,7 @@ const EditTopics = () => {
       id, 
       name: "Nové téma", 
       items: [],
-      allowedModes: ['flashcards', 'abcd', 'writing', 'matching'],
+      allowedModes: ['flashcards', 'abcd', 'writing', 'matching', 'categorization'],
       randomizeDirection: false
     };
     setTopics([...topics, newTopic]);
@@ -85,7 +85,7 @@ const EditTopics = () => {
   const toggleMode = (topicId: string, mode: StudyMode) => {
     const newTopics = topics.map(t => {
       if (t.id === topicId) {
-        const modes = t.allowedModes || ['flashcards', 'abcd', 'writing', 'matching'];
+        const modes = t.allowedModes || ['flashcards', 'abcd', 'writing', 'matching', 'categorization'];
         const newModes = modes.includes(mode) 
           ? modes.filter(m => m !== mode)
           : [...modes, mode];
@@ -141,6 +141,7 @@ const EditTopics = () => {
     { id: 'abcd', label: 'Výběr (ABCD)', icon: CheckSquare },
     { id: 'writing', label: 'Psaní', icon: Keyboard },
     { id: 'matching', label: 'Přiřazování', icon: BookOpen },
+    { id: 'categorization', label: 'Rozřazování', icon: LayoutGrid },
   ];
 
   return (
@@ -286,7 +287,7 @@ const EditTopics = () => {
                         <div key={mode.id} className="flex items-center space-x-3 p-3 sm:p-4 bg-background rounded-2xl border border-border">
                           <Checkbox 
                             id={`mode-${mode.id}`}
-                            checked={(activeTopic.allowedModes || ['flashcards', 'abcd', 'writing', 'matching']).includes(mode.id)}
+                            checked={(activeTopic.allowedModes || ['flashcards', 'abcd', 'writing', 'matching', 'categorization']).includes(mode.id)}
                             onCheckedChange={() => toggleMode(activeTopic.id, mode.id)}
                           />
                           <Label htmlFor={`mode-${mode.id}`} className="flex items-center gap-2 cursor-pointer font-medium text-foreground text-sm">
@@ -337,7 +338,7 @@ const EditTopics = () => {
                     
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-6">
                       <div className="space-y-2">
-                        <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Termín (Otázka)</label>
+                        <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Termín (Otázka / K zařazení)</label>
                         <Input 
                           value={item.term}
                           onChange={(e) => updateItem(activeTopic.id, idx, 'term', e.target.value)}
@@ -346,7 +347,7 @@ const EditTopics = () => {
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Definice (Odpověď)</label>
+                        <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Definice (Odpověď / Kategorie)</label>
                         <Input 
                           value={item.definition}
                           onChange={(e) => updateItem(activeTopic.id, idx, 'definition', e.target.value)}

@@ -7,9 +7,10 @@ import Flashcard from '@/components/Learning/Flashcard';
 import MultipleChoice from '@/components/Learning/MultipleChoice';
 import TranslationInput from '@/components/Learning/TranslationInput';
 import MatchingGame from '@/components/Learning/MatchingGame';
+import CategorizationGame from '@/components/Learning/CategorizationGame';
 import StudyResults from '@/components/Learning/StudyResults';
 import { Button } from '@/components/ui/button';
-import { BookOpen, CheckSquare, Keyboard, Layers, ChevronLeft, BookText, Check, X } from 'lucide-react';
+import { BookOpen, CheckSquare, Keyboard, Layers, ChevronLeft, BookText, Check, X, LayoutGrid } from 'lucide-react';
 import { getStudyData, Topic, StudyItem, StudyMode } from '@/data/studyData';
 
 const StudySession = () => {
@@ -48,7 +49,7 @@ const StudySession = () => {
       if (topic) {
         setSelectedTopic(topic);
         const forcedMode = searchParams.get('mode') as any;
-        if (forcedMode && ['flashcards', 'abcd', 'writing', 'matching'].includes(forcedMode)) {
+        if (forcedMode && ['flashcards', 'abcd', 'writing', 'matching', 'categorization'].includes(forcedMode)) {
           handleModeSelect(forcedMode, topic);
         } else {
           setView('mode-selection');
@@ -65,6 +66,13 @@ const StudySession = () => {
     return all.sort(() => Math.random() - 0.5);
   }, [currentItem]);
 
+  // Všechny unikátní kategorie pro dané téma
+  const allCategories = useMemo(() => {
+    if (!selectedTopic) return [];
+    const categories = new Set(selectedTopic.items.map(item => item.definition));
+    return Array.from(categories);
+  }, [selectedTopic]);
+
   if (!category) {
     return <div className="p-20 text-center">Načítání...</div>;
   }
@@ -79,7 +87,8 @@ const StudySession = () => {
     if (!topic) return;
 
     const items = topic.items.map(item => {
-      const canRandomize = topic.randomizeDirection && selectedMode !== 'abcd' && Math.random() > 0.5;
+      // Pro categorization nemůžeme náhodně prohazovat, protože categories jsou definice
+      const canRandomize = topic.randomizeDirection && selectedMode !== 'abcd' && selectedMode !== 'categorization' && Math.random() > 0.5;
 
       if (canRandomize) {
         return {
@@ -147,7 +156,6 @@ const StudySession = () => {
       if (mode === 'flashcards' && isCardFlipped) {
         setIsTransitioning(true);
         setIsCardFlipped(false);
-        // Počkáme na dotočení karty zpět na přední stranu (400ms - původní rychlost)
         setTimeout(() => {
           setCurrentIndex(prev => prev + 1);
           setIsTransitioning(false);
@@ -169,7 +177,7 @@ const StudySession = () => {
 
   const isModeAllowed = (m: StudyMode) => {
     if (!selectedTopic) return false;
-    const allowed = selectedTopic.allowedModes || ['flashcards', 'abcd', 'writing', 'matching'];
+    const allowed = selectedTopic.allowedModes || ['flashcards', 'abcd', 'writing', 'matching', 'categorization'];
     return allowed.includes(m);
   };
 
@@ -252,6 +260,12 @@ const StudySession = () => {
               <span className="font-bold text-base sm:text-lg">Přiřazování</span>
             </Button>
           )}
+          {isModeAllowed('categorization') && (
+            <Button variant="outline" className="h-28 sm:h-32 w-full rounded-[2rem] border-2 border-sky-100 dark:border-sky-900/30 bg-card flex flex-col gap-2 hover:border-sky-500 dark:hover:border-sky-500 hover:bg-sky-50 dark:hover:bg-sky-950/20 transition-all" onClick={() => handleModeSelect('categorization')}>
+              <LayoutGrid className="w-7 h-7 sm:w-8 sm:h-8 text-sky-600 dark:text-sky-400" />
+              <span className="font-bold text-base sm:text-lg">Rozřazování</span>
+            </Button>
+          )}
         </div>
       </div>
     );
@@ -322,6 +336,14 @@ const StudySession = () => {
         )}
         {mode === 'matching' && (
           <MatchingGame items={shuffledItems} onComplete={handleMatchingComplete} />
+        )}
+        {mode === 'categorization' && currentItem && (
+          <CategorizationGame 
+            term={currentItem.term} 
+            correctCategory={currentItem.definition} 
+            allCategories={allCategories} 
+            onAnswer={(correct) => handleNext(correct)} 
+          />
         )}
       </div>
     </div>
