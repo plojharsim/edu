@@ -24,62 +24,6 @@ export interface Category {
 }
 
 export const PREDEFINED_DATA: Record<string, Category> = {
-  zemepis: {
-    id: 'zemepis',
-    title: 'Zeměpis',
-    iconName: 'Globe',
-    color: 'bg-emerald-600',
-    topics: [
-      {
-        id: 'evropa-mesta',
-        name: 'Hlavní města Evropy',
-        allowedModes: ['flashcards', 'abcd', 'writing', 'matching'],
-        randomizeDirection: true,
-        items: [
-          {
-            term: 'Česko',
-            definition: 'Praha',
-            options: ['Brno', 'Bratislava', 'Vídeň']
-          },
-          {
-            term: 'Slovensko',
-            definition: 'Bratislava',
-            options: ['Košice', 'Praha', 'Budapešť']
-          },
-          {
-            term: 'Francie',
-            definition: 'Paříž',
-            options: ['Lyon', 'Marseille', 'Londýn']
-          },
-          {
-            term: 'Německo',
-            definition: 'Berlín',
-            options: ['Mnichov', 'Hamburk', 'Frankfurt']
-          },
-          {
-            term: 'Itálie',
-            definition: 'Řím',
-            options: ['Milán', 'Neapol', 'Benátky']
-          },
-          {
-            term: 'Španělsko',
-            definition: 'Madrid',
-            options: ['Barcelona', 'Valencie', 'Sevilla']
-          },
-          {
-            term: 'Rakousko',
-            definition: 'Vídeň',
-            options: ['Linec', 'Salcburk', 'Štýrský Hradec']
-          },
-          {
-            term: 'Polsko',
-            definition: 'Varšava',
-            options: ['Krakov', 'Vratislav', 'Gdaňsk']
-          }
-        ]
-      }
-    ]
-  },
   anglictina: {
     id: 'anglictina',
     title: 'Angličtina',
@@ -153,6 +97,62 @@ export const PREDEFINED_DATA: Record<string, Category> = {
           { term: 'zanechat značku', definition: 'leave a mark', options: ['make a sign', 'draw a line', 'write a note'] },
           { term: 'vězení', definition: 'prison', options: ['jail', 'court', 'police station'] },
           { term: 'ukradnout', definition: 'steal', options: ['rob', 'take', 'borrow'] }
+        ]
+      }
+    ]
+  },
+  zemepis: {
+    id: 'zemepis',
+    title: 'Zeměpis',
+    iconName: 'Globe',
+    color: 'bg-emerald-600',
+    topics: [
+      {
+        id: 'evropa-mesta',
+        name: 'Hlavní města Evropy',
+        allowedModes: ['flashcards', 'abcd', 'writing', 'matching'],
+        randomizeDirection: true,
+        items: [
+          {
+            term: 'Česko',
+            definition: 'Praha',
+            options: ['Brno', 'Bratislava', 'Vídeň']
+          },
+          {
+            term: 'Slovensko',
+            definition: 'Bratislava',
+            options: ['Košice', 'Praha', 'Budapešť']
+          },
+          {
+            term: 'Francie',
+            definition: 'Paříž',
+            options: ['Lyon', 'Marseille', 'Londýn']
+          },
+          {
+            term: 'Německo',
+            definition: 'Berlín',
+            options: ['Mnichov', 'Hamburk', 'Frankfurt']
+          },
+          {
+            term: 'Itálie',
+            definition: 'Řím',
+            options: ['Milán', 'Neapol', 'Benátky']
+          },
+          {
+            term: 'Španělsko',
+            definition: 'Madrid',
+            options: ['Barcelona', 'Valencie', 'Sevilla']
+          },
+          {
+            term: 'Rakousko',
+            definition: 'Vídeň',
+            options: ['Linec', 'Salcburk', 'Štýrský Hradec']
+          },
+          {
+            term: 'Polsko',
+            definition: 'Varšava',
+            options: ['Krakov', 'Vratislav', 'Gdaňsk']
+          }
         ]
       }
     ]
