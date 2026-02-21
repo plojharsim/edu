@@ -79,13 +79,16 @@ const StudySession = () => {
 
     // Promíchání a případná randomizace směru
     const items = topic.items.map(item => {
-      if (topic.randomizeDirection && Math.random() > 0.5) {
+      // ABCD režim nebude nikdy náhodně otáčet směr, aby fungovaly zadané možnosti
+      const canRandomize = topic.randomizeDirection && selectedMode !== 'abcd' && Math.random() > 0.5;
+
+      if (canRandomize) {
         return {
           ...item,
           term: item.definition,
           definition: item.term,
           options: topic.items
-            .filter(i => i.id !== item.id)
+            .filter(i => i !== item)
             .map(i => i.term)
             .sort(() => Math.random() - 0.5)
             .slice(0, 3)
