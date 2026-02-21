@@ -143,7 +143,7 @@ const EditTopics = () => {
     { id: 'abcd', label: 'Výběr (ABCD)', icon: CheckSquare },
     { id: 'writing', label: 'Psaní', icon: Keyboard },
     { id: 'matching', label: 'Přiřazování', icon: BookOpen },
-    { id: 'sorting', label: 'Rozřazování', icon: PanelTop },
+    { id: 'sorting', label: 'Rozřazování', icon: LayoutPanelTop },
   ];
 
   return (
