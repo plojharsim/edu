@@ -24,7 +24,72 @@ export interface Category {
   isCustom?: boolean;
 }
 
-export const PREDEFINED_DATA: Record<string, Category> = {};
+export const PREDEFINED_DATA: Record<string, Category> = {
+  zemepis: {
+    id: 'zemepis',
+    title: 'Zeměpis',
+    iconName: 'Globe',
+    color: 'bg-emerald-600',
+    topics: [
+      {
+        id: 'evropa-mesta',
+        name: 'Hlavní města Evropy',
+        allowedModes: ['flashcards', 'abcd', 'writing', 'matching'],
+        randomizeDirection: true,
+        items: [
+          {
+            term: 'Česko',
+            definition: 'Praha',
+            options: ['Brno', 'Bratislava', 'Vídeň'],
+            isAbcdEnabled: true
+          },
+          {
+            term: 'Slovensko',
+            definition: 'Bratislava',
+            options: ['Košice', 'Praha', 'Budapešť'],
+            isAbcdEnabled: true
+          },
+          {
+            term: 'Francie',
+            definition: 'Paříž',
+            options: ['Lyon', 'Marseille', 'Londýn'],
+            isAbcdEnabled: true
+          },
+          {
+            term: 'Německo',
+            definition: 'Berlín',
+            options: ['Mnichov', 'Hamburk', 'Frankfurt'],
+            isAbcdEnabled: true
+          },
+          {
+            term: 'Itálie',
+            definition: 'Řím',
+            options: ['Milán', 'Neapol', 'Benátky'],
+            isAbcdEnabled: true
+          },
+          {
+            term: 'Španělsko',
+            definition: 'Madrid',
+            options: ['Barcelona', 'Valencie', 'Sevilla'],
+            isAbcdEnabled: true
+          },
+          {
+            term: 'Rakousko',
+            definition: 'Vídeň',
+            options: ['Linec', 'Salcburk', 'Štýrský Hradec'],
+            isAbcdEnabled: true
+          },
+          {
+            term: 'Polsko',
+            definition: 'Varšava',
+            options: ['Krakov', 'Vratislav', 'Gdaňsk'],
+            isAbcdEnabled: true
+          }
+        ]
+      }
+    ]
+  }
+};
 
 export const getStudyData = (): Record<string, Category> => {
   const saved = localStorage.getItem('user_topics');
