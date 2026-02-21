@@ -49,7 +49,7 @@ const Index = () => {
     const dateSeed = now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
     const topicIndex = dateSeed % allTopics.length;
     
-    const modes = ['flashcards', 'abcd', 'writing', 'matching', 'sorting'];
+    const modes = ['flashcards', 'abcd', 'writing', 'matching'];
     const modeIndex = dateSeed % modes.length;
     
     return {
@@ -129,7 +129,7 @@ const Index = () => {
           <h2 className="text-2xl font-black text-foreground mb-6 text-center md:text-left">Tvoje studijní sady</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center md:justify-items-stretch">
             {Object.values(studyData).map((cat) => (
-              <div key={cat.id} className="w-full max-sm:max-w-sm md:max-w-none">
+              <div key={cat.id} className="w-full max-w-sm md:max-w-none">
                 <CategoryCard 
                   title={cat.title} 
                   count={cat.topics.reduce((acc, t) => acc + t.items.length, 0)} 
@@ -159,8 +159,7 @@ const Index = () => {
                 <p className="text-indigo-100/80 text-sm mb-8">Zopakuj si toto téma pomocí režimu <span className="font-bold">{
                   dailyChallenge.mode === 'flashcards' ? 'Kartičky' : 
                   dailyChallenge.mode === 'abcd' ? 'Výběr' : 
-                  dailyChallenge.mode === 'writing' ? 'Psaní' : 
-                  dailyChallenge.mode === 'matching' ? 'Přiřazování' : 'Kategorie'
+                  dailyChallenge.mode === 'writing' ? 'Psaní' : 'Přiřazování'
                 }</span>!</p>
                 <button 
                   onClick={() => navigate(`/study/${dailyChallenge.categoryId}/${dailyChallenge.topicId}?mode=${dailyChallenge.mode}`)}
