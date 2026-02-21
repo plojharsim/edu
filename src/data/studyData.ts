@@ -79,7 +79,8 @@ export const PREDEFINED_DATA: Record<string, Category> = {
         ]
       }
     ]
-  }
+  },
+  
 };
 
 export const getStudyData = (): Record<string, Category> => {
