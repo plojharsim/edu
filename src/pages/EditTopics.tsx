@@ -11,11 +11,13 @@ import { Switch } from "@/components/ui/switch";
 import { 
   Plus, Trash2, ChevronLeft, Save, BookText, Layers, 
   CheckSquare, Keyboard, BookOpen, ArrowLeftRight, 
-  Share2, Download, Code, Copy, Check, LayoutPanelTop
+  Share2, Download, Code, Copy, Check, LayoutPanelTop,
+  Sparkles
 } from "lucide-react";
 import { saveUserTopics, Topic, StudyItem, StudyMode } from '@/data/studyData';
 import { showSuccess, showError } from '@/utils/toast';
 import { encodeTopic, decodeTopic, formatForDeveloper } from '@/lib/sharing';
+import AITopicGenerator from '@/components/AITopicGenerator';
 import {
   Dialog,
   DialogContent,
@@ -33,6 +35,7 @@ const EditTopics = () => {
   const [activeTopicId, setActiveTopicId] = useState<string | null>(null);
   const [importCode, setImportCode] = useState("");
   const [copied, setCopied] = useState(false);
+  const [isAIGeneratorOpen, setIsAIGeneratorOpen] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem('user_topics');
@@ -45,7 +48,13 @@ const EditTopics = () => {
     navigate('/');
   };
 
-  const addTopic = () => {
+  const addTopic = (newTopicData?: Topic) => {
+    if (newTopicData) {
+      setTopics([...topics, newTopicData]);
+      setActiveTopicId(newTopicData.id);
+      return;
+    }
+
     const id = `topic_${Date.now()}`;
     const newTopic: Topic = { 
       id, 
@@ -156,10 +165,17 @@ const EditTopics = () => {
           <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-foreground truncate">Moje témata</h1>
         </div>
         <div className="flex gap-2 w-full sm:w-auto justify-end sm:justify-start">
+          <Button 
+            onClick={() => setIsAIGeneratorOpen(true)} 
+            className="flex-1 sm:flex-none rounded-xl sm:rounded-2xl h-10 sm:h-12 px-3 sm:px-6 bg-indigo-500/10 text-indigo-600 hover:bg-indigo-500/20 font-black border-2 border-indigo-500/30 gap-2 text-xs sm:text-sm animate-pulse"
+          >
+            <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" /> AI Kouzelník
+          </Button>
+          
           <Dialog>
             <DialogTrigger asChild>
               <Button variant="outline" className="flex-1 sm:flex-none rounded-xl sm:rounded-2xl h-10 sm:h-12 px-3 sm:px-6 font-bold gap-2 bg-card border-border text-foreground text-xs sm:text-sm">
-                <Download className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-500" /> Importovat
+                <Download className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-500" /> Import
               </Button>
             </DialogTrigger>
             <DialogContent className="rounded-[2rem] bg-card border-border">
@@ -180,8 +196,9 @@ const EditTopics = () => {
               </DialogFooter>
             </DialogContent>
           </Dialog>
-          <Button onClick={handleSave} className="flex-1 sm:flex-none rounded-xl sm:rounded-2xl h-10 sm:h-12 px-4 sm:px-8 bg-indigo-600 hover:bg-indigo-700 text-white font-bold gap-2 text-xs sm:text-sm">
-            <Save className="w-4 h-4 sm:w-5 sm:h-5" /> <span className="hidden xs:inline">Uložit změny</span><span className="xs:hidden">Uložit</span>
+
+          <Button onClick={handleSave} className="flex-1 sm:flex-none rounded-xl sm:rounded-2xl h-10 sm:h-12 px-4 sm:px-8 bg-indigo-600 hover:bg-indigo-700 text-white font-bold gap-2 text-xs sm:text-sm shadow-lg shadow-indigo-200 dark:shadow-none">
+            <Save className="w-4 h-4 sm:w-5 sm:h-5" /> <span className="hidden xs:inline">Uložit</span>
           </Button>
         </div>
       </header>
@@ -190,7 +207,7 @@ const EditTopics = () => {
         <div className="md:col-span-4 space-y-4">
           <div className="flex items-center justify-between mb-2">
             <h2 className="font-bold text-muted-foreground uppercase text-[10px] sm:text-xs tracking-widest">Témata ve "Vlastní"</h2>
-            <Button size="icon" variant="ghost" onClick={addTopic} className="h-8 w-8 rounded-full bg-indigo-500/10 text-indigo-600">
+            <Button size="icon" variant="ghost" onClick={() => addTopic()} className="h-8 w-8 rounded-full bg-indigo-500/10 text-indigo-600">
               <Plus className="w-4 h-4" />
             </Button>
           </div>
@@ -406,6 +423,12 @@ const EditTopics = () => {
           )}
         </div>
       </main>
+
+      <AITopicGenerator 
+        isOpen={isAIGeneratorOpen} 
+        onOpenChange={setIsAIGeneratorOpen} 
+        onTopicGenerated={(newTopic) => addTopic(newTopic)}
+      />
     </div>
   );
 };
