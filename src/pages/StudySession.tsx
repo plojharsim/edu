@@ -111,16 +111,21 @@ const StudySession = () => {
 
   const updateStats = (score: number) => {
     const savedStats = localStorage.getItem('study_stats');
-    let stats = savedStats ? JSON.parse(savedStats) : { streak: 0, average: 0, sessions: 0, lastDate: null };
+    let stats = savedStats ? JSON.parse(savedStats) : { streak: 0, average: 0, sessions: 0, perfectSessions: 0, lastDate: null };
     
     const today = new Date().toDateString();
     if (stats.lastDate !== today) {
-      stats.streak = (stats.lastDate === new Date(Date.now() - 86400000).toDateString()) ? stats.streak + 1 : 1;
+      const yesterday = new Date(Date.now() - 86400000).toDateString();
+      stats.streak = (stats.lastDate === yesterday) ? stats.streak + 1 : 1;
       stats.lastDate = today;
     }
 
     stats.average = ((stats.average * stats.sessions) + score) / (stats.sessions + 1);
     stats.sessions += 1;
+    
+    if (score === 100) {
+      stats.perfectSessions = (stats.perfectSessions || 0) + 1;
+    }
     
     localStorage.setItem('study_stats', JSON.stringify(stats));
   };
@@ -164,10 +169,11 @@ const StudySession = () => {
     const totalItems = mode === 'sorting' 
       ? shuffledItems.filter(i => i.category && i.category.trim() !== "").length 
       : shuffledItems.length;
-      
-    setCorrectCount(totalItems - incorrect);
+    
+    const correct = totalItems - incorrect;
+    setCorrectCount(correct);
     setMistakes([]);
-    updateStats(((totalItems - incorrect) / totalItems) * 100);
+    updateStats((correct / totalItems) * 100);
     setView('results');
   };
 

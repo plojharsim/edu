@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import * as LucideIcons from 'lucide-react';
 import { Sparkles, TrendingUp, LogOut, Edit3, Heart } from 'lucide-react';
 import CategoryCard from '@/components/Dashboard/CategoryCard';
+import BadgesSection from '@/components/Dashboard/BadgesSection';
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { getStudyData, Category } from '@/data/studyData';
@@ -12,7 +13,7 @@ import { getStudyData, Category } from '@/data/studyData';
 const Index = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState({ name: 'Studente', grade: '' });
-  const [stats, setStats] = useState({ streak: 0, average: 0 });
+  const [stats, setStats] = useState({ streak: 0, average: 0, sessions: 0, perfectSessions: 0 });
   const [studyData, setStudyData] = useState<Record<string, Category>>({});
 
   useEffect(() => {
@@ -26,12 +27,18 @@ const Index = () => {
       const parsed = JSON.parse(savedStats);
       setStats({
         streak: parsed.streak || 0,
-        average: Math.round(parsed.average || 0)
+        average: Math.round(parsed.average || 0),
+        sessions: parsed.sessions || 0,
+        perfectSessions: parsed.perfectSessions || 0
       });
     }
 
     setStudyData(getStudyData());
   }, []);
+
+  const customTopicsCount = useMemo(() => {
+    return studyData['custom']?.topics.length || 0;
+  }, [studyData]);
 
   const dailyChallenge = useMemo(() => {
     const allTopics = Object.values(studyData).flatMap(cat => 
@@ -124,8 +131,8 @@ const Index = () => {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto flex-1 w-full">
-        <div className="mb-10">
+      <main className="max-w-6xl mx-auto flex-1 w-full space-y-16">
+        <div>
           <h2 className="text-2xl font-black text-foreground mb-6 text-center md:text-left">Tvoje studijní sady</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center md:justify-items-stretch">
             {Object.values(studyData).map((cat) => (
@@ -149,7 +156,7 @@ const Index = () => {
         </div>
 
         {dailyChallenge && (
-          <div className="bg-indigo-600 dark:bg-indigo-700 rounded-[3rem] p-8 md:p-12 text-white relative overflow-hidden shadow-2xl shadow-indigo-200 dark:shadow-none mb-12">
+          <div className="bg-indigo-600 dark:bg-indigo-700 rounded-[3rem] p-8 md:p-12 text-white relative overflow-hidden shadow-2xl shadow-indigo-200 dark:shadow-none">
             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8 text-center md:text-left">
               <div className="max-w-md">
                 <h3 className="text-3xl font-bold mb-2">Dnešní výzva</h3>
@@ -174,6 +181,8 @@ const Index = () => {
             </div>
           </div>
         )}
+
+        <BadgesSection stats={{ ...stats, customTopicsCount }} />
       </main>
 
       <footer className="mt-auto pt-10 text-center">
