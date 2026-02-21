@@ -237,7 +237,7 @@ const StudySession = () => {
 
   if (view === 'results') {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center transition-colors duration-300">
+      <div className="min-h-screen bg-background flex items-center justify-center p-6 pt-20 md:pt-6 transition-colors duration-300">
         <StudyResults 
           total={selectedTopic!.items.length}
           correct={correctCount}
