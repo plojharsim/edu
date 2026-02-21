@@ -17,7 +17,7 @@ const CategoryCard = ({ title, count, icon: Icon, color, onClick }: CategoryCard
   return (
     <Card 
       onClick={onClick}
-      className="group cursor-pointer p-6 rounded-[2.5rem] border-none bg-card shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 dark:border dark:border-slate-800"
+      className="group cursor-pointer p-6 rounded-[2.5rem] border border-border bg-card shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
     >
       <div className="flex items-center space-x-4">
         <div className={cn("p-4 rounded-3xl transition-transform group-hover:scale-110", color)}>
