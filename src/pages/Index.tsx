@@ -3,9 +3,8 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as LucideIcons from 'lucide-react';
-import { Sparkles, TrendingUp, LogOut, Edit3, Heart, Medal } from 'lucide-react';
+import { Sparkles, TrendingUp, LogOut, Edit3, Heart } from 'lucide-react';
 import CategoryCard from '@/components/Dashboard/CategoryCard';
-import BadgeList from '@/components/Dashboard/BadgeList';
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { getStudyData, Category } from '@/data/studyData';
@@ -62,7 +61,7 @@ const Index = () => {
   const handleLogout = () => {
     localStorage.removeItem('user_profile');
     localStorage.removeItem('study_stats');
-    localStorage.removeItem('user_badges');
+    localStorage.removeItem('study_data');
     navigate('/onboarding');
   };
 
@@ -125,17 +124,8 @@ const Index = () => {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto flex-1 w-full space-y-12">
-        {/* Sekce Odznaky */}
-        <section className="bg-card/50 p-8 rounded-[3rem] border border-border/50">
-          <div className="flex items-center gap-3 mb-6 justify-center md:justify-start">
-            <Medal className="w-6 h-6 text-amber-500" />
-            <h2 className="text-xl font-black text-foreground">Tvé úspěchy</h2>
-          </div>
-          <BadgeList />
-        </section>
-
-        <section>
+      <main className="max-w-6xl mx-auto flex-1 w-full">
+        <div className="mb-10">
           <h2 className="text-2xl font-black text-foreground mb-6 text-center md:text-left">Tvoje studijní sady</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center md:justify-items-stretch">
             {Object.values(studyData).map((cat) => (
@@ -156,10 +146,10 @@ const Index = () => {
               </div>
             )}
           </div>
-        </section>
+        </div>
 
         {dailyChallenge && (
-          <section className="bg-indigo-600 dark:bg-indigo-700 rounded-[3rem] p-8 md:p-12 text-white relative overflow-hidden shadow-2xl shadow-indigo-200 dark:shadow-none">
+          <div className="bg-indigo-600 dark:bg-indigo-700 rounded-[3rem] p-8 md:p-12 text-white relative overflow-hidden shadow-2xl shadow-indigo-200 dark:shadow-none mb-12">
             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8 text-center md:text-left">
               <div className="max-w-md">
                 <h3 className="text-3xl font-bold mb-2">Dnešní výzva</h3>
@@ -182,7 +172,7 @@ const Index = () => {
                 <LucideIcons.Sparkles className="w-24 h-24 text-white opacity-40" />
               </div>
             </div>
-          </section>
+          </div>
         )}
       </main>
 

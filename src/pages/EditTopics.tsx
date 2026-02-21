@@ -16,7 +16,6 @@ import {
 import { saveUserTopics, Topic, StudyItem, StudyMode } from '@/data/studyData';
 import { showSuccess, showError } from '@/utils/toast';
 import { encodeTopic, decodeTopic, formatForDeveloper } from '@/lib/sharing';
-import { awardBadge } from '@/utils/badges';
 import {
   Dialog,
   DialogContent,
@@ -42,9 +41,6 @@ const EditTopics = () => {
 
   const handleSave = () => {
     saveUserTopics(topics);
-    if (topics.length > 0) {
-      awardBadge('creator');
-    }
     showSuccess("Vlastní témata byla uložena!");
     navigate('/');
   };
