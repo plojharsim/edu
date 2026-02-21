@@ -43,6 +43,7 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
 
     try {
       const genAI = new GoogleGenerativeAI(apiKey);
+      // Používáme gemini-1.5-flash, který je nejvíce kompatibilní
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
       const systemPrompt = `Jsi asistent pro tvorbu studijních materiálů. Tvým úkolem je vytvořit seznam termínů a definic pro studijní aplikaci na základě uživatelského zadání. 
@@ -65,7 +66,8 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
       const response = await result.response;
       const text = response.text();
       
-      const jsonStr = text.replace(/```json|```/gi, "").trim();
+      // Odstranění markdown obalů ```json ... ``` pokud je AI přidá
+      const jsonStr = text.replace(/```json/g, "").replace(/```/g, "").trim();
       const data = JSON.parse(jsonStr);
 
       const newTopic: Topic = {
