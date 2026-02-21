@@ -7,9 +7,10 @@ import Flashcard from '@/components/Learning/Flashcard';
 import MultipleChoice from '@/components/Learning/MultipleChoice';
 import TranslationInput from '@/components/Learning/TranslationInput';
 import MatchingGame from '@/components/Learning/MatchingGame';
+import SortingGame from '@/components/Learning/SortingGame';
 import StudyResults from '@/components/Learning/StudyResults';
 import { Button } from '@/components/ui/button';
-import { BookOpen, CheckSquare, Keyboard, Layers, ChevronLeft, BookText, Check, X } from 'lucide-react';
+import { BookOpen, CheckSquare, Keyboard, Layers, ChevronLeft, BookText, Check, X, LayoutTemplate } from 'lucide-react';
 import { getStudyData, Topic, StudyItem, StudyMode } from '@/data/studyData';
 
 const StudySession = () => {
@@ -48,7 +49,7 @@ const StudySession = () => {
       if (topic) {
         setSelectedTopic(topic);
         const forcedMode = searchParams.get('mode') as any;
-        if (forcedMode && ['flashcards', 'abcd', 'writing', 'matching'].includes(forcedMode)) {
+        if (forcedMode && ['flashcards', 'abcd', 'writing', 'matching', 'sorting'].includes(forcedMode)) {
           handleModeSelect(forcedMode, topic);
         } else {
           setView('mode-selection');
@@ -79,7 +80,7 @@ const StudySession = () => {
     if (!topic) return;
 
     const items = topic.items.map(item => {
-      const canRandomize = topic.randomizeDirection && selectedMode !== 'abcd' && Math.random() > 0.5;
+      const canRandomize = topic.randomizeDirection && !['abcd', 'sorting'].includes(selectedMode) && Math.random() > 0.5;
 
       if (canRandomize) {
         return {
@@ -147,7 +148,6 @@ const StudySession = () => {
       if (mode === 'flashcards' && isCardFlipped) {
         setIsTransitioning(true);
         setIsCardFlipped(false);
-        // Počkáme na dotočení karty zpět na přední stranu (400ms - původní rychlost)
         setTimeout(() => {
           setCurrentIndex(prev => prev + 1);
           setIsTransitioning(false);
@@ -159,17 +159,17 @@ const StudySession = () => {
     }
   };
 
-  const handleMatchingComplete = (incorrect: number) => {
+  const handleSpecialModeComplete = (incorrect: number) => {
     setIncorrectCount(incorrect);
-    setCorrectCount(selectedTopic!.items.length - incorrect);
+    setCorrectCount(selectedTopic!.items.length); // V matching/sorting dáváme total, chyby jsou jen counter
     setMistakes([]);
-    updateStats(((selectedTopic!.items.length - incorrect) / selectedTopic!.items.length) * 100);
+    updateStats(((selectedTopic!.items.length) / (selectedTopic!.items.length + incorrect)) * 100);
     setView('results');
   };
 
   const isModeAllowed = (m: StudyMode) => {
     if (!selectedTopic) return false;
-    const allowed = selectedTopic.allowedModes || ['flashcards', 'abcd', 'writing', 'matching'];
+    const allowed = selectedTopic.allowedModes || ['flashcards', 'abcd', 'writing', 'matching', 'sorting'];
     return allowed.includes(m);
   };
 
@@ -252,6 +252,12 @@ const StudySession = () => {
               <span className="font-bold text-base sm:text-lg">Přiřazování</span>
             </Button>
           )}
+          {isModeAllowed('sorting') && (
+            <Button variant="outline" className="h-28 sm:h-32 w-full rounded-[2rem] border-2 border-indigo-100 dark:border-indigo-900/30 bg-card flex flex-col gap-2 hover:border-indigo-500 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 transition-all" onClick={() => handleModeSelect('sorting')}>
+              <LayoutTemplate className="w-7 h-7 sm:w-8 sm:h-8 text-indigo-600 dark:text-indigo-400" />
+              <span className="font-bold text-base sm:text-lg">Kategorie</span>
+            </Button>
+          )}
         </div>
       </div>
     );
@@ -273,14 +279,14 @@ const StudySession = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pt-20 pb-12 md:py-12 flex flex-col items-center transition-colors duration-300">
+    <div className="min-h-screen bg-background pt-20 pb-12 md:py-12 flex flex-col items-center transition-colors duration-300 overflow-x-hidden">
       <StudyHeader 
-        current={mode === 'matching' ? selectedTopic!.items.length : currentIndex + 1} 
+        current={['matching', 'sorting'].includes(mode!) ? selectedTopic!.items.length : currentIndex + 1} 
         total={selectedTopic!.items.length} 
         title={`${category.title}: ${selectedTopic?.name}`} 
         time={seconds}
       />
-      <div className="flex-1 flex items-center justify-center w-full px-4">
+      <div className="flex-1 flex items-center justify-center w-full px-4 max-w-6xl mx-auto">
         {mode === 'flashcards' && currentItem && (
           <div className="flex flex-col items-center gap-8 w-full">
             <Flashcard 
@@ -321,7 +327,10 @@ const StudySession = () => {
           <TranslationInput term={currentItem.term} correctTranslation={currentItem.definition} onAnswer={(correct) => handleNext(correct)} />
         )}
         {mode === 'matching' && (
-          <MatchingGame items={shuffledItems} onComplete={handleMatchingComplete} />
+          <MatchingGame items={shuffledItems} onComplete={handleSpecialModeComplete} />
+        )}
+        {mode === 'sorting' && (
+          <SortingGame items={shuffledItems} onComplete={handleSpecialModeComplete} />
         )}
       </div>
     </div>
