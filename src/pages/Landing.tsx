@@ -1,7 +1,7 @@
 "use client";
 
-import React from 'react';
-import { useNavigate, Navigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { 
   Sparkles, BookOpen, Layers, CheckSquare, 
@@ -11,21 +11,22 @@ import {
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from '@/components/AuthProvider';
 import { Capacitor } from '@capacitor/core';
-import LoadingScreen from '@/components/LoadingScreen';
 
 const Landing = () => {
   const navigate = useNavigate();
   const { session, loading } = useAuth();
-  const isNative = Capacitor.isNativePlatform();
 
-  // Pokud jsme na mobilu (nativní app), okamžitě rozhodneme co dál bez vykreslení Landing UI
-  if (isNative) {
-    if (loading) {
-      return <LoadingScreen message="Spouštím aplikaci..." />;
+  // Automatické přesměrování pro mobilní aplikaci (Capacitor)
+  useEffect(() => {
+    // Pokud jsme v nativní aplikaci (iOS/Android), nechceme vidět landing page
+    if (Capacitor.isNativePlatform() && !loading) {
+      if (session) {
+        navigate('/app', { replace: true });
+      } else {
+        navigate('/login', { replace: true });
+      }
     }
-    // Použijeme Navigate komponentu pro okamžité přesměrování bez renderování zbytku stránky
-    return <Navigate to={session ? "/app" : "/login"} replace />;
-  }
+  }, [session, loading, navigate]);
 
   const handleStart = () => {
     if (session) {
@@ -36,6 +37,11 @@ const Landing = () => {
   };
 
   const GITHUB_URL = "https://github.com/plojharsim/edu";
+
+  // Pokud se právě přesměrovává v nativní aplikaci, nic nevykreslujeme
+  if (Capacitor.isNativePlatform() && !loading) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-background transition-colors duration-500 overflow-hidden">
