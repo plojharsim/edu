@@ -334,6 +334,7 @@ const StudySession = () => {
             <Flashcard 
               front={currentItem.term} 
               back={currentItem.definition} 
+              imageUrl={currentItem.imageUrl}
               isFlipped={isCardFlipped}
               onFlip={() => !isTransitioning && setIsCardFlipped(true)}
             />
@@ -360,13 +361,14 @@ const StudySession = () => {
         {mode === 'abcd' && currentItem && (
           <MultipleChoice 
             question={currentItem.term} 
+            imageUrl={currentItem.imageUrl}
             options={shuffledOptions} 
             correctAnswer={currentItem.definition} 
             onAnswer={(correct) => handleNext(correct)} 
           />
         )}
         {mode === 'writing' && currentItem && (
-          <TranslationInput term={currentItem.term} correctTranslation={currentItem.definition} onAnswer={(correct) => handleNext(correct)} />
+          <TranslationInput term={currentItem.term} imageUrl={currentItem.imageUrl} correctTranslation={currentItem.definition} onAnswer={(correct) => handleNext(correct)} />
         )}
         {mode === 'matching' && (
           <MatchingGame items={selectedTopic!.items} onComplete={(inc) => handleCompletion(inc)} />

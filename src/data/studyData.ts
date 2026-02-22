@@ -5,6 +5,7 @@ export interface StudyItem {
   definition: string;
   options: string[];
   category?: string;
+  imageUrl?: string;
 }
 
 export interface Topic {
