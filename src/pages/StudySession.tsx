@@ -10,8 +10,7 @@ import MatchingGame from '@/components/Learning/MatchingGame';
 import SortingGame from '@/components/Learning/SortingGame';
 import StudyResults from '@/components/Learning/StudyResults';
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
-import { BookOpen, CheckSquare, Keyboard, Layers, ChevronLeft, BookText, Check, X, LayoutPanelTop, Loader2 } from 'lucide-react';
+import { BookOpen, CheckSquare, Keyboard, Layers, ChevronLeft, BookText, Check, X, LayoutPanelTop } from 'lucide-react';
 import { PREDEFINED_DATA, Topic, StudyItem, StudyMode } from '@/data/studyData';
 import { useAuth } from '@/components/AuthProvider';
 import { dbService } from '@/services/dbService';
@@ -23,10 +22,10 @@ const StudySession = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   
-  const [loading, setLoading] = useState(true);
   const [view, setView] = useState<'topic-selection' | 'mode-selection' | 'study' | 'results'>('topic-selection');
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
   
+  // Adaptivní fronta položek
   const [sessionQueue, setSessionQueue] = useState<StudyItem[]>([]);
   const [masteredCount, setMasteredCount] = useState(0); 
   const [performanceData, setPerformanceData] = useState<ItemPerformance>({});
@@ -43,28 +42,23 @@ const StudySession = () => {
   useEffect(() => {
     if (!user) return;
     const fetchData = async () => {
-      setLoading(true);
-      try {
-        const [userTopics, stats] = await Promise.all([
-          dbService.getUserTopics(user.id),
-          dbService.getStats(user.id)
-        ]);
-
-        const newData = { ...PREDEFINED_DATA };
-        if (userTopics.length > 0) {
-          newData['custom'] = {
+      // Témata
+      const userTopics = await dbService.getUserTopics(user.id);
+      if (userTopics.length > 0) {
+        setStudyData(prev => ({
+          ...prev,
+          custom: {
             id: 'custom',
             title: 'Vlastní',
             topics: userTopics
-          };
-        }
-        setStudyData(newData);
+          }
+        }));
+      }
 
-        if (stats?.performance_data) {
-          setPerformanceData(stats.performance_data);
-        }
-      } finally {
-        setLoading(false);
+      // Výkonnostní data pro algoritmus
+      const stats = await dbService.getStats(user.id);
+      if (stats?.performance_data) {
+        setPerformanceData(stats.performance_data);
       }
     };
     fetchData();
@@ -83,8 +77,7 @@ const StudySession = () => {
   }, [view]);
 
   useEffect(() => {
-    // Čekáme na načtení kategorie a témat (zejména z cloudu)
-    if (!loading && topicId && category) {
+    if (topicId && category) {
       const topic = category.topics.find((t: any) => t.id === topicId);
       if (topic) {
         setSelectedTopic(topic);
@@ -96,7 +89,7 @@ const StudySession = () => {
         }
       }
     }
-  }, [topicId, category, loading, searchParams]);
+  }, [topicId, category, searchParams]);
 
   const currentItem = sessionQueue[0];
 
@@ -106,22 +99,8 @@ const StudySession = () => {
     return all.sort(() => Math.random() - 0.5);
   }, [currentItem]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
-        <Loader2 className="w-12 h-12 text-indigo-500 animate-spin mb-4" />
-        <p className="text-muted-foreground font-bold uppercase tracking-widest text-xs">Připravuji studijní materiály...</p>
-      </div>
-    );
-  }
-
   if (!category && view !== 'results') {
-    return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
-        <p>Kategorie nenalezena.</p>
-        <Button variant="link" onClick={() => navigate('/app')}>Zpět na domů</Button>
-      </div>
-    );
+    return null;
   }
 
   const handleTopicSelect = (topic: Topic) => {
@@ -133,12 +112,17 @@ const StudySession = () => {
     const topic = topicOverride || selectedTopic;
     if (!topic) return;
 
+    // Prioritizace podle načtených dat ze Supabase
     let items = learningAlgorithm.prioritizeItems(topic.items, performanceData);
 
     items = items.map(item => {
       const canRandomize = topic.randomizeDirection && selectedMode !== 'abcd' && selectedMode !== 'sorting' && Math.random() > 0.5;
       if (canRandomize) {
-        return { ...item, term: item.definition, definition: item.term };
+        return {
+          ...item,
+          term: item.definition,
+          definition: item.term,
+        };
       }
       return item;
     });
@@ -165,6 +149,8 @@ const StudySession = () => {
     
     const item = sessionQueue[0];
     const itemId = `${item.term}_${item.definition}`;
+    
+    // Lokální update pro tuto session
     const updatedPerformance = learningAlgorithm.calculateNewPerformance(performanceData, itemId, isCorrect);
     setPerformanceData(updatedPerformance);
 
@@ -235,7 +221,7 @@ const StudySession = () => {
 
   if (view === 'topic-selection') {
     return (
-      <div className="min-h-screen bg-background p-6 pt-6 md:pt-6 flex flex-col items-center justify-center animate-in fade-in duration-500">
+      <div className="min-h-screen bg-background p-6 pt-6 md:pt-6 flex flex-col items-center justify-center transition-colors duration-300">
         <Button 
           variant="ghost" 
           onClick={() => navigate('/app')} 
@@ -271,7 +257,7 @@ const StudySession = () => {
 
   if (view === 'mode-selection') {
     return (
-      <div className="min-h-screen bg-background p-6 pt-6 md:pt-6 flex flex-col items-center justify-center animate-in fade-in slide-in-from-right-2 duration-500">
+      <div className="min-h-screen bg-background p-6 pt-6 md:pt-6 flex flex-col items-center justify-center transition-colors duration-300">
         <Button 
           variant="ghost" 
           onClick={() => setView('topic-selection')} 
@@ -321,7 +307,7 @@ const StudySession = () => {
 
   if (view === 'results') {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-6 transition-colors duration-300">
+      <div className="min-h-screen bg-background flex items-center justify-center p-6 pt-6 md:pt-6 transition-colors duration-300">
         <StudyResults 
           total={selectedTopic!.items.length}
           correct={correctCount}
@@ -335,7 +321,7 @@ const StudySession = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pt-6 pb-12 md:py-12 flex flex-col items-center transition-colors duration-300 animate-in fade-in zoom-in-95 duration-500">
+    <div className="min-h-screen bg-background pt-6 pb-12 md:py-12 flex flex-col items-center transition-colors duration-300">
       <StudyHeader 
         current={mode === 'matching' || mode === 'sorting' ? (selectedTopic!.items.length) : masteredCount} 
         total={selectedTopic!.items.length} 
