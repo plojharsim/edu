@@ -238,14 +238,14 @@ const StudySession = () => {
             <Button 
               key={topic.id} 
               variant="outline" 
-              className="min-h-[6rem] h-auto py-4 w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.33%-1rem)] rounded-[2rem] border-2 border-white dark:border-slate-800 bg-card shadow-sm hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-900 flex items-center justify-start px-8 gap-4 transition-all" 
+              className="h-24 w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.33%-1rem)] rounded-[2rem] border-2 border-white dark:border-slate-800 bg-card shadow-sm hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-900 flex items-center justify-start px-8 gap-4 transition-all" 
               onClick={() => handleTopicSelect(topic)}
             >
-              <div className="p-3 bg-indigo-50 dark:bg-indigo-950/30 rounded-2xl shrink-0">
+              <div className="p-3 bg-indigo-50 dark:bg-indigo-950/30 rounded-2xl">
                 <BookText className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
               </div>
-              <div className="text-left py-1">
-                <span className="block font-bold text-lg text-slate-800 dark:text-slate-100 leading-tight mb-1">{topic.name}</span>
+              <div className="text-left">
+                <span className="block font-bold text-lg text-slate-800 dark:text-slate-100">{topic.name}</span>
                 <span className="text-xs text-slate-400 dark:text-slate-500 font-bold uppercase">{topic.items.length} položek</span>
               </div>
             </Button>
