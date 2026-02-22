@@ -42,8 +42,8 @@ const Leaderboard = () => {
   if (loading) return <LoadingScreen message="Sestavuji síň slávy..." />;
 
   return (
-    <div className="min-h-screen bg-background p-6 pt-6 md:pt-10 flex flex-col items-center">
-      <header className="max-w-4xl w-full mb-10 flex items-center gap-4">
+    <div className="min-h-screen bg-background p-6 pt-safe flex flex-col items-center">
+      <header className="max-w-4xl w-full md:pt-safe-lg mb-10 flex items-center gap-4">
         <Button 
           variant="ghost" 
           onClick={() => navigate('/app')} 

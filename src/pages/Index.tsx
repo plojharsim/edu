@@ -108,11 +108,11 @@ const Index = () => {
   if (loading) return <LoadingScreen message="Sestavuji tvou nástěnku..." />;
 
   return (
-    <div className="min-h-screen bg-background p-6 pb-20 transition-colors duration-300 flex flex-col">
-      <header className="max-w-6xl mx-auto pt-6 md:pt-10 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-8 w-full">
+    <div className="min-h-screen bg-background p-6 pb-20 transition-colors duration-300 flex flex-col pt-safe">
+      <header className="max-w-6xl mx-auto md:pt-safe-lg mb-12 flex flex-col md:flex-row md:items-end justify-between gap-8 w-full">
         <div className="text-center md:text-left">
           <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
-            <Sparkles className="w-5 h-5 text-indigo-500 fill-indigo-500" />
+            <LucideIcons.Sparkles className="w-5 h-5 text-indigo-500 fill-indigo-500" />
             <span className="text-indigo-600 dark:text-indigo-400 font-bold uppercase tracking-widest text-xs">
               Vítej zpět, {profile.name}! {profile.grade && `(${profile.grade})`}
             </span>
@@ -134,7 +134,7 @@ const Index = () => {
               <span className="text-3xl font-black text-emerald-500">{stats.average}%</span>
               <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-tighter">Průměr</span>
             </div>
-            <TrendingUp className="w-8 h-8 text-indigo-500/20 dark:text-indigo-400/20" />
+            <LucideIcons.TrendingUp className="w-8 h-8 text-indigo-500/20 dark:text-indigo-400/20" />
           </div>
           
           <div className="flex gap-2">
@@ -145,7 +145,7 @@ const Index = () => {
               className="group rounded-2xl h-12 w-12 bg-card shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-all border border-border"
               title="Domů"
             >
-              <Home className="w-6 h-6 text-slate-500 dark:text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors" />
+              <LucideIcons.Home className="w-6 h-6 text-slate-500 dark:text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors" />
             </Button>
 
             <Button 
@@ -155,7 +155,7 @@ const Index = () => {
               className="group rounded-2xl h-12 w-12 bg-card shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-all border border-border"
               title="Žebříček"
             >
-              <Trophy className="w-6 h-6 text-slate-500 dark:text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors" />
+              <LucideIcons.Trophy className="w-6 h-6 text-slate-500 dark:text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors" />
             </Button>
             
             <Button 
@@ -165,7 +165,7 @@ const Index = () => {
               className="group rounded-2xl h-12 w-12 bg-card shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-all border border-border"
               title="Editor témat"
             >
-              <Edit3 className="w-6 h-6 text-slate-500 dark:text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors" />
+              <LucideIcons.Edit3 className="w-6 h-6 text-slate-500 dark:text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors" />
             </Button>
             
             <SettingsDialog />

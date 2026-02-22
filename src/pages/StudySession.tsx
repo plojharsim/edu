@@ -227,11 +227,11 @@ const StudySession = () => {
 
   if (view === 'topic-selection') {
     return (
-      <div className="min-h-screen bg-background p-6 pt-6 md:pt-6 flex flex-col items-center justify-center transition-colors duration-300">
+      <div className="min-h-screen bg-background p-6 pt-safe flex flex-col items-center justify-center transition-colors duration-300">
         <Button 
           variant="ghost" 
           onClick={() => navigate('/app')} 
-          className="absolute top-8 left-8 rounded-2xl hover:bg-card dark:hover:bg-slate-800"
+          className="absolute top-[calc(2rem+env(safe-area-inset-top,0px))] left-8 rounded-2xl hover:bg-card dark:hover:bg-slate-800"
         >
           <ChevronLeft className="mr-2 w-5 h-5" /> Zpět na přehled
         </Button>
@@ -263,11 +263,11 @@ const StudySession = () => {
 
   if (view === 'mode-selection') {
     return (
-      <div className="min-h-screen bg-background p-6 pt-6 md:pt-6 flex flex-col items-center justify-center transition-colors duration-300">
+      <div className="min-h-screen bg-background p-6 pt-safe flex flex-col items-center justify-center transition-colors duration-300">
         <Button 
           variant="ghost" 
           onClick={() => setView('topic-selection')} 
-          className="absolute top-8 left-8 rounded-2xl hover:bg-card dark:hover:bg-slate-800"
+          className="absolute top-[calc(2rem+env(safe-area-inset-top,0px))] left-8 rounded-2xl hover:bg-card dark:hover:bg-slate-800"
         >
           <ChevronLeft className="mr-2 w-5 h-5" /> Změnit téma
         </Button>
@@ -313,7 +313,7 @@ const StudySession = () => {
 
   if (view === 'results') {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-6 pt-6 md:pt-6 transition-colors duration-300">
+      <div className="min-h-screen bg-background flex items-center justify-center p-6 pt-safe transition-colors duration-300">
         <StudyResults 
           total={selectedTopic!.items.length}
           correct={correctCount}
@@ -327,7 +327,7 @@ const StudySession = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pt-6 pb-12 md:py-12 flex flex-col items-center transition-colors duration-300">
+    <div className="min-h-screen bg-background pt-safe pb-12 md:py-12 flex flex-col items-center transition-colors duration-300">
       <StudyHeader 
         current={mode === 'matching' || mode === 'sorting' ? (selectedTopic!.items.length) : masteredCount} 
         total={selectedTopic!.items.length} 

@@ -55,11 +55,26 @@
   }
   body {
     @apply bg-background text-foreground font-sans antialiased transition-colors duration-300;
-    /* Respektování výřezu (notche) a spodní lišty */
-    padding-top: env(safe-area-inset-top, 0px);
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-    padding-left: env(safe-area-inset-left, 0px);
-    padding-right: env(safe-area-inset-right, 0px);
+  }
+}
+
+@layer utilities {
+  /* Kombinované odsazení: základní (1.5rem / 6) + Safe Area */
+  .pt-safe {
+    padding-top: calc(1.5rem + env(safe-area-inset-top, 0px));
+  }
+  .pb-safe {
+    padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+  }
+  /* Větší odsazení pro desktopy */
+  .md\:pt-safe-lg {
+    @media (min-width: 768px) {
+      padding-top: calc(2.5rem + env(safe-area-inset-top, 0px));
+    }
+  }
+
+  .shadow-xl {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
   }
 }
 
@@ -78,12 +93,6 @@
 
 .rotate-y-180 {
   transform: rotateY(180deg);
-}
-
-@layer utilities {
-  .shadow-xl {
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
-  }
 }
 
 /* Fix for Sonner Toast positioning on mobile */
