@@ -25,22 +25,22 @@ const StudyHeader = ({ current, total, title, time }: StudyHeaderProps) => {
 
   return (
     <div className="w-full max-w-2xl mx-auto mb-8 px-4">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-4 gap-2">
         <Button 
           variant="ghost" 
           size="icon" 
           onClick={() => navigate('/app')}
-          className="rounded-full hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-500 transition-colors"
+          className="rounded-full hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-500 transition-colors shrink-0"
         >
           <X className="w-6 h-6" />
         </Button>
-        <div className="text-center">
-          <h2 className="text-lg font-bold text-slate-700 dark:text-slate-200">{title}</h2>
-          <p className="text-xs font-black text-indigo-500 uppercase tracking-widest">{current} z {total}</p>
+        <div className="text-center flex-1 min-w-0 px-2">
+          <h2 className="text-sm sm:text-lg font-bold text-slate-700 dark:text-slate-200 break-words line-clamp-2 leading-tight">{title}</h2>
+          <p className="text-[10px] sm:text-xs font-black text-indigo-500 uppercase tracking-widest mt-0.5">{current} z {total}</p>
         </div>
-        <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full">
+        <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full shrink-0">
           <Timer className="w-4 h-4 text-slate-500" />
-          <span className="text-sm font-mono font-bold text-slate-600 dark:text-slate-300">{formatTime(time)}</span>
+          <span className="text-xs sm:text-sm font-mono font-bold text-slate-600 dark:text-slate-300">{formatTime(time)}</span>
         </div>
       </div>
       <Progress value={progress} className="h-3 rounded-full bg-slate-100 dark:bg-slate-800" />
