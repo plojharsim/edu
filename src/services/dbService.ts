@@ -54,14 +54,13 @@ export const dbService = {
     // 2. Smazat staré položky
     await supabase.from('study_items').delete().eq('topic_id', savedTopic.id);
 
-    // 3. Vložit nové položky (včetně image_url)
+    // 3. Vložit nové položky
     const itemsToInsert = topic.items.map(item => ({
       topic_id: savedTopic.id,
       term: item.term,
       definition: item.definition,
       options: item.options,
-      category: item.category,
-      image_url: item.image_url
+      category: item.category
     }));
 
     if (itemsToInsert.length > 0) {
@@ -75,7 +74,7 @@ export const dbService = {
     await supabase.from('topics').delete().eq('id', topicId);
   },
 
-  // Statistiky
+  // Statistiky a Algoritmus
   async getStats(userId: string) {
     const { data } = await supabase.from('study_stats').select('*').eq('user_id', userId).single();
     return data;
@@ -83,6 +82,7 @@ export const dbService = {
 
   async updateStats(userId: string, score: number, performanceUpdate?: any) {
     const { data: existing } = await supabase.from('study_stats').select('*').eq('user_id', userId).single();
+    
     const today = new Date().toISOString().split('T')[0];
     let streak = existing?.streak || 0;
     
@@ -114,10 +114,15 @@ export const dbService = {
     return { error };
   },
 
+  // Kompletní smazání účtu (přes Edge Function)
   async deleteAccount() {
-    const { data, error } = await supabase.functions.invoke('delete-user', { method: 'POST' });
+    const { data, error } = await supabase.functions.invoke('delete-user', {
+      method: 'POST'
+    });
+    
     if (error) throw error;
     if (data?.error) throw new Error(data.error);
+    
     return data;
   }
 };

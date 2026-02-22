@@ -12,11 +12,11 @@ import {
   Plus, Trash2, ChevronLeft, Save, BookText, Layers, 
   CheckSquare, Keyboard, BookOpen, ArrowLeftRight, 
   Share2, Download, Code, Copy, Check, LayoutPanelTop,
-  Sparkles, Loader2, Image as ImageIcon
+  Sparkles, Loader2
 } from "lucide-react";
 import { Topic, StudyItem, StudyMode } from '@/data/studyData';
 import { showSuccess, showError } from '@/utils/toast';
-import { encodeTopic, decodeTopic } from '@/lib/sharing';
+import { encodeTopic, decodeTopic, formatForDeveloper } from '@/lib/sharing';
 import AITopicGenerator from '@/components/AITopicGenerator';
 import { useAuth } from '@/components/AuthProvider';
 import { dbService } from '@/services/dbService';
@@ -54,6 +54,8 @@ const EditTopics = () => {
     if (!user) return;
     setIsSaving(true);
     try {
+      // Pro jednoduchost ukládáme pouze aktivní nebo všechna nová témata
+      // V produkci by bylo lepší ukládat jen změny
       await Promise.all(topics.map(t => dbService.saveTopic(user.id, t)));
       showSuccess("Všechna témata byla synchronizována s databází!");
       navigate('/app');
@@ -132,8 +134,7 @@ const EditTopics = () => {
         term: "",
         definition: "",
         options: ["", "", ""],
-        category: "",
-        image_url: ""
+        category: ""
       });
       setTopics(newTopics);
     }
@@ -254,7 +255,34 @@ const EditTopics = () => {
           {activeTopic ? (
             <>
               <div className="bg-card p-4 sm:p-6 rounded-[2rem] shadow-sm mb-6 border border-border">
-                {/* ... (hlavička editoru tématu zůstává stejná) */}
+                <div className="flex flex-col xs:flex-row justify-between items-start xs:items-center gap-3 mb-6">
+                  <h2 className="font-bold text-muted-foreground uppercase text-[10px] sm:text-xs tracking-widest">Základní nastavení</h2>
+                  <div className="flex gap-2 w-full xs:w-auto justify-start xs:justify-end">
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button variant="ghost" size="sm" className="flex-1 xs:flex-none gap-2 rounded-xl text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/10 text-xs">
+                          <Share2 className="w-4 h-4" /> Sdílet
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="rounded-[2rem] bg-card border-border max-w-md">
+                        <DialogHeader>
+                          <DialogTitle className="text-foreground">Nasdílej toto téma</DialogTitle>
+                          <DialogDescription className="text-muted-foreground">
+                            Tento kód si může kdokoliv jiný vložit do své aplikace.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="bg-muted p-4 rounded-xl border border-border break-all text-xs font-mono text-foreground/70 max-h-[200px] overflow-y-auto">
+                          {encodeTopic(activeTopic)}
+                        </div>
+                        <Button onClick={() => copyToClipboard(encodeTopic(activeTopic))} className="w-full gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold mt-4">
+                          {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                          Kopírovat kód pro kamaráda
+                        </Button>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                </div>
+                
                 <Input 
                   value={activeTopic.name}
                   onChange={(e) => {
@@ -268,7 +296,41 @@ const EditTopics = () => {
                 />
 
                 <div className="space-y-6">
-                  {/* ... (výběr režimů zůstává stejný) */}
+                  <div>
+                    <h3 className="text-sm font-bold text-foreground mb-4">Povolené studijní režimy</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                      {MODES.map(mode => (
+                        <div key={mode.id} className="flex items-center space-x-3 p-3 sm:p-4 bg-background rounded-2xl border border-border">
+                          <Checkbox 
+                            id={`mode-${mode.id}`}
+                            checked={(activeTopic.allowedModes || ['flashcards', 'abcd', 'writing', 'matching', 'sorting']).includes(mode.id)}
+                            onCheckedChange={() => toggleMode(activeTopic.id, mode.id)}
+                          />
+                          <Label htmlFor={`mode-${mode.id}`} className="flex items-center gap-2 cursor-pointer font-medium text-foreground text-sm">
+                            <mode.icon className="w-4 h-4 text-indigo-500" />
+                            {mode.label}
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="p-4 bg-indigo-500/5 rounded-2xl flex items-center justify-between border border-indigo-500/10">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-indigo-500/10 rounded-xl">
+                        <ArrowLeftRight className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                      </div>
+                      <div>
+                        <Label htmlFor="random-direction" className="font-bold text-foreground block text-sm sm:text-base">Náhodný směr</Label>
+                        <span className="text-[10px] sm:text-xs text-muted-foreground">Randomizuje otázku a odpověď.</span>
+                      </div>
+                    </div>
+                    <Switch 
+                      id="random-direction"
+                      checked={activeTopic.randomizeDirection}
+                      onCheckedChange={() => toggleRandomDirection(activeTopic.id)}
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -311,54 +373,39 @@ const EditTopics = () => {
                       </div>
                     </div>
 
-                    <div className="space-y-4">
-                      <div className="space-y-2 p-4 bg-indigo-50/30 dark:bg-indigo-950/10 rounded-2xl border border-indigo-100 dark:border-indigo-900/30">
-                        <div className="flex items-center gap-2 mb-2">
-                          <ImageIcon className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-                          <label className="text-[10px] font-bold uppercase text-indigo-700 dark:text-indigo-400 tracking-widest">URL obrázku (volitelné)</label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {isSortingModeEnabled && (
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-bold uppercase text-indigo-500/60 tracking-widest">Kategorie (pro rozřazování)</label>
+                          <Input 
+                            value={item.category || ""}
+                            onChange={(e) => updateItem(activeTopic.id, idx, 'category', e.target.value)}
+                            placeholder="Např. Zvířata"
+                            className="h-10 sm:h-12 rounded-xl border-indigo-100 dark:border-indigo-900/30 bg-background text-foreground text-sm"
+                          />
                         </div>
-                        <Input 
-                          value={item.image_url || ""}
-                          onChange={(e) => updateItem(activeTopic.id, idx, 'image_url', e.target.value)}
-                          placeholder="https://odkaz-na-obrazek.jpg"
-                          className="h-10 rounded-xl border-indigo-100 dark:border-indigo-900/50 bg-background text-foreground text-xs"
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {isSortingModeEnabled && (
-                          <div className="space-y-2">
-                            <label className="text-[10px] font-bold uppercase text-indigo-500/60 tracking-widest">Kategorie (pro rozřazování)</label>
-                            <Input 
-                              value={item.category || ""}
-                              onChange={(e) => updateItem(activeTopic.id, idx, 'category', e.target.value)}
-                              placeholder="Např. Zvířata"
-                              className="h-10 rounded-xl border-indigo-100 dark:border-indigo-900/30 bg-background text-foreground text-sm"
-                            />
+                      )}
+                      
+                      {isAbcdModeEnabled && (
+                        <div className="space-y-3 p-3 sm:p-4 bg-muted/30 rounded-2xl border border-border">
+                          <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Špatné odpovědi</label>
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
+                            {item.options.map((opt, optIdx) => (
+                              <Input 
+                                key={optIdx}
+                                value={opt}
+                                onChange={(e) => {
+                                  const newOpts = [...item.options];
+                                  newOpts[optIdx] = e.target.value;
+                                  updateItem(activeTopic.id, idx, 'options', newOpts);
+                                }}
+                                placeholder={`Chyba ${optIdx + 1}`}
+                                className="rounded-lg border-border h-9 text-xs sm:text-sm bg-background text-foreground"
+                              />
+                            ))}
                           </div>
-                        )}
-                        
-                        {isAbcdModeEnabled && (
-                          <div className="space-y-3 p-3 sm:p-4 bg-muted/30 rounded-2xl border border-border">
-                            <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Špatné odpovědi</label>
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
-                              {item.options.map((opt, optIdx) => (
-                                <Input 
-                                  key={optIdx}
-                                  value={opt}
-                                  onChange={(e) => {
-                                    const newOpts = [...item.options];
-                                    newOpts[optIdx] = e.target.value;
-                                    updateItem(activeTopic.id, idx, 'options', newOpts);
-                                  }}
-                                  placeholder={`Chyba ${optIdx + 1}`}
-                                  className="rounded-lg border-border h-9 text-xs sm:text-sm bg-background text-foreground"
-                                />
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
+                        </div>
+                      )}
                     </div>
                   </Card>
                 ))}
@@ -368,6 +415,7 @@ const EditTopics = () => {
             <div className="h-full min-h-[400px] flex flex-col items-center justify-center p-8 sm:p-12 text-center bg-card rounded-[3rem] border-2 border-dashed border-border">
               <BookText className="w-12 h-12 sm:w-16 sm:h-16 text-indigo-500/20 dark:text-indigo-400/20 mb-4" />
               <h3 className="text-lg sm:text-xl font-bold text-muted-foreground">Vyberte téma k úpravě</h3>
+              <p className="text-muted-foreground text-xs sm:text-sm max-w-xs mt-2">Nebo vytvořte nové téma pomocí tlačítka plus v levém sloupci.</p>
             </div>
           )}
         </div>
