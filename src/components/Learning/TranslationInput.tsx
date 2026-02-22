@@ -36,8 +36,8 @@ const TranslationInput = ({ term, imageUrl, correctTranslation, onAnswer }: Tran
         <span className="text-sm font-bold text-amber-500 dark:text-amber-400 uppercase tracking-widest mb-4">Doplň odpověď</span>
         
         {imageUrl && (
-          <div className="w-full aspect-video mb-4 rounded-xl overflow-hidden border border-border">
-            <img src={imageUrl} alt={term} className="w-full h-full object-cover" />
+          <div className="w-full aspect-video mb-4 rounded-xl overflow-hidden border border-border bg-slate-50 dark:bg-slate-900/50 flex items-center justify-center">
+            <img src={imageUrl} alt={term} className="max-w-full max-h-full object-contain p-1" />
           </div>
         )}
 

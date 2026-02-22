@@ -32,8 +32,8 @@ const MultipleChoice = ({ question, imageUrl, options, correctAnswer, onAnswer }
     <div className="w-full max-w-xl mx-auto space-y-8 p-4">
       <div className="bg-card p-6 sm:p-8 rounded-[2rem] shadow-sm border-2 border-slate-50 dark:border-slate-800 flex flex-col items-center">
         {imageUrl && (
-          <div className="w-full max-w-[300px] aspect-video mb-6 rounded-2xl overflow-hidden border-2 border-slate-100 dark:border-slate-700">
-            <img src={imageUrl} alt={question} className="w-full h-full object-cover" />
+          <div className="w-full max-w-[300px] aspect-video mb-6 rounded-2xl overflow-hidden border-2 border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 flex items-center justify-center">
+            <img src={imageUrl} alt={question} className="max-w-full max-h-full object-contain p-2" />
           </div>
         )}
         <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-100 text-center">{question}</h3>

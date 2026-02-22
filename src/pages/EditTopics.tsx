@@ -448,8 +448,8 @@ const EditTopics = () => {
                           </label>
                         </div>
                         {item.imageUrl && (
-                          <div className="mt-2 h-16 w-full rounded-xl overflow-hidden border border-border">
-                            <img src={item.imageUrl} alt="Preview" className="w-full h-full object-cover" />
+                          <div className="mt-2 h-16 w-full rounded-xl overflow-hidden border border-border bg-slate-50 dark:bg-slate-900/50 flex items-center justify-center">
+                            <img src={item.imageUrl} alt="Preview" className="max-w-full max-h-full object-contain p-1" />
                           </div>
                         )}
                       </div>

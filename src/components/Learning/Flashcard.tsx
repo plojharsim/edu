@@ -27,8 +27,8 @@ const Flashcard = ({ front, back, imageUrl, isFlipped, onFlip }: FlashcardProps)
           <span className="text-[10px] font-bold text-indigo-400 dark:text-indigo-500 mb-4 uppercase tracking-widest shrink-0">Otázka</span>
           
           {imageUrl && (
-            <div className="w-full aspect-video mb-4 rounded-xl overflow-hidden border border-border">
-              <img src={imageUrl} alt={front} className="w-full h-full object-cover" />
+            <div className="w-full aspect-video mb-4 rounded-xl overflow-hidden border border-border bg-slate-50 dark:bg-slate-900/50 flex items-center justify-center">
+              <img src={imageUrl} alt={front} className="max-w-full max-h-full object-contain p-1" />
             </div>
           )}
           
