@@ -149,20 +149,20 @@ const Index = () => {
               variant="ghost" 
               size="icon" 
               onClick={() => navigate('/')}
-              className="rounded-2xl h-12 w-12 bg-card shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors border border-border"
+              className="group rounded-2xl h-12 w-12 bg-card shadow-sm hover:shadow-md transition-all border border-border hover:border-indigo-200 dark:hover:border-indigo-900 hover:bg-slate-50 dark:hover:bg-slate-800"
               title="Domů"
             >
-              <Home className="w-6 h-6 text-foreground" />
+              <Home className="w-5 h-5 text-slate-500 dark:text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors" />
             </Button>
             
             <Button 
               variant="ghost" 
               size="icon" 
               onClick={() => navigate('/app/edit')}
-              className="rounded-2xl h-12 w-12 bg-card shadow-sm hover:bg-indigo-50 dark:hover:bg-slate-800 transition-colors border border-border"
+              className="group rounded-2xl h-12 w-12 bg-card shadow-sm hover:shadow-md transition-all border border-border hover:border-indigo-200 dark:hover:border-indigo-900 hover:bg-slate-50 dark:hover:bg-slate-800"
               title="Editor témat"
             >
-              <Edit3 className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+              <Edit3 className="w-5 h-5 text-slate-500 dark:text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors" />
             </Button>
             
             <SettingsDialog />
