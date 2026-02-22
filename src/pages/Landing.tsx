@@ -27,19 +27,21 @@ const Landing = () => {
     <div className="min-h-screen bg-background transition-colors duration-500 overflow-hidden">
       {/* Navigation */}
       <nav className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-md border-b border-border/40">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 flex-shrink-0">
             <div className="p-2 bg-indigo-600 rounded-xl shadow-lg shadow-indigo-200 dark:shadow-none">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-black tracking-tighter text-foreground whitespace-nowrap">Edu | by plojharsim</span>
+            <span className="text-xl font-black tracking-tighter text-foreground whitespace-nowrap">
+              Edu <span className="hidden sm:inline">| by plojharsim</span>
+            </span>
           </div>
           
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <ThemeToggle />
             <Button 
               onClick={handleStart}
-              className="rounded-2xl h-12 bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 shadow-md shadow-indigo-200 dark:shadow-none transition-all"
+              className="rounded-2xl h-11 sm:h-12 bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 sm:px-6 shadow-md shadow-indigo-200 dark:shadow-none transition-all text-sm sm:text-base"
             >
               {session ? 'Do aplikace' : 'Začít se učit'}
             </Button>
@@ -71,7 +73,7 @@ const Landing = () => {
             <Button 
               size="lg"
               onClick={handleStart}
-              className="h-16 px-10 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xl gap-3 shadow-xl shadow-indigo-200 dark:shadow-none transition-all hover:scale-105"
+              className="h-16 px-10 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xl gap-3 shadow-xl shadow-indigo-200 dark:shadow-none transition-all hover:scale-105 w-full sm:w-auto"
             >
               {session ? 'Pokračovat v učení' : 'Vyzkoušet zdarma'} <ArrowRight className="w-6 h-6" />
             </Button>
@@ -79,7 +81,7 @@ const Landing = () => {
               size="lg"
               variant="outline"
               onClick={() => window.open('https://github.com/plojharsim', '_blank')}
-              className="h-16 px-10 rounded-2xl border-2 font-bold text-lg gap-3"
+              className="h-16 px-10 rounded-2xl border-2 font-bold text-lg gap-3 w-full sm:w-auto"
             >
               <Github className="w-5 h-5" /> GitHub
             </Button>
