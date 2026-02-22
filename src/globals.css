@@ -84,6 +84,6 @@
 /* Fix for Sonner Toast positioning on mobile */
 @media (max-width: 768px) {
   [data-sonner-toaster] {
-    top: 60px !important;
+    top: 20px !important;
   }
 }
