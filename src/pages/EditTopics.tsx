@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
+import LoadingScreen from '@/components/LoadingScreen';
 import { 
   Plus, Trash2, ChevronLeft, Save, BookText, Layers, 
   CheckSquare, Keyboard, BookOpen, ArrowLeftRight, 
@@ -35,6 +36,7 @@ import { Textarea } from "@/components/ui/textarea";
 const EditTopics = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [topics, setTopics] = useState<Topic[]>([]);
   const [activeTopicId, setActiveTopicId] = useState<string | null>(null);
   const [importCode, setImportCode] = useState("");
@@ -46,8 +48,14 @@ const EditTopics = () => {
   useEffect(() => {
     if (!user) return;
     const fetchTopics = async () => {
-      const data = await dbService.getUserTopics(user.id);
-      setTopics(data);
+      try {
+        const data = await dbService.getUserTopics(user.id);
+        setTopics(data);
+      } catch (e) {
+        console.error("Failed to fetch topics", e);
+      } finally {
+        setTimeout(() => setIsInitialLoading(false), 600);
+      }
     };
     fetchTopics();
   }, [user]);
@@ -203,8 +211,12 @@ const EditTopics = () => {
     { id: 'sorting', label: 'Rozřazování', icon: LayoutPanelTop },
   ];
 
+  if (isInitialLoading) {
+    return <LoadingScreen message="Otevírám tvůj editor..." />;
+  }
+
   return (
-    <div className="min-h-screen bg-background p-4 sm:p-6 pb-20 pt-6 md:pt-10">
+    <div className="min-h-screen bg-background p-4 sm:p-6 pb-20 pt-6 md:pt-10 animate-in fade-in duration-500">
       <header className="max-w-6xl mx-auto mb-6 sm:mb-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
           <Button variant="ghost" onClick={() => navigate('/app')} className="rounded-2xl h-12 w-12 bg-card shadow-sm border border-border flex-shrink-0">
