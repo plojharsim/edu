@@ -30,10 +30,7 @@ const Landing = () => {
       {/* Navigation */}
       <nav className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-md border-b border-border/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between gap-4">
-          <div 
-            className="flex items-center gap-2 min-w-0 cursor-pointer"
-            onClick={() => window.location.reload()}
-          >
+          <div className="flex items-center gap-2 min-w-0">
             <div className="p-2 bg-indigo-600 rounded-xl shadow-lg shadow-indigo-200 dark:shadow-none shrink-0">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
@@ -64,10 +61,7 @@ const Landing = () => {
             <span className="text-xs font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">Efektivní učení nové generace</span>
           </div>
           
-          <h1 
-            className="text-5xl md:text-7xl lg:text-8xl font-black text-foreground mb-8 tracking-tight leading-[0.9] animate-in fade-in slide-in-from-bottom-6 duration-1000 cursor-pointer hover:opacity-90 transition-opacity select-none"
-            onClick={() => window.location.reload()}
-          >
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-foreground mb-8 tracking-tight leading-[0.9] animate-in fade-in slide-in-from-bottom-6 duration-1000">
             Uč se chytřeji, <br />
             <span className="text-indigo-600 dark:text-indigo-400">ne déle.</span>
           </h1>
