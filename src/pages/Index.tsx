@@ -7,34 +7,60 @@ import { Sparkles, TrendingUp, LogOut, Edit3, Heart, Home } from 'lucide-react';
 import CategoryCard from '@/components/Dashboard/CategoryCard';
 import BadgesSection from '@/components/Dashboard/BadgesSection';
 import { Button } from "@/components/ui/button";
-import { getStudyData, Category } from '@/data/studyData';
+import { PREDEFINED_DATA, Category } from '@/data/studyData';
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { useAuth } from '@/components/AuthProvider';
+import { dbService } from '@/services/dbService';
 
 const Index = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState({ name: 'Studente', grade: '' });
+  const { user, signOut } = useAuth();
+  const [profile, setProfile] = useState({ name: 'Studente', grade: '' });
   const [stats, setStats] = useState({ streak: 0, average: 0, sessions: 0, perfectSessions: 0 });
   const [studyData, setStudyData] = useState<Record<string, Category>>({});
 
   useEffect(() => {
-    const profile = localStorage.getItem('user_profile');
-    if (profile) {
-      setUser(JSON.parse(profile));
-    }
+    if (!user) return;
 
-    const savedStats = localStorage.getItem('study_stats');
-    if (savedStats) {
-      const parsed = JSON.parse(savedStats);
-      setStats({
-        streak: parsed.streak || 0,
-        average: Math.round(parsed.average || 0),
-        sessions: parsed.sessions || 0,
-        perfectSessions: parsed.perfectSessions || 0
-      });
-    }
+    const fetchData = async () => {
+      // 1. Načíst profil
+      const userProfile = await dbService.getProfile(user.id);
+      if (userProfile) {
+        setProfile({ name: userProfile.name || 'Studente', grade: userProfile.grade || '' });
+      } else {
+        // Pokud profil neexistuje, poslat na onboarding
+        navigate('/onboarding');
+      }
 
-    setStudyData(getStudyData());
-  }, []);
+      // 2. Načíst statistiky
+      const userStats = await dbService.getStats(user.id);
+      if (userStats) {
+        setStats({
+          streak: userStats.streak || 0,
+          average: Math.round(userStats.average || 0),
+          sessions: userStats.sessions || 0,
+          perfectSessions: userStats.perfect_sessions || 0
+        });
+      }
+
+      // 3. Načíst témata
+      const userTopics = await dbService.getUserTopics(user.id);
+      const data = { ...PREDEFINED_DATA };
+      if (userTopics.length > 0) {
+        data['custom'] = {
+          id: 'custom',
+          title: 'Vlastní',
+          iconName: 'BookText',
+          color: 'bg-indigo-600',
+          isCustom: true,
+          topics: userTopics
+        };
+      }
+      setStudyData(data);
+    };
+
+    fetchData();
+  }, [user, navigate]);
 
   const customTopicsCount = useMemo(() => {
     return studyData['custom']?.topics.length || 0;
@@ -65,10 +91,8 @@ const Index = () => {
     };
   }, [studyData]);
 
-  const handleLogout = () => {
-    localStorage.removeItem('user_profile');
-    localStorage.removeItem('study_stats');
-    localStorage.removeItem('user_topics');
+  const handleLogout = async () => {
+    await signOut();
     navigate('/');
   };
 
@@ -84,7 +108,7 @@ const Index = () => {
           <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
             <Sparkles className="w-5 h-5 text-indigo-500 fill-indigo-500" />
             <span className="text-indigo-600 dark:text-indigo-400 font-bold uppercase tracking-widest text-xs">
-              Vítej zpět, {user.name}! {user.grade && `(${user.grade})`}
+              Vítej zpět, {profile.name}! {profile.grade && `(${profile.grade})`}
             </span>
           </div>
           <h1 className="text-4xl md:text-5xl font-black text-foreground leading-tight">
@@ -155,12 +179,6 @@ const Index = () => {
                 />
               </div>
             ))}
-            {Object.keys(studyData).length === 0 && (
-              <div className="col-span-full p-12 text-center bg-card rounded-[3rem] border-2 border-dashed border-border">
-                <p className="text-muted-foreground font-medium mb-4">Zatím nemáš žádné studijní sady.</p>
-                <Button onClick={() => navigate('/app/edit')} className="rounded-2xl bg-indigo-600 font-bold">Vytvořit první sadu</Button>
-              </div>
-            )}
           </div>
         </div>
 

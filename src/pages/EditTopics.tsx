@@ -12,12 +12,14 @@ import {
   Plus, Trash2, ChevronLeft, Save, BookText, Layers, 
   CheckSquare, Keyboard, BookOpen, ArrowLeftRight, 
   Share2, Download, Code, Copy, Check, LayoutPanelTop,
-  Sparkles
+  Sparkles, Loader2
 } from "lucide-react";
-import { saveUserTopics, Topic, StudyItem, StudyMode } from '@/data/studyData';
+import { Topic, StudyItem, StudyMode } from '@/data/studyData';
 import { showSuccess, showError } from '@/utils/toast';
 import { encodeTopic, decodeTopic, formatForDeveloper } from '@/lib/sharing';
 import AITopicGenerator from '@/components/AITopicGenerator';
+import { useAuth } from '@/components/AuthProvider';
+import { dbService } from '@/services/dbService';
 import {
   Dialog,
   DialogContent,
@@ -31,32 +33,42 @@ import { Textarea } from "@/components/ui/textarea";
 
 const EditTopics = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [topics, setTopics] = useState<Topic[]>([]);
   const [activeTopicId, setActiveTopicId] = useState<string | null>(null);
   const [importCode, setImportCode] = useState("");
   const [copied, setCopied] = useState(false);
   const [isAIGeneratorOpen, setIsAIGeneratorOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem('user_topics');
-    if (saved) setTopics(JSON.parse(saved));
-  }, []);
+    if (!user) return;
+    const fetchTopics = async () => {
+      const data = await dbService.getUserTopics(user.id);
+      setTopics(data);
+    };
+    fetchTopics();
+  }, [user]);
 
-  const handleSave = () => {
-    saveUserTopics(topics);
-    showSuccess("Vlastní témata byla uložena!");
-    navigate('/app');
+  const handleSaveAll = async () => {
+    if (!user) return;
+    setIsSaving(true);
+    try {
+      // Pro jednoduchost ukládáme pouze aktivní nebo všechna nová témata
+      // V produkci by bylo lepší ukládat jen změny
+      await Promise.all(topics.map(t => dbService.saveTopic(user.id, t)));
+      showSuccess("Všechna témata byla synchronizována s databází!");
+      navigate('/app');
+    } catch (e) {
+      showError("Chyba při ukládání do databáze.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const addTopic = (newTopicData?: Topic) => {
-    if (newTopicData) {
-      setTopics([...topics, newTopicData]);
-      setActiveTopicId(newTopicData.id);
-      return;
-    }
-
-    const id = `topic_${Date.now()}`;
-    const newTopic: Topic = { 
+    const id = newTopicData?.id || `topic_${Date.now()}`;
+    const newTopic: Topic = newTopicData || { 
       id, 
       name: "Nové téma", 
       items: [],
@@ -70,8 +82,7 @@ const EditTopics = () => {
   const handleImport = () => {
     const imported = decodeTopic(importCode);
     if (imported) {
-      setTopics([...topics, imported]);
-      setActiveTopicId(imported.id);
+      addTopic(imported);
       setImportCode("");
       showSuccess("Téma úspěšně importováno!");
     } else {
@@ -86,9 +97,13 @@ const EditTopics = () => {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const deleteTopic = (id: string) => {
+  const deleteTopic = async (id: string) => {
+    if (!id.startsWith('topic_') && !id.startsWith('ai_')) {
+      await dbService.deleteTopic(id);
+    }
     setTopics(topics.filter(t => t.id !== id));
     if (activeTopicId === id) setActiveTopicId(null);
+    showSuccess("Téma odstraněno.");
   };
 
   const toggleMode = (topicId: string, mode: StudyMode) => {
@@ -159,23 +174,23 @@ const EditTopics = () => {
     <div className="min-h-screen bg-background p-4 sm:p-6 pb-20 pt-20 md:pt-10">
       <header className="max-w-6xl mx-auto mb-6 sm:mb-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
-          <Button variant="ghost" onClick={() => navigate('/app')} className="rounded-2xl h-10 w-10 sm:h-12 sm:w-12 bg-card shadow-sm border border-border flex-shrink-0">
-            <ChevronLeft className="w-5 h-5 sm:w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+          <Button variant="ghost" onClick={() => navigate('/app')} className="rounded-2xl h-12 w-12 bg-card shadow-sm border border-border flex-shrink-0">
+            <ChevronLeft className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
           </Button>
           <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-foreground truncate">Moje témata</h1>
         </div>
         <div className="flex gap-2 w-full sm:w-auto justify-end sm:justify-start">
           <Button 
             onClick={() => setIsAIGeneratorOpen(true)} 
-            className="flex-1 sm:flex-none rounded-xl sm:rounded-2xl h-10 sm:h-12 px-3 sm:px-6 bg-indigo-500/10 text-indigo-600 hover:bg-indigo-500/20 font-black border-2 border-indigo-500/30 gap-2 text-xs sm:text-sm animate-pulse"
+            className="flex-1 sm:flex-none rounded-2xl h-12 px-6 bg-indigo-500/10 text-indigo-600 hover:bg-indigo-500/20 font-black border-2 border-indigo-500/30 gap-2 text-xs sm:text-sm animate-pulse"
           >
-            <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" /> AI
+            <Sparkles className="w-5 h-5" /> AI
           </Button>
           
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant="outline" className="flex-1 sm:flex-none rounded-xl sm:rounded-2xl h-10 sm:h-12 px-3 sm:px-6 font-bold gap-2 bg-card border-border text-foreground text-xs sm:text-sm">
-                <Download className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-500" /> Import
+              <Button variant="outline" className="flex-1 sm:flex-none rounded-2xl h-12 px-6 font-bold gap-2 bg-card border-border text-foreground text-xs sm:text-sm">
+                <Download className="w-5 h-5 text-indigo-500" /> Import
               </Button>
             </DialogTrigger>
             <DialogContent className="rounded-[2rem] bg-card border-border">
@@ -197,8 +212,13 @@ const EditTopics = () => {
             </DialogContent>
           </Dialog>
 
-          <Button onClick={handleSave} className="flex-1 sm:flex-none rounded-xl sm:rounded-2xl h-10 sm:h-12 px-4 sm:px-8 bg-indigo-600 hover:bg-indigo-700 text-white font-bold gap-2 text-xs sm:text-sm shadow-lg shadow-indigo-200 dark:shadow-none">
-            <Save className="w-4 h-4 sm:w-5 sm:h-5" /> <span className="hidden xs:inline">Uložit</span>
+          <Button 
+            onClick={handleSaveAll} 
+            disabled={isSaving}
+            className="flex-1 sm:flex-none rounded-2xl h-12 px-8 bg-indigo-600 hover:bg-indigo-700 text-white font-bold gap-2 text-xs sm:text-sm shadow-lg shadow-indigo-200 dark:shadow-none"
+          >
+            {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+            <span className="hidden xs:inline">Uložit do cloudu</span>
           </Button>
         </div>
       </header>
@@ -206,7 +226,7 @@ const EditTopics = () => {
       <main className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-8">
         <div className="md:col-span-4 space-y-4">
           <div className="flex items-center justify-between mb-2">
-            <h2 className="font-bold text-muted-foreground uppercase text-[10px] sm:text-xs tracking-widest">Témata ve "Vlastní"</h2>
+            <h2 className="font-bold text-muted-foreground uppercase text-[10px] sm:text-xs tracking-widest">Témata v cloudu</h2>
             <Button size="icon" variant="ghost" onClick={() => addTopic()} className="h-8 w-8 rounded-full bg-indigo-500/10 text-indigo-600">
               <Plus className="w-4 h-4" />
             </Button>
@@ -215,10 +235,10 @@ const EditTopics = () => {
             <div key={topic.id} className="group relative">
               <Button
                 variant={activeTopicId === topic.id ? "secondary" : "ghost"}
-                className={`w-full justify-start h-12 sm:h-14 rounded-xl text-left font-bold transition-all border border-transparent ${activeTopicId === topic.id ? 'bg-indigo-600 text-white hover:bg-indigo-700 border-indigo-500' : 'bg-card shadow-sm border-border text-foreground'}`}
+                className={`w-full justify-start h-14 rounded-xl text-left font-bold transition-all border border-transparent ${activeTopicId === topic.id ? 'bg-indigo-600 text-white hover:bg-indigo-700 border-indigo-500' : 'bg-card shadow-sm border-border text-foreground'}`}
                 onClick={() => setActiveTopicId(topic.id)}
               >
-                <BookText className={`mr-3 w-4 h-4 sm:w-5 sm:h-5 ${activeTopicId === topic.id ? 'text-white' : 'text-indigo-500/50'}`} />
+                <BookText className={`mr-3 w-5 h-5 ${activeTopicId === topic.id ? 'text-white' : 'text-indigo-500/50'}`} />
                 <span className="truncate pr-6">{topic.name}</span>
               </Button>
               <button 
@@ -260,29 +280,6 @@ const EditTopics = () => {
                         </Button>
                       </DialogContent>
                     </Dialog>
-
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button variant="ghost" size="sm" className="flex-1 xs:flex-none gap-2 rounded-xl text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/10 text-xs">
-                          <Code className="w-4 h-4" /> Vývojář
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="rounded-[2rem] bg-card border-border max-w-2xl">
-                        <DialogHeader>
-                          <DialogTitle className="text-foreground">Kód pro veřejné téma</DialogTitle>
-                          <DialogDescription className="text-muted-foreground">
-                            Tento kód pošli mně (vývojáři) a já ho přidám jako stálou součást aplikace pro všechny!
-                          </DialogDescription>
-                        </DialogHeader>
-                        <div className="bg-muted p-4 rounded-xl border border-border text-xs font-mono text-foreground/70 max-h-[300px] overflow-y-auto whitespace-pre-wrap">
-                          {formatForDeveloper(activeTopic)}
-                        </div>
-                        <Button onClick={() => copyToClipboard(formatForDeveloper(activeTopic))} className="w-full gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold mt-4">
-                          {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                          Kopírovat kód pro vývojáře
-                        </Button>
-                      </DialogContent>
-                    </Dialog>
                   </div>
                 </div>
                 
@@ -294,7 +291,7 @@ const EditTopics = () => {
                     if (t) t.name = e.target.value;
                     setTopics(newTopics);
                   }}
-                  className="mb-8 h-12 sm:h-14 text-lg sm:text-xl font-bold border-2 border-border bg-background text-foreground"
+                  className="mb-8 h-14 text-lg sm:text-xl font-bold border-2 border-border bg-background text-foreground"
                   placeholder="Název tématu"
                 />
 
@@ -321,7 +318,7 @@ const EditTopics = () => {
                   <div className="p-4 bg-indigo-500/5 rounded-2xl flex items-center justify-between border border-indigo-500/10">
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-indigo-500/10 rounded-xl">
-                        <ArrowLeftRight className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600 dark:text-indigo-400" />
+                        <ArrowLeftRight className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
                       </div>
                       <div>
                         <Label htmlFor="random-direction" className="font-bold text-foreground block text-sm sm:text-base">Náhodný směr</Label>

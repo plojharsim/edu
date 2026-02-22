@@ -11,12 +11,15 @@ import SortingGame from '@/components/Learning/SortingGame';
 import StudyResults from '@/components/Learning/StudyResults';
 import { Button } from '@/components/ui/button';
 import { BookOpen, CheckSquare, Keyboard, Layers, ChevronLeft, BookText, Check, X, LayoutPanelTop } from 'lucide-react';
-import { getStudyData, Topic, StudyItem, StudyMode } from '@/data/studyData';
+import { PREDEFINED_DATA, Topic, StudyItem, StudyMode } from '@/data/studyData';
+import { useAuth } from '@/components/AuthProvider';
+import { dbService } from '@/services/dbService';
 
 const StudySession = () => {
   const { categoryId, topicId } = useParams();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   
   const [view, setView] = useState<'topic-selection' | 'mode-selection' | 'study' | 'results'>('topic-selection');
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
@@ -29,9 +32,27 @@ const StudySession = () => {
   const [isCardFlipped, setIsCardFlipped] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [seconds, setSeconds] = useState(0);
-  
-  const studyData = getStudyData();
-  const category = studyData[categoryId || ''] || Object.values(studyData)[0];
+  const [studyData, setStudyData] = useState<Record<string, any>>({ ...PREDEFINED_DATA });
+
+  useEffect(() => {
+    if (!user) return;
+    const fetchUserTopics = async () => {
+      const userTopics = await dbService.getUserTopics(user.id);
+      if (userTopics.length > 0) {
+        setStudyData(prev => ({
+          ...prev,
+          custom: {
+            id: 'custom',
+            title: 'Vlastní',
+            topics: userTopics
+          }
+        }));
+      }
+    };
+    fetchUserTopics();
+  }, [user]);
+
+  const category = studyData[categoryId || ''];
 
   useEffect(() => {
     let interval: any;
@@ -45,7 +66,7 @@ const StudySession = () => {
 
   useEffect(() => {
     if (topicId && category) {
-      const topic = category.topics.find(t => t.id === topicId);
+      const topic = category.topics.find((t: any) => t.id === topicId);
       if (topic) {
         setSelectedTopic(topic);
         const forcedMode = searchParams.get('mode') as any;
@@ -66,7 +87,7 @@ const StudySession = () => {
     return all.sort(() => Math.random() - 0.5);
   }, [currentItem]);
 
-  if (!category) {
+  if (!category && view !== 'results') {
     return <div className="p-20 text-center">Načítání...</div>;
   }
 
@@ -109,25 +130,9 @@ const StudySession = () => {
     setSeconds(0);
   };
 
-  const updateStats = (score: number) => {
-    const savedStats = localStorage.getItem('study_stats');
-    let stats = savedStats ? JSON.parse(savedStats) : { streak: 0, average: 0, sessions: 0, perfectSessions: 0, lastDate: null };
-    
-    const today = new Date().toDateString();
-    if (stats.lastDate !== today) {
-      const yesterday = new Date(Date.now() - 86400000).toDateString();
-      stats.streak = (stats.lastDate === yesterday) ? stats.streak + 1 : 1;
-      stats.lastDate = today;
-    }
-
-    stats.average = ((stats.average * stats.sessions) + score) / (stats.sessions + 1);
-    stats.sessions += 1;
-    
-    if (score === 100) {
-      stats.perfectSessions = (stats.perfectSessions || 0) + 1;
-    }
-    
-    localStorage.setItem('study_stats', JSON.stringify(stats));
+  const finalizeStats = async (score: number) => {
+    if (!user) return;
+    await dbService.updateStats(user.id, score);
   };
 
   const handleNext = (isCorrect: boolean = true) => {
@@ -147,7 +152,7 @@ const StudySession = () => {
     if (isLast) {
       const finalCorrect = isCorrect ? correctCount + 1 : correctCount;
       const finalScore = (finalCorrect / shuffledItems.length) * 100;
-      updateStats(finalScore);
+      finalizeStats(finalScore);
       setView('results');
     } else {
       if (mode === 'flashcards' && isCardFlipped) {
@@ -173,7 +178,7 @@ const StudySession = () => {
     const correct = totalItems - incorrect;
     setCorrectCount(correct);
     setMistakes([]);
-    updateStats((correct / totalItems) * 100);
+    finalizeStats((correct / totalItems) * 100);
     setView('results');
   };
 
@@ -198,7 +203,7 @@ const StudySession = () => {
           <p className="text-slate-500 dark:text-slate-400 font-medium">Vyber si téma, které chceš procvičit</p>
         </div>
         <div className="flex flex-wrap justify-center gap-4 w-full max-w-4xl">
-          {category.topics.map((topic) => (
+          {category.topics.map((topic: any) => (
             <Button 
               key={topic.id} 
               variant="outline" 
@@ -289,7 +294,7 @@ const StudySession = () => {
       <StudyHeader 
         current={mode === 'matching' || mode === 'sorting' ? (selectedTopic!.items.length) : currentIndex + 1} 
         total={selectedTopic!.items.length} 
-        title={`${category.title}: ${selectedTopic?.name}`} 
+        title={`${category?.title}: ${selectedTopic?.name}`} 
         time={seconds}
       />
       <div className="flex-1 flex items-center justify-center w-full px-4">

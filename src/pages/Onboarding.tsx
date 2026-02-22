@@ -6,24 +6,35 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Sparkles, GraduationCap, User } from "lucide-react";
-import { showSuccess } from "@/utils/toast";
+import { showSuccess, showError } from "@/utils/toast";
+import { useAuth } from '@/components/AuthProvider';
+import { dbService } from '@/services/dbService';
 
 const Onboarding = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     name: '',
     grade: ''
   });
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (step === 1 && !formData.name) return;
     if (step === 2 && !formData.grade) return;
     
     if (step < 2) {
       setStep(step + 1);
     } else {
-      localStorage.setItem('user_profile', JSON.stringify({ ...formData, completed: true }));
+      if (!user) return;
+      
+      const { error } = await dbService.updateProfile(user.id, formData.name, formData.grade);
+      
+      if (error) {
+        showError("Nepodařilo se uložit profil.");
+        return;
+      }
+
       showSuccess(`Vítej v aplikaci, ${formData.name}!`);
       navigate('/app');
     }
