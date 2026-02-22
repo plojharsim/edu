@@ -23,10 +23,6 @@ const Landing = () => {
     }
   };
 
-  const handleReload = () => {
-    window.location.href = "/";
-  };
-
   const GITHUB_URL = "https://github.com/plojharsim/edu";
 
   return (
@@ -34,10 +30,7 @@ const Landing = () => {
       {/* Navigation */}
       <nav className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-md border-b border-border/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between gap-4">
-          <div 
-            className="flex items-center gap-2 min-w-0 cursor-pointer hover:opacity-80 transition-opacity"
-            onClick={handleReload}
-          >
+          <div className="flex items-center gap-2 min-w-0">
             <div className="p-2 bg-indigo-600 rounded-xl shadow-lg shadow-indigo-200 dark:shadow-none shrink-0">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
