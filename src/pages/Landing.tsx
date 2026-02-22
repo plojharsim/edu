@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { 
@@ -10,23 +10,10 @@ import {
 } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from '@/components/AuthProvider';
-import { Capacitor } from '@capacitor/core';
 
 const Landing = () => {
   const navigate = useNavigate();
-  const { session, loading } = useAuth();
-
-  // Automatické přesměrování pro mobilní aplikaci (Capacitor)
-  useEffect(() => {
-    // Pokud jsme v nativní aplikaci (iOS/Android), nechceme vidět landing page
-    if (Capacitor.isNativePlatform() && !loading) {
-      if (session) {
-        navigate('/app', { replace: true });
-      } else {
-        navigate('/login', { replace: true });
-      }
-    }
-  }, [session, loading, navigate]);
+  const { session } = useAuth();
 
   const handleStart = () => {
     if (session) {
@@ -37,11 +24,6 @@ const Landing = () => {
   };
 
   const GITHUB_URL = "https://github.com/plojharsim/edu";
-
-  // Pokud se právě přesměrovává v nativní aplikaci, nic nevykreslujeme
-  if (Capacitor.isNativePlatform() && !loading) {
-    return null;
-  }
 
   return (
     <div className="min-h-screen bg-background transition-colors duration-500 overflow-hidden">

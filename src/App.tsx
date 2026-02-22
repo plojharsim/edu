@@ -7,6 +7,7 @@ import { ThemeProvider } from "next-themes";
 import { AuthProvider, useAuth } from "./components/AuthProvider";
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { Capacitor } from '@capacitor/core';
 import Index from "./pages/Index";
 import StudySession from "./pages/StudySession";
 import Onboarding from "./pages/Onboarding";
@@ -57,7 +58,16 @@ const App = () => (
           <BrowserRouter>
             <AuthHandler />
             <Routes>
-              <Route path="/" element={<Landing />} />
+              {/* Na nativních platformách přesměrujeme kořenovou cestu rovnou do aplikace */}
+              <Route 
+                path="/" 
+                element={
+                  Capacitor.isNativePlatform() 
+                    ? <Navigate to="/app" replace /> 
+                    : <Landing />
+                } 
+              />
+              
               <Route path="/login" element={<Login />} />
               <Route 
                 path="/update-password" 
