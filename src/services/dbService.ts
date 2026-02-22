@@ -114,10 +114,15 @@ export const dbService = {
     return { error };
   },
 
-  // Odstranění účtu (dat)
-  async deleteAccountData(userId: string) {
-    // Smaže profil - díky kaskádám a RLS politikám by se měla smazat i ostatní data
-    const { error } = await supabase.from('profiles').delete().eq('id', userId);
-    return { error };
+  // Kompletní smazání účtu (přes Edge Function)
+  async deleteAccount() {
+    const { data, error } = await supabase.functions.invoke('delete-user', {
+      method: 'POST'
+    });
+    
+    if (error) throw error;
+    if (data?.error) throw new Error(data.error);
+    
+    return data;
   }
 };

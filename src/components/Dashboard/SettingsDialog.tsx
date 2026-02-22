@@ -40,15 +40,15 @@ const SettingsDialog = () => {
     setIsDeleting(true);
     
     try {
-      const { error } = await dbService.deleteAccountData(user.id);
-      if (error) throw error;
+      // Voláme Edge Function pro smazání auth účtu
+      await dbService.deleteAccount();
       
-      showSuccess("Tvá data byla úspěšně odstraněna.");
+      showSuccess("Tvůj účet a všechna data byla trvale odstraněna.");
+      // Po smazání na backendu nás to odhlásí lokálně
       await signOut();
       navigate('/');
     } catch (e: any) {
-      showError("Nepodařilo se odstranit data: " + e.message);
-    } finally {
+      showError("Nepodařilo se smazat účet: " + e.message);
       setIsDeleting(false);
     }
   };
@@ -128,7 +128,7 @@ const SettingsDialog = () => {
                 <AlertDialogHeader>
                   <AlertDialogTitle className="text-foreground">Jsi si opravdu jistý?</AlertDialogTitle>
                   <AlertDialogDescription className="text-muted-foreground">
-                    Tato akce je nevratná. Dojde k trvalému smazání tvého profilu, všech vytvořených témat a tvého studijního pokroku.
+                    Tato akce je nevratná. Dojde k trvalému smazání tvého přihlašovacího účtu, všech vytvořených témat a tvého studijního pokroku.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -139,7 +139,7 @@ const SettingsDialog = () => {
                     disabled={isDeleting}
                   >
                     {isDeleting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                    Ano, smazat vše
+                    Ano, smazat účet
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
