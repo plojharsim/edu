@@ -53,6 +53,7 @@ export const PREDEFINED_DATA: Record<string, Category> = {
       }
     ]
   },
+  
   zemepis: {
     id: 'zemepis',
     title: 'Zeměpis',
