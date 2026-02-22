@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ChevronLeft, Trophy, Medal, Star, Flame, GraduationCap } from "lucide-react";
+import { ChevronLeft, Trophy, Medal, Star, Flame, GraduationCap, PlayCircle } from "lucide-react";
 import { dbService } from '@/services/dbService';
 import LoadingScreen from '@/components/LoadingScreen';
 import { cn } from '@/lib/utils';
@@ -58,7 +58,7 @@ const Leaderboard = () => {
       </header>
 
       <main className="max-w-4xl w-full space-y-4">
-        {data.length > 0 ? (
+        {data && data.length > 0 ? (
           data.map((entry, index) => (
             <Card 
               key={index} 
@@ -115,15 +115,24 @@ const Leaderboard = () => {
                 </div>
               </div>
 
-              {/* Decorative background trophy for top rank */}
               {index === 0 && <Trophy className="absolute -right-4 -bottom-4 w-24 h-24 text-amber-500/10 -rotate-12 pointer-events-none" />}
             </Card>
           ))
         ) : (
-          <div className="p-12 text-center bg-card rounded-[3rem] border-2 border-dashed border-border">
-            <Medal className="w-16 h-16 text-muted-foreground/20 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-muted-foreground">Zatím tu nikdo není</h3>
-            <p className="text-sm text-muted-foreground mt-2">Buď první, kdo se zapíše do historie!</p>
+          <div className="p-12 text-center bg-card rounded-[3rem] border-2 border-dashed border-border flex flex-col items-center animate-in fade-in zoom-in duration-500">
+            <div className="p-6 bg-indigo-50 dark:bg-indigo-950/30 rounded-full mb-6">
+              <Medal className="w-16 h-16 text-indigo-500/40" />
+            </div>
+            <h3 className="text-2xl font-black text-foreground mb-2">Zatím tu nikdo není</h3>
+            <p className="text-muted-foreground max-w-xs mx-auto mb-8 font-medium">
+              Buď první, kdo dokončí studijní lekci a zapíše se do historie naší síně slávy!
+            </p>
+            <Button 
+              onClick={() => navigate('/app')}
+              className="h-14 px-10 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-lg gap-3 shadow-xl shadow-indigo-200 dark:shadow-none"
+            >
+              <PlayCircle className="w-6 h-6" /> Začít se učit
+            </Button>
           </div>
         )}
       </main>
