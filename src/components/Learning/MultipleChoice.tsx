@@ -7,12 +7,13 @@ import { CheckCircle2, XCircle } from "lucide-react";
 
 interface MultipleChoiceProps {
   question: string;
+  imageUrl?: string;
   options: string[];
   correctAnswer: string;
   onAnswer: (isCorrect: boolean) => void;
 }
 
-const MultipleChoice = ({ question, options, correctAnswer, onAnswer }: MultipleChoiceProps) => {
+const MultipleChoice = ({ question, imageUrl, options, correctAnswer, onAnswer }: MultipleChoiceProps) => {
   const [selected, setSelected] = useState<string | null>(null);
   const [isLocked, setIsLocked] = useState(false);
 
@@ -29,7 +30,12 @@ const MultipleChoice = ({ question, options, correctAnswer, onAnswer }: Multiple
 
   return (
     <div className="w-full max-w-xl mx-auto space-y-8 p-4">
-      <div className="bg-card p-8 rounded-[2rem] shadow-sm border-2 border-slate-50 dark:border-slate-800">
+      <div className="bg-card p-6 sm:p-8 rounded-[2rem] shadow-sm border-2 border-slate-50 dark:border-slate-800 flex flex-col items-center">
+        {imageUrl && (
+          <div className="w-full max-w-[300px] aspect-video mb-6 rounded-2xl overflow-hidden border-2 border-slate-100 dark:border-slate-700">
+            <img src={imageUrl} alt={question} className="w-full h-full object-cover" />
+          </div>
+        )}
         <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-100 text-center">{question}</h3>
       </div>
 

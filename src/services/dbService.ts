@@ -30,7 +30,13 @@ export const dbService = {
         name: topic.name,
         allowedModes: topic.allowed_modes,
         randomize_direction: topic.randomize_direction,
-        items: items || []
+        items: items?.map(item => ({
+          term: item.term,
+          definition: item.definition,
+          options: item.options,
+          category: item.category,
+          imageUrl: item.image_url
+        })) || []
       };
     }));
 
@@ -60,7 +66,8 @@ export const dbService = {
       term: item.term,
       definition: item.definition,
       options: item.options,
-      category: item.category
+      category: item.category,
+      image_url: item.imageUrl
     }));
 
     if (itemsToInsert.length > 0) {

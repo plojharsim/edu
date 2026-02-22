@@ -25,6 +25,7 @@ const StudySession = () => {
   const [view, setView] = useState<'topic-selection' | 'mode-selection' | 'study' | 'results'>('topic-selection');
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
   
+  // Adaptivní fronta položek
   const [sessionQueue, setSessionQueue] = useState<StudyItem[]>([]);
   const [masteredCount, setMasteredCount] = useState(0); 
   const [performanceData, setPerformanceData] = useState<ItemPerformance>({});
@@ -41,6 +42,7 @@ const StudySession = () => {
   useEffect(() => {
     if (!user) return;
     const fetchData = async () => {
+      // Témata
       const userTopics = await dbService.getUserTopics(user.id);
       if (userTopics.length > 0) {
         setStudyData(prev => ({
@@ -53,6 +55,7 @@ const StudySession = () => {
         }));
       }
 
+      // Výkonnostní data pro algoritmus
       const stats = await dbService.getStats(user.id);
       if (stats?.performance_data) {
         setPerformanceData(stats.performance_data);
@@ -109,6 +112,7 @@ const StudySession = () => {
     const topic = topicOverride || selectedTopic;
     if (!topic) return;
 
+    // Prioritizace podle načtených dat ze Supabase
     let items = learningAlgorithm.prioritizeItems(topic.items, performanceData);
 
     items = items.map(item => {
@@ -146,6 +150,7 @@ const StudySession = () => {
     const item = sessionQueue[0];
     const itemId = `${item.term}_${item.definition}`;
     
+    // Lokální update pro tuto session
     const updatedPerformance = learningAlgorithm.calculateNewPerformance(performanceData, itemId, isCorrect);
     setPerformanceData(updatedPerformance);
 
@@ -233,14 +238,14 @@ const StudySession = () => {
             <Button 
               key={topic.id} 
               variant="outline" 
-              className="h-24 w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.33%-1rem)] rounded-[2rem] border-2 border-white dark:border-slate-800 bg-card shadow-sm hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-900 flex items-center justify-start px-8 gap-4 transition-all min-w-0" 
+              className="h-24 w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.33%-1rem)] rounded-[2rem] border-2 border-white dark:border-slate-800 bg-card shadow-sm hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-900 flex items-center justify-start px-8 gap-4 transition-all" 
               onClick={() => handleTopicSelect(topic)}
             >
-              <div className="p-3 bg-indigo-50 dark:bg-indigo-950/30 rounded-2xl shrink-0">
+              <div className="p-3 bg-indigo-50 dark:bg-indigo-950/30 rounded-2xl">
                 <BookText className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
               </div>
-              <div className="text-left min-w-0 flex-1">
-                <span className="block font-bold text-lg text-slate-800 dark:text-slate-100 truncate" title={topic.name}>{topic.name}</span>
+              <div className="text-left">
+                <span className="block font-bold text-lg text-slate-800 dark:text-slate-100">{topic.name}</span>
                 <span className="text-xs text-slate-400 dark:text-slate-500 font-bold uppercase">{topic.items.length} položek</span>
               </div>
             </Button>
@@ -260,8 +265,8 @@ const StudySession = () => {
         >
           <ChevronLeft className="mr-2 w-5 h-5" /> Změnit téma
         </Button>
-        <div className="text-center mb-12 px-4 max-w-full">
-          <span className="text-indigo-600 dark:text-indigo-400 font-bold uppercase tracking-widest text-xs mb-2 block truncate px-4">{selectedTopic?.name}</span>
+        <div className="text-center mb-12 px-4">
+          <span className="text-indigo-600 dark:text-indigo-400 font-bold uppercase tracking-widest text-xs mb-2 block">{selectedTopic?.name}</span>
           <h1 className="text-4xl font-black text-slate-800 dark:text-slate-100 mb-2">Jak se chceš učit?</h1>
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 w-full max-w-3xl px-2">
@@ -329,6 +334,7 @@ const StudySession = () => {
             <Flashcard 
               front={currentItem.term} 
               back={currentItem.definition} 
+              imageUrl={currentItem.imageUrl}
               isFlipped={isCardFlipped}
               onFlip={() => !isTransitioning && setIsCardFlipped(true)}
             />
@@ -355,13 +361,14 @@ const StudySession = () => {
         {mode === 'abcd' && currentItem && (
           <MultipleChoice 
             question={currentItem.term} 
+            imageUrl={currentItem.imageUrl}
             options={shuffledOptions} 
             correctAnswer={currentItem.definition} 
             onAnswer={(correct) => handleNext(correct)} 
           />
         )}
         {mode === 'writing' && currentItem && (
-          <TranslationInput term={currentItem.term} correctTranslation={currentItem.definition} onAnswer={(correct) => handleNext(correct)} />
+          <TranslationInput term={currentItem.term} imageUrl={currentItem.imageUrl} correctTranslation={currentItem.definition} onAnswer={(correct) => handleNext(correct)} />
         )}
         {mode === 'matching' && (
           <MatchingGame items={selectedTopic!.items} onComplete={(inc) => handleCompletion(inc)} />
