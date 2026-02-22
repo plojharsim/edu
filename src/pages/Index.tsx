@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as LucideIcons from 'lucide-react';
-import { Sparkles, TrendingUp, LogOut, Edit3, Heart, Home } from 'lucide-react';
+import { Sparkles, TrendingUp, LogOut, Edit3, Heart, Home, Loader2 } from 'lucide-react';
 import CategoryCard from '@/components/Dashboard/CategoryCard';
 import BadgesSection from '@/components/Dashboard/BadgesSection';
 import { Button } from "@/components/ui/button";
@@ -18,45 +18,54 @@ const Index = () => {
   const [profile, setProfile] = useState({ name: 'Studente', grade: '' });
   const [stats, setStats] = useState({ streak: 0, average: 0, sessions: 0, perfectSessions: 0 });
   const [studyData, setStudyData] = useState<Record<string, Category>>({});
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (!user) return;
 
     const fetchData = async () => {
-      // 1. Načíst profil
-      const userProfile = await dbService.getProfile(user.id);
-      if (userProfile) {
-        setProfile({ name: userProfile.name || 'Studente', grade: userProfile.grade || '' });
-      } else {
-        // Pokud profil neexistuje, poslat na onboarding
-        navigate('/onboarding');
-      }
+      try {
+        setIsLoading(true);
+        // 1. Načíst profil
+        const userProfile = await dbService.getProfile(user.id);
+        if (userProfile) {
+          setProfile({ name: userProfile.name || 'Studente', grade: userProfile.grade || '' });
+        } else {
+          // Pokud profil neexistuje, poslat na onboarding
+          navigate('/onboarding');
+          return;
+        }
 
-      // 2. Načíst statistiky
-      const userStats = await dbService.getStats(user.id);
-      if (userStats) {
-        setStats({
-          streak: userStats.streak || 0,
-          average: Math.round(userStats.average || 0),
-          sessions: userStats.sessions || 0,
-          perfectSessions: userStats.perfect_sessions || 0
-        });
-      }
+        // 2. Načíst statistiky
+        const userStats = await dbService.getStats(user.id);
+        if (userStats) {
+          setStats({
+            streak: userStats.streak || 0,
+            average: Math.round(userStats.average || 0),
+            sessions: userStats.sessions || 0,
+            perfectSessions: userStats.perfect_sessions || 0
+          });
+        }
 
-      // 3. Načíst témata
-      const userTopics = await dbService.getUserTopics(user.id);
-      const data = { ...PREDEFINED_DATA };
-      if (userTopics.length > 0) {
-        data['custom'] = {
-          id: 'custom',
-          title: 'Vlastní',
-          iconName: 'BookText',
-          color: 'bg-indigo-600',
-          isCustom: true,
-          topics: userTopics
-        };
+        // 3. Načíst témata
+        const userTopics = await dbService.getUserTopics(user.id);
+        const data = { ...PREDEFINED_DATA };
+        if (userTopics.length > 0) {
+          data['custom'] = {
+            id: 'custom',
+            title: 'Vlastní',
+            iconName: 'BookText',
+            color: 'bg-indigo-600',
+            isCustom: true,
+            topics: userTopics
+          };
+        }
+        setStudyData(data);
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+      } finally {
+        setIsLoading(false);
       }
-      setStudyData(data);
     };
 
     fetchData();
@@ -101,8 +110,23 @@ const Index = () => {
     return Icon;
   };
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 transition-colors duration-300">
+        <div className="relative">
+          <div className="absolute inset-0 bg-indigo-500/20 blur-3xl rounded-full" />
+          <div className="relative bg-card p-10 rounded-[3rem] border-2 border-border shadow-xl flex flex-col items-center">
+            <Loader2 className="w-12 h-12 text-indigo-600 animate-spin mb-4" />
+            <p className="text-lg font-black text-foreground tracking-tight">Připravujeme tvůj dashboard...</p>
+            <p className="text-sm text-muted-foreground font-medium mt-1">Stahujeme data z cloudu</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-background p-6 pb-20 transition-colors duration-300 flex flex-col">
+    <div className="min-h-screen bg-background p-6 pb-20 transition-colors duration-300 flex flex-col animate-in fade-in duration-700">
       <header className="max-w-6xl mx-auto pt-20 md:pt-10 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-8 w-full">
         <div className="text-center md:text-left">
           <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
