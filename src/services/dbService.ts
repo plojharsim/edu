@@ -13,11 +13,6 @@ export const dbService = {
     return { error };
   },
 
-  async activatePremium(userId: string) {
-    const { error } = await supabase.from('profiles').update({ is_premium: true }).eq('id', userId);
-    return { error };
-  },
-
   // Témata a položky
   async getUserTopics(userId: string) {
     const { data: topics, error: tError } = await supabase.from('topics').select('*').eq('user_id', userId);
