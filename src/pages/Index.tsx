@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as LucideIcons from 'lucide-react';
-import { Sparkles, TrendingUp, Edit3, Heart, Home, Loader2 } from 'lucide-react';
+import { Sparkles, TrendingUp, Edit3, Heart, Home } from 'lucide-react';
 import CategoryCard from '@/components/Dashboard/CategoryCard';
 import BadgesSection from '@/components/Dashboard/BadgesSection';
 import { Button } from "@/components/ui/button";
@@ -15,23 +15,17 @@ import { dbService } from '@/services/dbService';
 const Index = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [isLoading, setIsLoading] = useState(true);
-  const [profile, setProfile] = useState({ name: '', grade: '' });
+  const [profile, setProfile] = useState({ name: 'Studente', grade: '' });
   const [stats, setStats] = useState({ streak: 0, average: 0, sessions: 0, perfectSessions: 0 });
-  const [studyData, setStudyData] = useState<Record<string, Category>>({});
+  const [studyData, setStudyData] = useState<Record<string, Category>>(PREDEFINED_DATA);
 
   useEffect(() => {
     if (!user) return;
 
     const fetchData = async () => {
       try {
-        // Načítáme všechna data paralelně pro maximální rychlost
-        const [userProfile, userStats, userTopics] = await Promise.all([
-          dbService.getProfile(user.id),
-          dbService.getStats(user.id),
-          dbService.getUserTopics(user.id)
-        ]);
-
+        // 1. Načíst profil
+        const userProfile = await dbService.getProfile(user.id);
         if (userProfile) {
           setProfile({ name: userProfile.name || 'Studente', grade: userProfile.grade || '' });
         } else {
@@ -39,6 +33,8 @@ const Index = () => {
           return;
         }
 
+        // 2. Načíst statistiky
+        const userStats = await dbService.getStats(user.id);
         if (userStats) {
           setStats({
             streak: userStats.streak || 0,
@@ -48,6 +44,8 @@ const Index = () => {
           });
         }
 
+        // 3. Načíst témata
+        const userTopics = await dbService.getUserTopics(user.id);
         const data = { ...PREDEFINED_DATA };
         if (userTopics.length > 0) {
           data['custom'] = {
@@ -62,9 +60,6 @@ const Index = () => {
         setStudyData(data);
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
-      } finally {
-        // Přidáme malou prodlevu pro plynulejší animaci zmizení loaderu
-        setTimeout(() => setIsLoading(false), 300);
       }
     };
 
@@ -105,25 +100,8 @@ const Index = () => {
     return Icon;
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
-        <div className="relative">
-          <div className="absolute inset-0 bg-indigo-500/20 blur-3xl rounded-full animate-pulse" />
-          <div className="relative bg-card p-8 rounded-[3rem] border-2 border-border shadow-2xl flex flex-col items-center gap-4">
-            <Loader2 className="w-12 h-12 text-indigo-600 animate-spin" />
-            <div className="space-y-2 text-center">
-              <p className="font-black text-xl text-foreground">Připravujeme učebnu...</p>
-              <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Edu | by plojharsim</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-background p-6 pb-20 transition-colors duration-300 flex flex-col animate-in fade-in duration-500">
+    <div className="min-h-screen bg-background p-6 pb-20 transition-colors duration-300 flex flex-col">
       <header className="max-w-6xl mx-auto pt-6 md:pt-10 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-8 w-full">
         <div className="text-center md:text-left">
           <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
