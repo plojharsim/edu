@@ -15,6 +15,7 @@ import { PREDEFINED_DATA, Topic, StudyItem, StudyMode } from '@/data/studyData';
 import { useAuth } from '@/components/AuthProvider';
 import { dbService } from '@/services/dbService';
 import { learningAlgorithm, ItemPerformance } from '@/utils/learningAlgorithm';
+import LoadingScreen from '@/components/LoadingScreen';
 
 const StudySession = () => {
   const { categoryId, topicId } = useParams();
@@ -38,27 +39,33 @@ const StudySession = () => {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [seconds, setSeconds] = useState(0);
   const [studyData, setStudyData] = useState<Record<string, any>>({ ...PREDEFINED_DATA });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!user) return;
     const fetchData = async () => {
-      // Témata
-      const userTopics = await dbService.getUserTopics(user.id);
-      if (userTopics.length > 0) {
-        setStudyData(prev => ({
-          ...prev,
-          custom: {
-            id: 'custom',
-            title: 'Vlastní',
-            topics: userTopics
-          }
-        }));
-      }
+      try {
+        setLoading(true);
+        // Témata
+        const userTopics = await dbService.getUserTopics(user.id);
+        if (userTopics.length > 0) {
+          setStudyData(prev => ({
+            ...prev,
+            custom: {
+              id: 'custom',
+              title: 'Vlastní',
+              topics: userTopics
+            }
+          }));
+        }
 
-      // Výkonnostní data pro algoritmus
-      const stats = await dbService.getStats(user.id);
-      if (stats?.performance_data) {
-        setPerformanceData(stats.performance_data);
+        // Výkonnostní data pro algoritmus
+        const stats = await dbService.getStats(user.id);
+        if (stats?.performance_data) {
+          setPerformanceData(stats.performance_data);
+        }
+      } finally {
+        setLoading(false);
       }
     };
     fetchData();
@@ -99,9 +106,8 @@ const StudySession = () => {
     return all.sort(() => Math.random() - 0.5);
   }, [currentItem]);
 
-  if (!category && view !== 'results') {
-    return null;
-  }
+  if (loading) return <LoadingScreen message="Připravuji tvou lekci..." />;
+  if (!category && view !== 'results') return null;
 
   const handleTopicSelect = (topic: Topic) => {
     setSelectedTopic(topic);

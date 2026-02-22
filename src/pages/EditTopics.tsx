@@ -21,6 +21,7 @@ import AITopicGenerator from '@/components/AITopicGenerator';
 import { useAuth } from '@/components/AuthProvider';
 import { dbService } from '@/services/dbService';
 import { supabase } from '@/integrations/supabase/client';
+import LoadingScreen from '@/components/LoadingScreen';
 import {
   Dialog,
   DialogContent,
@@ -42,12 +43,18 @@ const EditTopics = () => {
   const [isAIGeneratorOpen, setIsAIGeneratorOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!user) return;
     const fetchTopics = async () => {
-      const data = await dbService.getUserTopics(user.id);
-      setTopics(data);
+      try {
+        setLoading(true);
+        const data = await dbService.getUserTopics(user.id);
+        setTopics(data);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchTopics();
   }, [user]);
@@ -202,6 +209,8 @@ const EditTopics = () => {
     { id: 'matching', label: 'Přiřazování', icon: BookOpen },
     { id: 'sorting', label: 'Rozřazování', icon: LayoutPanelTop },
   ];
+
+  if (loading) return <LoadingScreen message="Otevírám tvoji knihovnu..." />;
 
   return (
     <div className="min-h-screen bg-background p-4 sm:p-6 pb-20 pt-6 md:pt-10">
@@ -448,8 +457,8 @@ const EditTopics = () => {
                           </label>
                         </div>
                         {item.imageUrl && (
-                          <div className="mt-2 h-16 w-full rounded-xl overflow-hidden border border-border bg-slate-50 dark:bg-slate-900/50 flex items-center justify-center">
-                            <img src={item.imageUrl} alt="Preview" className="max-w-full max-h-full object-contain p-1" />
+                          <div className="mt-2 h-16 w-full rounded-xl overflow-hidden border border-border">
+                            <img src={item.imageUrl} alt="Preview" className="w-full h-full object-cover" />
                           </div>
                         )}
                       </div>
