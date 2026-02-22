@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { 
   Sparkles, BookOpen, Layers, CheckSquare, 
   Keyboard, Zap, Trophy, Heart, ArrowRight,
-  Github, Globe
+  Github, Globe, Crown, Check
 } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from '@/components/AuthProvider';
@@ -44,6 +44,13 @@ const Landing = () => {
           
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <ThemeToggle />
+            <Button 
+              variant="ghost"
+              onClick={() => navigate('/pricing')}
+              className="hidden sm:flex rounded-2xl font-bold text-muted-foreground hover:text-indigo-600"
+            >
+              Ceník
+            </Button>
             <Button 
               onClick={handleStart}
               className="rounded-2xl h-10 sm:h-12 bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 sm:px-6 shadow-md shadow-indigo-200 dark:shadow-none transition-all text-sm sm:text-base whitespace-nowrap"
@@ -85,10 +92,10 @@ const Landing = () => {
             <Button 
               size="lg"
               variant="outline"
-              onClick={() => window.open(GITHUB_URL, '_blank')}
+              onClick={() => navigate('/pricing')}
               className="h-16 px-10 rounded-2xl border-2 font-bold text-lg gap-3"
             >
-              <Github className="w-5 h-5" /> GitHub
+              <Crown className="w-5 h-5 text-amber-500" /> Ceník Premium
             </Button>
           </div>
         </div>
@@ -126,49 +133,39 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Stats/Badges Highlight */}
-      <section className="py-20 px-6 overflow-hidden">
-        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-16">
-          <div className="flex-1 space-y-8">
-            <h2 className="text-4xl md:text-5xl font-black text-foreground leading-tight">
-              Gamifikace, která tě <br />
-              <span className="text-indigo-600">donutí k výsledkům.</span>
-            </h2>
-            <p className="text-lg text-muted-foreground">
-              Sbírej odznaky za své úspěchy, udržuj si denní sérii a sleduj, 
-              jak se tvá průměrná úspěšnost zlepšuje s každou lekcí.
-            </p>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="p-6 bg-card rounded-[2rem] border border-border shadow-sm">
-                <Trophy className="w-8 h-8 text-amber-500 mb-4" />
-                <h4 className="text-2xl font-black">15+</h4>
-                <p className="text-sm text-muted-foreground font-bold uppercase tracking-widest">Odznaků</p>
+      {/* Pricing Teaser */}
+      <section className="py-24 px-6 relative">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-4xl md:text-5xl font-black text-foreground mb-12">Jedna cena. Navždy.</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
+            <div className="p-8 bg-card border border-border rounded-[2.5rem] shadow-sm flex flex-col justify-between">
+              <div>
+                <h3 className="text-xl font-bold mb-2">Základní verze</h3>
+                <div className="text-3xl font-black mb-6">Zdarma</div>
+                <ul className="space-y-3 mb-8">
+                  <li className="flex items-center gap-2 text-sm text-muted-foreground"><Check className="w-4 h-4 text-indigo-500" /> Přístup k výchozím tématům</li>
+                  <li className="flex items-center gap-2 text-sm text-muted-foreground"><Check className="w-4 h-4 text-indigo-500" /> Režim Kartičky a ABCD</li>
+                  <li className="flex items-center gap-2 text-sm text-muted-foreground"><Check className="w-4 h-4 text-indigo-500" /> Sledování statistik</li>
+                </ul>
               </div>
-              <div className="p-6 bg-card rounded-[2rem] border border-border shadow-sm">
-                <Sparkles className="w-8 h-8 text-indigo-500 mb-4" />
-                <h4 className="text-2xl font-black">AI</h4>
-                <p className="text-sm text-muted-foreground font-bold uppercase tracking-widest">Generování</p>
-              </div>
+              <Button variant="outline" onClick={handleStart} className="w-full rounded-xl">Začít zdarma</Button>
             </div>
-          </div>
-          
-          <div className="flex-1 relative">
-            <div className="absolute inset-0 bg-indigo-600/10 blur-[100px] rounded-full" />
-            <div className="relative bg-card border-4 border-border rounded-[3rem] p-8 shadow-2xl rotate-3 hover:rotate-0 transition-transform duration-500">
-               <div className="flex items-center gap-4 mb-6">
-                 <div className="w-12 h-12 bg-indigo-600 rounded-2xl" />
-                 <div className="space-y-1">
-                   <div className="h-4 w-32 bg-muted rounded-full" />
-                   <div className="h-3 w-20 bg-muted/60 rounded-full" />
-                 </div>
-               </div>
-               <div className="space-y-4">
-                 <div className="h-32 w-full bg-slate-100 dark:bg-slate-800 rounded-2xl" />
-                 <div className="grid grid-cols-2 gap-4">
-                   <div className="h-20 bg-emerald-50 dark:bg-emerald-950/20 rounded-2xl" />
-                   <div className="h-20 bg-red-50 dark:bg-red-950/20 rounded-2xl" />
-                 </div>
-               </div>
+
+            <div className="p-8 bg-indigo-600 rounded-[2.5rem] shadow-xl text-white relative overflow-hidden">
+               <div className="absolute -top-10 -right-10 opacity-20"><Crown className="w-40 h-40 rotate-12" /></div>
+               <div className="relative z-10 flex flex-col h-full justify-between">
+                <div>
+                  <h3 className="text-xl font-bold mb-2 text-indigo-100">Edu Premium</h3>
+                  <div className="text-3xl font-black mb-6">249 Kč <span className="text-sm font-normal text-indigo-200">/ jednorázově</span></div>
+                  <ul className="space-y-3 mb-8">
+                    <li className="flex items-center gap-2 text-sm text-indigo-50"><Check className="w-4 h-4 text-amber-400" /> AI generování studijních sad</li>
+                    <li className="flex items-center gap-2 text-sm text-indigo-50"><Check className="w-4 h-4 text-amber-400" /> Neomezená vlastní témata</li>
+                    <li className="flex items-center gap-2 text-sm text-indigo-50"><Check className="w-4 h-4 text-amber-400" /> Pokročilé herní režimy</li>
+                    <li className="flex items-center gap-2 text-sm text-indigo-50"><Check className="w-4 h-4 text-amber-400" /> Synchronizace v cloudu</li>
+                  </ul>
+                </div>
+                <Button onClick={() => navigate('/pricing')} className="w-full bg-white text-indigo-600 hover:bg-indigo-50 font-black rounded-xl">Odemknout Premium</Button>
+              </div>
             </div>
           </div>
         </div>
