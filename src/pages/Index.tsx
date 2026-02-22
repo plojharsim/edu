@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as LucideIcons from 'lucide-react';
-import { Sparkles, TrendingUp, Edit3, Heart, Home, Loader2 } from 'lucide-react';
+import { Sparkles, TrendingUp, Edit3, Heart, Home } from 'lucide-react';
 import CategoryCard from '@/components/Dashboard/CategoryCard';
 import BadgesSection from '@/components/Dashboard/BadgesSection';
 import { Button } from "@/components/ui/button";
@@ -17,21 +17,18 @@ const Index = () => {
   const { user } = useAuth();
   const [profile, setProfile] = useState({ name: 'Studente', grade: '' });
   const [stats, setStats] = useState({ streak: 0, average: 0, sessions: 0, perfectSessions: 0 });
-  const [studyData, setStudyData] = useState<Record<string, Category>>({});
-  const [isLoading, setIsLoading] = useState(true);
+  const [studyData, setStudyData] = useState<Record<string, Category>>(PREDEFINED_DATA);
 
   useEffect(() => {
     if (!user) return;
 
     const fetchData = async () => {
-      setIsLoading(true);
       try {
         // 1. Načíst profil
         const userProfile = await dbService.getProfile(user.id);
         if (userProfile) {
           setProfile({ name: userProfile.name || 'Studente', grade: userProfile.grade || '' });
         } else {
-          // Pokud profil neexistuje, poslat na onboarding
           navigate('/onboarding');
           return;
         }
@@ -63,8 +60,6 @@ const Index = () => {
         setStudyData(data);
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
-      } finally {
-        setIsLoading(false);
       }
     };
 
@@ -104,15 +99,6 @@ const Index = () => {
     const Icon = (LucideIcons as any)[iconName] || LucideIcons.BookText;
     return Icon;
   };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
-        <Loader2 className="w-12 h-12 text-indigo-600 animate-spin mb-4" />
-        <p className="text-muted-foreground font-bold uppercase tracking-widest text-xs">Připravuji tvůj dashboard...</p>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background p-6 pb-20 transition-colors duration-300 flex flex-col">
@@ -171,7 +157,6 @@ const Index = () => {
       </header>
 
       <main className="max-w-6xl mx-auto flex-1 w-full space-y-16">
-        {/* ... zbytek kódu zůstává stejný ... */}
         <div>
           <h2 className="text-2xl font-black text-foreground mb-6 text-center md:text-left">Tvoje studijní sady</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center md:justify-items-stretch">

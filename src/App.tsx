@@ -38,7 +38,7 @@ const AuthHandler = () => {
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, loading } = useAuth();
   
-  if (loading) return <div className="min-h-screen flex items-center justify-center">Načítání...</div>;
+  if (loading) return null; // Vrátíme null místo textu "Načítání..."
   
   if (!session) {
     return <Navigate to="/login" replace />;

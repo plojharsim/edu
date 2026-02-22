@@ -88,7 +88,7 @@ const StudySession = () => {
   }, [currentItem]);
 
   if (!category && view !== 'results') {
-    return <div className="p-20 text-center">Načítání...</div>;
+    return null; // Odstraněno "Načítání..."
   }
 
   const handleTopicSelect = (topic: Topic) => {
