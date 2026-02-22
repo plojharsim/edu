@@ -156,7 +156,7 @@ const SettingsDialog = () => {
                 <div className="p-2 bg-background rounded-xl border border-border">
                   {theme === 'dark' ? <Moon className="w-5 h-5 text-indigo-400" /> : <Sun className="w-5 h-5 text-amber-500" />}
                 </div>
-                <span className="font-bold text-foreground">Tmavý režim</span>
+                <span className="font-bold text-foreground">Vzhled aplikace</span>
               </div>
               <Button
                 variant="outline"
@@ -164,7 +164,7 @@ const SettingsDialog = () => {
                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
                 className="rounded-xl border-border bg-card shadow-sm"
               >
-                {theme === 'dark' ? 'Vypnout' : 'Zapnout'}
+                {theme === 'dark' ? 'Světlý' : 'Tmavý'}
               </Button>
             </div>
 
