@@ -87,6 +87,26 @@ export const dbService = {
     return data;
   },
 
+  async getLeaderboard() {
+    // Načteme statistiky a propojíme je s profily uživatelů
+    const { data, error } = await supabase
+      .from('study_stats')
+      .select(`
+        average,
+        sessions,
+        streak,
+        profiles (
+          name,
+          grade
+        )
+      `)
+      .order('average', { ascending: false })
+      .limit(10);
+    
+    if (error) throw error;
+    return data;
+  },
+
   async updateStats(userId: string, score: number, performanceUpdate?: any) {
     const { data: existing } = await supabase.from('study_stats').select('*').eq('user_id', userId).single();
     

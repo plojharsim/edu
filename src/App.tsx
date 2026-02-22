@@ -11,6 +11,7 @@ import Index from "./pages/Index";
 import StudySession from "./pages/StudySession";
 import Onboarding from "./pages/Onboarding";
 import EditTopics from "./pages/EditTopics";
+import Leaderboard from "./pages/Leaderboard";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import UpdatePassword from "./pages/UpdatePassword";
@@ -80,6 +81,14 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <Index />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/app/leaderboard" 
+                element={
+                  <ProtectedRoute>
+                    <Leaderboard />
                   </ProtectedRoute>
                 } 
               />
