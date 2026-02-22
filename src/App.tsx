@@ -18,6 +18,7 @@ import Login from "./pages/Login";
 import UpdatePassword from "./pages/UpdatePassword";
 import NotFound from "./pages/NotFound";
 import LoadingScreen from "./components/LoadingScreen";
+import VersionCheck from "./components/VersionCheck";
 
 const queryClient = new QueryClient();
 
@@ -53,12 +54,12 @@ const App = () => (
     <AuthProvider>
       <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
         <TooltipProvider>
+          <VersionCheck />
           <Toaster />
           <Sonner position="top-center" expand={true} richColors />
           <BrowserRouter>
             <AuthHandler />
             <Routes>
-              {/* Na nativních platformách přesměrujeme kořenovou cestu rovnou do aplikace */}
               <Route 
                 path="/" 
                 element={
