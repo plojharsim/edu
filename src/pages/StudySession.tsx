@@ -26,7 +26,6 @@ const StudySession = () => {
   const [view, setView] = useState<'topic-selection' | 'mode-selection' | 'study' | 'results'>('topic-selection');
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
   
-  // Adaptivní fronta položek
   const [sessionQueue, setSessionQueue] = useState<StudyItem[]>([]);
   const [masteredCount, setMasteredCount] = useState(0); 
   const [performanceData, setPerformanceData] = useState<ItemPerformance>({});
@@ -41,12 +40,42 @@ const StudySession = () => {
   const [studyData, setStudyData] = useState<Record<string, any>>({ ...PREDEFINED_DATA });
   const [loading, setLoading] = useState(true);
 
+  // Funkce definovány před useEffecty, aby se předešlo chybě inicializace
+  const handleModeSelect = (selectedMode: StudyMode, topicOverride?: Topic) => {
+    const topic = topicOverride || selectedTopic;
+    if (!topic) return;
+
+    let items = learningAlgorithm.prioritizeItems(topic.items, performanceData);
+
+    items = items.map(item => {
+      const canRandomize = topic.randomizeDirection && selectedMode !== 'abcd' && selectedMode !== 'sorting' && Math.random() > 0.5;
+      if (canRandomize) {
+        return {
+          ...item,
+          term: item.definition,
+          definition: item.term,
+        };
+      }
+      return item;
+    });
+    
+    setSessionQueue(items);
+    setMasteredCount(0);
+    setMode(selectedMode);
+    setView('study');
+    setCorrectCount(0);
+    setIncorrectCount(0);
+    setMistakes([]);
+    setIsCardFlipped(false);
+    setIsTransitioning(false);
+    setSeconds(0);
+  };
+
   useEffect(() => {
     if (!user) return;
     const fetchData = async () => {
       try {
         setLoading(true);
-        // Témata
         const userTopics = await dbService.getUserTopics(user.id);
         if (userTopics.length > 0) {
           setStudyData(prev => ({
@@ -59,7 +88,6 @@ const StudySession = () => {
           }));
         }
 
-        // Výkonnostní data pro algoritmus
         const stats = await dbService.getStats(user.id);
         if (stats?.performance_data) {
           setPerformanceData(stats.performance_data);
@@ -98,53 +126,6 @@ const StudySession = () => {
     }
   }, [topicId, category, searchParams]);
 
-  const currentItem = sessionQueue[0];
-
-  const shuffledOptions = useMemo(() => {
-    if (!currentItem) return [];
-    const all = [currentItem.definition, ...currentItem.options.filter(o => o.trim() !== "")];
-    return all.sort(() => Math.random() - 0.5);
-  }, [currentItem]);
-
-  if (loading) return <LoadingScreen message="Připravuji tvou lekci..." />;
-  if (!category && view !== 'results') return null;
-
-  const handleTopicSelect = (topic: Topic) => {
-    setSelectedTopic(topic);
-    setView('mode-selection');
-  };
-
-  const handleModeSelect = (selectedMode: StudyMode, topicOverride?: Topic) => {
-    const topic = topicOverride || selectedTopic;
-    if (!topic) return;
-
-    // Prioritizace podle načtených dat ze Supabase
-    let items = learningAlgorithm.prioritizeItems(topic.items, performanceData);
-
-    items = items.map(item => {
-      const canRandomize = topic.randomizeDirection && selectedMode !== 'abcd' && selectedMode !== 'sorting' && Math.random() > 0.5;
-      if (canRandomize) {
-        return {
-          ...item,
-          term: item.definition,
-          definition: item.term,
-        };
-      }
-      return item;
-    });
-    
-    setSessionQueue(items);
-    setMasteredCount(0);
-    setMode(selectedMode);
-    setView('study');
-    setCorrectCount(0);
-    setIncorrectCount(0);
-    setMistakes([]);
-    setIsCardFlipped(false);
-    setIsTransitioning(false);
-    setSeconds(0);
-  };
-
   const finalizeSession = async (score: number, finalPerformance: ItemPerformance) => {
     if (!user) return;
     await dbService.updateStats(user.id, score, finalPerformance);
@@ -156,7 +137,6 @@ const StudySession = () => {
     const item = sessionQueue[0];
     const itemId = `${item.term}_${item.definition}`;
     
-    // Lokální update pro tuto session
     const updatedPerformance = learningAlgorithm.calculateNewPerformance(performanceData, itemId, isCorrect);
     setPerformanceData(updatedPerformance);
 
@@ -219,11 +199,27 @@ const StudySession = () => {
     setView('results');
   };
 
+  const currentItem = sessionQueue[0];
+
+  const shuffledOptions = useMemo(() => {
+    if (!currentItem) return [];
+    const all = [currentItem.definition, ...currentItem.options.filter(o => o.trim() !== "")];
+    return all.sort(() => Math.random() - 0.5);
+  }, [currentItem]);
+
+  const handleTopicSelect = (topic: Topic) => {
+    setSelectedTopic(topic);
+    setView('mode-selection');
+  };
+
   const isModeAllowed = (m: StudyMode) => {
     if (!selectedTopic) return false;
     const allowed = selectedTopic.allowedModes || ['flashcards', 'abcd', 'writing', 'matching', 'sorting'];
     return allowed.includes(m);
   };
+
+  if (loading) return <LoadingScreen message="Připravuji tvou lekci..." />;
+  if (!category && view !== 'results') return null;
 
   if (view === 'topic-selection') {
     return (
