@@ -149,20 +149,20 @@ const Index = () => {
               variant="ghost" 
               size="icon" 
               onClick={() => navigate('/')}
-              className="rounded-2xl h-12 w-12 bg-card shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors border border-border"
+              className="group rounded-2xl h-12 w-12 bg-card shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-all border border-border"
               title="Domů"
             >
-              <Home className="w-6 h-6 text-foreground" />
+              <Home className="w-6 h-6 text-slate-500 dark:text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors" />
             </Button>
             
             <Button 
               variant="ghost" 
               size="icon" 
               onClick={() => navigate('/app/edit')}
-              className="rounded-2xl h-12 w-12 bg-card shadow-sm hover:bg-indigo-50 dark:hover:bg-slate-800 transition-colors border border-border"
+              className="group rounded-2xl h-12 w-12 bg-card shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-all border border-border"
               title="Editor témat"
             >
-              <Edit3 className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+              <Edit3 className="w-6 h-6 text-slate-500 dark:text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors" />
             </Button>
             
             <SettingsDialog />
@@ -171,6 +171,7 @@ const Index = () => {
       </header>
 
       <main className="max-w-6xl mx-auto flex-1 w-full space-y-16">
+        {/* ... zbytek kódu zůstává stejný ... */}
         <div>
           <h2 className="text-2xl font-black text-foreground mb-6 text-center md:text-left">Tvoje studijní sady</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center md:justify-items-stretch">

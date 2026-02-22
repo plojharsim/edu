@@ -16,21 +16,16 @@ const SettingsDialog = () => {
   const { signOut, user } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogout = async () => {
-    await signOut();
-    navigate('/');
-  };
-
   return (
     <Dialog>
       <DialogTrigger asChild>
         <Button 
           variant="ghost" 
           size="icon" 
-          className="rounded-2xl h-12 w-12 bg-card shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors border border-border"
+          className="group rounded-2xl h-12 w-12 bg-card shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-all border border-border"
           title="Nastavení"
         >
-          <Settings className="w-6 h-6 text-foreground" />
+          <Settings className="w-6 h-6 text-slate-500 dark:text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors" />
         </Button>
       </DialogTrigger>
       <DialogContent className="rounded-[2.5rem] bg-card border-border max-w-sm p-8">
