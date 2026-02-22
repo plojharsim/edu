@@ -7,12 +7,11 @@ import { showSuccess, showError } from "@/utils/toast";
 
 interface TranslationInputProps {
   term: string;
-  imageUrl?: string;
   correctTranslation: string;
   onAnswer: (isCorrect: boolean) => void;
 }
 
-const TranslationInput = ({ term, imageUrl, correctTranslation, onAnswer }: TranslationInputProps) => {
+const TranslationInput = ({ term, correctTranslation, onAnswer }: TranslationInputProps) => {
   const [value, setValue] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -32,16 +31,9 @@ const TranslationInput = ({ term, imageUrl, correctTranslation, onAnswer }: Tran
 
   return (
     <div className="w-full max-w-md mx-auto p-8 bg-card rounded-[2rem] shadow-xl border-4 border-amber-50 dark:border-amber-900/20">
-      <div className="text-center mb-8 flex flex-col items-center">
-        <span className="text-sm font-bold text-amber-500 dark:text-amber-400 uppercase tracking-widest mb-4">Doplň odpověď</span>
-        
-        {imageUrl && (
-          <div className="w-full aspect-video mb-4 rounded-xl overflow-hidden border border-border">
-            <img src={imageUrl} alt={term} className="w-full h-full object-cover" />
-          </div>
-        )}
-
-        <h3 className="text-3xl font-black text-slate-800 dark:text-slate-100 leading-tight">{term}</h3>
+      <div className="text-center mb-8">
+        <span className="text-sm font-bold text-amber-500 dark:text-amber-400 uppercase tracking-widest">Doplň odpověď</span>
+        <h3 className="text-3xl font-black text-slate-800 dark:text-slate-100 mt-2 leading-tight">{term}</h3>
       </div>
       
       <form onSubmit={handleSubmit} className="space-y-4">

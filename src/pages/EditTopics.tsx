@@ -12,7 +12,7 @@ import {
   Plus, Trash2, ChevronLeft, Save, BookText, Layers, 
   CheckSquare, Keyboard, BookOpen, ArrowLeftRight, 
   Share2, Download, Code, Copy, Check, LayoutPanelTop,
-  Sparkles, Loader2, Image as ImageIcon, X, Upload
+  Sparkles, Loader2
 } from "lucide-react";
 import { Topic, StudyItem, StudyMode } from '@/data/studyData';
 import { showSuccess, showError } from '@/utils/toast';
@@ -20,7 +20,6 @@ import { encodeTopic, decodeTopic, formatForDeveloper } from '@/lib/sharing';
 import AITopicGenerator from '@/components/AITopicGenerator';
 import { useAuth } from '@/components/AuthProvider';
 import { dbService } from '@/services/dbService';
-import { supabase } from '@/integrations/supabase/client';
 import {
   Dialog,
   DialogContent,
@@ -41,7 +40,6 @@ const EditTopics = () => {
   const [copied, setCopied] = useState(false);
   const [isAIGeneratorOpen, setIsAIGeneratorOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [isUploading, setIsUploading] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -56,6 +54,8 @@ const EditTopics = () => {
     if (!user) return;
     setIsSaving(true);
     try {
+      // Pro jednoduchost ukládáme pouze aktivní nebo všechna nová témata
+      // V produkci by bylo lepší ukládat jen změny
       await Promise.all(topics.map(t => dbService.saveTopic(user.id, t)));
       showSuccess("Všechna témata byla synchronizována s databází!");
       navigate('/app');
@@ -63,35 +63,6 @@ const EditTopics = () => {
       showError("Chyba při ukládání do databáze.");
     } finally {
       setIsSaving(false);
-    }
-  };
-
-  const handleImageUpload = async (topicId: string, itemIdx: number, file: File) => {
-    if (!user) return;
-    
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${user.id}/${Date.now()}.${fileExt}`;
-    const filePath = `item-images/${fileName}`;
-
-    setIsUploading(`${topicId}-${itemIdx}`);
-
-    try {
-      const { error: uploadError } = await supabase.storage
-        .from('item-images')
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('item-images')
-        .getPublicUrl(filePath);
-
-      updateItem(topicId, itemIdx, 'imageUrl', publicUrl);
-      showSuccess("Obrázek nahrán.");
-    } catch (error: any) {
-      showError("Chyba při nahrávání: " + error.message);
-    } finally {
-      setIsUploading(null);
     }
   };
 
@@ -127,7 +98,7 @@ const EditTopics = () => {
   };
 
   const deleteTopic = async (id: string) => {
-    if (!id.startsWith('topic_') && !id.startsWith('ai_') && !id.startsWith('imported_')) {
+    if (!id.startsWith('topic_') && !id.startsWith('ai_')) {
       await dbService.deleteTopic(id);
     }
     setTopics(topics.filter(t => t.id !== id));
@@ -170,16 +141,12 @@ const EditTopics = () => {
   };
 
   const updateItem = (topicId: string, itemIdx: number, field: keyof StudyItem, value: any) => {
-    setTopics(prevTopics => prevTopics.map(t => {
-      if (t.id === topicId) {
-        const newItems = [...t.items];
-        if (newItems[itemIdx]) {
-          newItems[itemIdx] = { ...newItems[itemIdx], [field]: value };
-        }
-        return { ...t, items: newItems };
-      }
-      return t;
-    }));
+    const newTopics = [...topics];
+    const topic = newTopics.find(t => t.id === topicId);
+    if (topic && topic.items[itemIdx]) {
+      (topic.items[itemIdx] as any)[field] = value;
+      setTopics(newTopics);
+    }
   };
 
   const deleteItem = (topicId: string, itemIdx: number) => {
@@ -385,73 +352,24 @@ const EditTopics = () => {
                       </Button>
                     </div>
                     
-                    <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-                      <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Termín (Otázka)</label>
-                          <Input 
-                            value={item.term}
-                            onChange={(e) => updateItem(activeTopic.id, idx, 'term', e.target.value)}
-                            placeholder="Např. Dog"
-                            className="h-10 sm:h-12 rounded-xl border-border bg-background text-foreground text-sm"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Definice (Odpověď)</label>
-                          <Input 
-                            value={item.definition}
-                            onChange={(e) => updateItem(activeTopic.id, idx, 'definition', e.target.value)}
-                            placeholder="Např. Pes"
-                            className="h-10 sm:h-12 rounded-xl border-border bg-background text-foreground text-sm"
-                          />
-                        </div>
-                      </div>
-
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-6">
                       <div className="space-y-2">
-                        <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Obrázek (URL nebo soubor)</label>
-                        <div className="flex gap-2">
-                          <div className="relative flex-1">
-                            <Input 
-                              value={item.imageUrl || ""}
-                              onChange={(e) => updateItem(activeTopic.id, idx, 'imageUrl', e.target.value)}
-                              placeholder="URL obrázku..."
-                              className="h-10 sm:h-12 pl-10 rounded-xl border-border bg-background text-xs"
-                            />
-                            <ImageIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                            {item.imageUrl && (
-                              <button 
-                                onClick={() => updateItem(activeTopic.id, idx, 'imageUrl', '')}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-red-500"
-                              >
-                                <X className="w-4 h-4" />
-                              </button>
-                            )}
-                          </div>
-                          
-                          <label className="cursor-pointer">
-                            <input 
-                              type="file" 
-                              className="hidden" 
-                              accept="image/*"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) handleImageUpload(activeTopic.id, idx, file);
-                              }}
-                            />
-                            <div className="h-10 sm:h-12 w-12 rounded-xl border-2 border-dashed border-border flex items-center justify-center hover:bg-muted/50 transition-colors">
-                              {isUploading === `${activeTopic.id}-${idx}` ? (
-                                <Loader2 className="w-5 h-5 animate-spin text-indigo-500" />
-                              ) : (
-                                <Upload className="w-5 h-5 text-muted-foreground" />
-                              )}
-                            </div>
-                          </label>
-                        </div>
-                        {item.imageUrl && (
-                          <div className="mt-2 h-16 w-full rounded-xl overflow-hidden border border-border">
-                            <img src={item.imageUrl} alt="Preview" className="w-full h-full object-cover" />
-                          </div>
-                        )}
+                        <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Termín (Otázka)</label>
+                        <Input 
+                          value={item.term}
+                          onChange={(e) => updateItem(activeTopic.id, idx, 'term', e.target.value)}
+                          placeholder="Např. Dog"
+                          className="h-10 sm:h-12 rounded-xl border-border bg-background text-foreground text-sm"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Definice (Odpověď)</label>
+                        <Input 
+                          value={item.definition}
+                          onChange={(e) => updateItem(activeTopic.id, idx, 'definition', e.target.value)}
+                          placeholder="Např. Pes"
+                          className="h-10 sm:h-12 rounded-xl border-border bg-background text-foreground text-sm"
+                        />
                       </div>
                     </div>
 
