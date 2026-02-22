@@ -80,7 +80,7 @@ const Landing = () => {
               onClick={handleStart}
               className="h-16 px-10 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xl gap-3 shadow-xl shadow-indigo-200 dark:shadow-none transition-all hover:scale-105"
             >
-              {session ? 'Pokračovat v učení' : 'Vyzkoušet zdarma'} <ArrowRight className="w-6 h-6" />
+              {session ? 'Pokračovat v učení' : 'Začít se učit hned'} <ArrowRight className="w-6 h-6" />
             </Button>
             <Button 
               size="lg"
