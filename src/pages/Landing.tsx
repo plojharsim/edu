@@ -27,19 +27,21 @@ const Landing = () => {
     <div className="min-h-screen bg-background transition-colors duration-500 overflow-hidden">
       {/* Navigation */}
       <nav className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-md border-b border-border/40">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="p-2 bg-indigo-600 rounded-xl shadow-lg shadow-indigo-200 dark:shadow-none">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="p-2 bg-indigo-600 rounded-xl shadow-lg shadow-indigo-200 dark:shadow-none shrink-0">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-black tracking-tighter text-foreground whitespace-nowrap">Edu | by plojharsim</span>
+            <span className="text-base sm:text-xl font-black tracking-tighter text-foreground truncate">
+              Edu <span className="hidden min-[400px]:inline">| by plojharsim</span>
+            </span>
           </div>
           
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <ThemeToggle />
             <Button 
               onClick={handleStart}
-              className="rounded-2xl h-12 bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 shadow-md shadow-indigo-200 dark:shadow-none transition-all"
+              className="rounded-2xl h-10 sm:h-12 bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 sm:px-6 shadow-md shadow-indigo-200 dark:shadow-none transition-all text-sm sm:text-base whitespace-nowrap"
             >
               {session ? 'Do aplikace' : 'Začít se učit'}
             </Button>
