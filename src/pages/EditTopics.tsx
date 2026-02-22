@@ -45,7 +45,7 @@ const EditTopics = () => {
   const handleSave = () => {
     saveUserTopics(topics);
     showSuccess("Vlastní témata byla uložena!");
-    navigate('/');
+    navigate('/app');
   };
 
   const addTopic = (newTopicData?: Topic) => {
@@ -159,7 +159,7 @@ const EditTopics = () => {
     <div className="min-h-screen bg-background p-4 sm:p-6 pb-20 pt-20 md:pt-10">
       <header className="max-w-6xl mx-auto mb-6 sm:mb-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
-          <Button variant="ghost" onClick={() => navigate('/')} className="rounded-2xl h-10 w-10 sm:h-12 sm:w-12 bg-card shadow-sm border border-border flex-shrink-0">
+          <Button variant="ghost" onClick={() => navigate('/app')} className="rounded-2xl h-10 w-10 sm:h-12 sm:w-12 bg-card shadow-sm border border-border flex-shrink-0">
             <ChevronLeft className="w-5 h-5 sm:w-6 h-6 text-indigo-600 dark:text-indigo-400" />
           </Button>
           <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-foreground truncate">Moje témata</h1>

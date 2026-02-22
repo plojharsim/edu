@@ -188,7 +188,7 @@ const StudySession = () => {
       <div className="min-h-screen bg-background p-6 pt-20 md:pt-6 flex flex-col items-center justify-center transition-colors duration-300">
         <Button 
           variant="ghost" 
-          onClick={() => navigate('/')} 
+          onClick={() => navigate('/app')} 
           className="absolute top-20 md:top-8 left-8 rounded-2xl hover:bg-card dark:hover:bg-slate-800"
         >
           <ChevronLeft className="mr-2 w-5 h-5" /> Zpět na přehled
@@ -278,7 +278,7 @@ const StudySession = () => {
           incorrect={incorrectCount}
           mistakes={mistakes}
           onRetry={() => setView('mode-selection')}
-          onHome={() => navigate('/')}
+          onHome={() => navigate('/app')}
         />
       </div>
     );

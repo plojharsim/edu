@@ -29,7 +29,7 @@ const StudyHeader = ({ current, total, title, time }: StudyHeaderProps) => {
         <Button 
           variant="ghost" 
           size="icon" 
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/app')}
           className="rounded-full hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-500 transition-colors"
         >
           <X className="w-6 h-6" />

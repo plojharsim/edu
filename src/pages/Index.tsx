@@ -3,15 +3,12 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as LucideIcons from 'lucide-react';
-import { Sparkles, TrendingUp, LogOut, Edit3, Heart } from 'lucide-react';
+import { Sparkles, TrendingUp, LogOut, Edit3, Heart, Home } from 'lucide-react';
 import CategoryCard from '@/components/Dashboard/CategoryCard';
 import BadgesSection from '@/components/Dashboard/BadgesSection';
 import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/theme/ThemeToggle"; // Fixed import path if needed or kept as is
 import { getStudyData, Category } from '@/data/studyData';
-
-// Fix for ThemeToggle import if it was moved or keep original
-import { ThemeToggle as OriginalThemeToggle } from "@/components/ThemeToggle";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -71,8 +68,8 @@ const Index = () => {
   const handleLogout = () => {
     localStorage.removeItem('user_profile');
     localStorage.removeItem('study_stats');
-    localStorage.removeItem('study_data');
-    navigate('/onboarding');
+    localStorage.removeItem('user_topics');
+    navigate('/');
   };
 
   const getIcon = (iconName: string = 'BookText') => {
@@ -111,11 +108,20 @@ const Index = () => {
           </div>
           
           <div className="flex gap-2">
-            <OriginalThemeToggle />
             <Button 
               variant="ghost" 
               size="icon" 
-              onClick={() => navigate('/edit')}
+              onClick={() => navigate('/')}
+              className="rounded-2xl h-14 w-14 bg-card shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors border border-border"
+              title="Domů"
+            >
+              <Home className="w-6 h-6 text-slate-500" />
+            </Button>
+            <ThemeToggle />
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => navigate('/app/edit')}
               className="rounded-2xl h-14 w-14 bg-card shadow-sm hover:bg-indigo-50 dark:hover:bg-slate-800 transition-colors border border-border"
               title="Editor témat"
             >
@@ -145,14 +151,14 @@ const Index = () => {
                   count={cat.topics.reduce((acc, t) => acc + t.items.length, 0)} 
                   icon={getIcon(cat.iconName)} 
                   color={cat.color || 'bg-slate-500'} 
-                  onClick={() => navigate(`/study/${cat.id}`)}
+                  onClick={() => navigate(`/app/study/${cat.id}`)}
                 />
               </div>
             ))}
             {Object.keys(studyData).length === 0 && (
               <div className="col-span-full p-12 text-center bg-card rounded-[3rem] border-2 border-dashed border-border">
                 <p className="text-muted-foreground font-medium mb-4">Zatím nemáš žádné studijní sady.</p>
-                <Button onClick={() => navigate('/edit')} className="rounded-2xl bg-indigo-600 font-bold">Vytvořit první sadu</Button>
+                <Button onClick={() => navigate('/app/edit')} className="rounded-2xl bg-indigo-600 font-bold">Vytvořit první sadu</Button>
               </div>
             )}
           </div>
@@ -172,7 +178,7 @@ const Index = () => {
                   dailyChallenge.mode === 'writing' ? 'Psaní' : 'Přiřazování'
                 }</span>!</p>
                 <button 
-                  onClick={() => navigate(`/study/${dailyChallenge.categoryId}/${dailyChallenge.topicId}?mode=${dailyChallenge.mode}`)}
+                  onClick={() => navigate(`/app/study/${dailyChallenge.categoryId}/${dailyChallenge.topicId}?mode=${dailyChallenge.mode}`)}
                   className="bg-white text-indigo-600 dark:text-indigo-700 font-black px-10 py-4 rounded-2xl hover:bg-indigo-50 transition-colors shadow-lg shadow-indigo-800/20 mx-auto md:mx-0 block"
                 >
                   Spustit výzvu

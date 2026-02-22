@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import StudySession from "./pages/StudySession";
 import Onboarding from "./pages/Onboarding";
 import EditTopics from "./pages/EditTopics";
+import Landing from "./pages/Landing";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,9 +29,12 @@ const App = () => (
         <Sonner position="top-center" expand={true} richColors />
         <BrowserRouter>
           <Routes>
+            <Route path="/" element={<Landing />} />
             <Route path="/onboarding" element={<Onboarding />} />
+            
+            {/* App Routes */}
             <Route 
-              path="/" 
+              path="/app" 
               element={
                 <ProtectedRoute>
                   <Index />
@@ -38,7 +42,7 @@ const App = () => (
               } 
             />
             <Route 
-              path="/edit" 
+              path="/app/edit" 
               element={
                 <ProtectedRoute>
                   <EditTopics />
@@ -46,7 +50,7 @@ const App = () => (
               } 
             />
             <Route 
-              path="/study/:categoryId" 
+              path="/app/study/:categoryId" 
               element={
                 <ProtectedRoute>
                   <StudySession />
@@ -54,7 +58,7 @@ const App = () => (
               } 
             />
             <Route 
-              path="/study/:categoryId/:topicId" 
+              path="/app/study/:categoryId/:topicId" 
               element={
                 <ProtectedRoute>
                   <StudySession />

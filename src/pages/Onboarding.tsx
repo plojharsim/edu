@@ -25,7 +25,7 @@ const Onboarding = () => {
     } else {
       localStorage.setItem('user_profile', JSON.stringify({ ...formData, completed: true }));
       showSuccess(`Vítej v aplikaci, ${formData.name}!`);
-      navigate('/');
+      navigate('/app');
     }
   };
 
