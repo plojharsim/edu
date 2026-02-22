@@ -9,16 +9,17 @@ import {
   Github, Globe
 } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { useAuth } from '@/components/AuthProvider';
 
 const Landing = () => {
   const navigate = useNavigate();
-  const profile = localStorage.getItem('user_profile');
+  const { session } = useAuth();
 
   const handleStart = () => {
-    if (profile) {
+    if (session) {
       navigate('/app');
     } else {
-      navigate('/onboarding');
+      navigate('/login');
     }
   };
 
@@ -40,7 +41,7 @@ const Landing = () => {
               onClick={handleStart}
               className="rounded-2xl h-12 bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 shadow-md shadow-indigo-200 dark:shadow-none transition-all"
             >
-              {profile ? 'Do aplikace' : 'Začít se učit'}
+              {session ? 'Do aplikace' : 'Začít se učit'}
             </Button>
           </div>
         </div>
@@ -72,7 +73,7 @@ const Landing = () => {
               onClick={handleStart}
               className="h-16 px-10 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xl gap-3 shadow-xl shadow-indigo-200 dark:shadow-none transition-all hover:scale-105"
             >
-              Vyzkoušet zdarma <ArrowRight className="w-6 h-6" />
+              {session ? 'Pokračovat v učení' : 'Vyzkoušet zdarma'} <ArrowRight className="w-6 h-6" />
             </Button>
             <Button 
               size="lg"
