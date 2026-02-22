@@ -15,10 +15,10 @@ import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import UpdatePassword from "./pages/UpdatePassword";
 import NotFound from "./pages/NotFound";
-import LoadingScreen from "./components/LoadingScreen";
 
 const queryClient = new QueryClient();
 
+// Komponenta pro sledování speciálních stavů přihlášení (např. obnova hesla)
 const AuthHandler = () => {
   const navigate = useNavigate();
 
@@ -38,7 +38,7 @@ const AuthHandler = () => {
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, loading } = useAuth();
   
-  if (loading) return <LoadingScreen />;
+  if (loading) return null; // Vrátíme null místo textu "Načítání..."
   
   if (!session) {
     return <Navigate to="/login" replace />;
@@ -75,6 +75,7 @@ const App = () => (
                 } 
               />
               
+              {/* App Routes */}
               <Route 
                 path="/app" 
                 element={

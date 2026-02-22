@@ -21,7 +21,6 @@ import AITopicGenerator from '@/components/AITopicGenerator';
 import { useAuth } from '@/components/AuthProvider';
 import { dbService } from '@/services/dbService';
 import { supabase } from '@/integrations/supabase/client';
-import LoadingScreen from '@/components/LoadingScreen';
 import {
   Dialog,
   DialogContent,
@@ -36,7 +35,6 @@ import { Textarea } from "@/components/ui/textarea";
 const EditTopics = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [loading, setLoading] = useState(true);
   const [topics, setTopics] = useState<Topic[]>([]);
   const [activeTopicId, setActiveTopicId] = useState<string | null>(null);
   const [importCode, setImportCode] = useState("");
@@ -48,15 +46,8 @@ const EditTopics = () => {
   useEffect(() => {
     if (!user) return;
     const fetchTopics = async () => {
-      try {
-        setLoading(true);
-        const data = await dbService.getUserTopics(user.id);
-        setTopics(data);
-      } catch (e) {
-        showError("Nepodařilo se načíst témata.");
-      } finally {
-        setLoading(false);
-      }
+      const data = await dbService.getUserTopics(user.id);
+      setTopics(data);
     };
     fetchTopics();
   }, [user]);
@@ -211,8 +202,6 @@ const EditTopics = () => {
     { id: 'matching', label: 'Přiřazování', icon: BookOpen },
     { id: 'sorting', label: 'Rozřazování', icon: LayoutPanelTop },
   ];
-
-  if (loading) return <LoadingScreen />;
 
   return (
     <div className="min-h-screen bg-background p-4 sm:p-6 pb-20 pt-6 md:pt-10">

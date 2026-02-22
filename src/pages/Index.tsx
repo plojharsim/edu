@@ -11,12 +11,10 @@ import { PREDEFINED_DATA, Category } from '@/data/studyData';
 import SettingsDialog from '@/components/Dashboard/SettingsDialog';
 import { useAuth } from '@/components/AuthProvider';
 import { dbService } from '@/services/dbService';
-import LoadingScreen from '@/components/LoadingScreen';
 
 const Index = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState({ name: 'Studente', grade: '' });
   const [stats, setStats] = useState({ streak: 0, average: 0, sessions: 0, perfectSessions: 0 });
   const [studyData, setStudyData] = useState<Record<string, Category>>(PREDEFINED_DATA);
@@ -26,7 +24,6 @@ const Index = () => {
 
     const fetchData = async () => {
       try {
-        setLoading(true);
         // 1. Načíst profil
         const userProfile = await dbService.getProfile(user.id);
         if (userProfile) {
@@ -63,8 +60,6 @@ const Index = () => {
         setStudyData(data);
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -96,7 +91,7 @@ const Index = () => {
     
     return {
       ...allTopics[topicIndex],
-      mode: modes[modeIndex] as any
+      mode: modes[modeIndex]
     };
   }, [studyData]);
 
@@ -104,8 +99,6 @@ const Index = () => {
     const Icon = (LucideIcons as any)[iconName] || LucideIcons.BookText;
     return Icon;
   };
-
-  if (loading) return <LoadingScreen />;
 
   return (
     <div className="min-h-screen bg-background p-6 pb-20 transition-colors duration-300 flex flex-col">
