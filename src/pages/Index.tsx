@@ -152,17 +152,17 @@ const Index = () => {
               className="rounded-2xl h-12 w-12 bg-card shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors border border-border"
               title="Domů"
             >
-              <Home className="w-6 h-6 text-foreground" />
+              <Home className="w-6 h-6 text-slate-600 dark:text-slate-400" />
             </Button>
             
             <Button 
               variant="ghost" 
               size="icon" 
               onClick={() => navigate('/app/edit')}
-              className="rounded-2xl h-12 w-12 bg-card shadow-sm hover:bg-indigo-50 dark:hover:bg-slate-800 transition-colors border border-border"
+              className="rounded-2xl h-12 w-12 bg-card shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors border border-border"
               title="Editor témat"
             >
-              <Edit3 className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+              <Edit3 className="w-6 h-6 text-slate-600 dark:text-slate-400" />
             </Button>
             
             <SettingsDialog />
