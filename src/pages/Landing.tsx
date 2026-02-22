@@ -34,11 +34,11 @@ const Landing = () => {
             <span className="text-xl font-black tracking-tighter text-foreground">Edu</span>
           </div>
           
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <ThemeToggle />
             <Button 
               onClick={handleStart}
-              className="rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6"
+              className="rounded-2xl h-12 bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 shadow-md shadow-indigo-200 dark:shadow-none transition-all"
             >
               {profile ? 'Do aplikace' : 'Začít se učit'}
             </Button>

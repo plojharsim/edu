@@ -112,7 +112,7 @@ const Index = () => {
               variant="ghost" 
               size="icon" 
               onClick={() => navigate('/')}
-              className="rounded-2xl h-14 w-14 bg-card shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors border border-border"
+              className="rounded-2xl h-12 w-12 bg-card shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors border border-border"
               title="Domů"
             >
               <Home className="w-6 h-6 text-slate-500" />
@@ -122,7 +122,7 @@ const Index = () => {
               variant="ghost" 
               size="icon" 
               onClick={() => navigate('/app/edit')}
-              className="rounded-2xl h-14 w-14 bg-card shadow-sm hover:bg-indigo-50 dark:hover:bg-slate-800 transition-colors border border-border"
+              className="rounded-2xl h-12 w-12 bg-card shadow-sm hover:bg-indigo-50 dark:hover:bg-slate-800 transition-colors border border-border"
               title="Editor témat"
             >
               <Edit3 className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
@@ -131,7 +131,7 @@ const Index = () => {
               variant="ghost" 
               size="icon" 
               onClick={handleLogout}
-              className="rounded-2xl h-14 w-14 bg-card shadow-sm hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-500 transition-colors border border-border"
+              className="rounded-2xl h-12 w-12 bg-card shadow-sm hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-500 transition-colors border border-border"
               title="Odhlásit se"
             >
               <LogOut className="w-6 h-6 text-red-500" />
