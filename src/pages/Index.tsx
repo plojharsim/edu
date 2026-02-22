@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as LucideIcons from 'lucide-react';
-import { Sparkles, TrendingUp, LogOut, Edit3, Heart, Home, Loader2 } from 'lucide-react';
+import { Sparkles, TrendingUp, LogOut, Edit3, Heart, Home } from 'lucide-react';
 import CategoryCard from '@/components/Dashboard/CategoryCard';
 import BadgesSection from '@/components/Dashboard/BadgesSection';
 import { Button } from "@/components/ui/button";
@@ -18,55 +18,45 @@ const Index = () => {
   const [profile, setProfile] = useState({ name: 'Studente', grade: '' });
   const [stats, setStats] = useState({ streak: 0, average: 0, sessions: 0, perfectSessions: 0 });
   const [studyData, setStudyData] = useState<Record<string, Category>>({});
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (!user) return;
 
     const fetchData = async () => {
-      setIsLoading(true);
-      try {
-        // Načítáme všechna data paralelně pro maximální rychlost
-        const [userProfile, userStats, userTopics] = await Promise.all([
-          dbService.getProfile(user.id),
-          dbService.getStats(user.id),
-          dbService.getUserTopics(user.id)
-        ]);
-
-        if (userProfile) {
-          setProfile({ name: userProfile.name || 'Studente', grade: userProfile.grade || '' });
-        } else {
-          // Pokud profil neexistuje, poslat na onboarding
-          navigate('/onboarding');
-          return;
-        }
-
-        if (userStats) {
-          setStats({
-            streak: userStats.streak || 0,
-            average: Math.round(userStats.average || 0),
-            sessions: userStats.sessions || 0,
-            perfectSessions: userStats.perfect_sessions || 0
-          });
-        }
-
-        const data = { ...PREDEFINED_DATA };
-        if (userTopics && userTopics.length > 0) {
-          data['custom'] = {
-            id: 'custom',
-            title: 'Vlastní',
-            iconName: 'BookText',
-            color: 'bg-indigo-600',
-            isCustom: true,
-            topics: userTopics
-          };
-        }
-        setStudyData(data);
-      } catch (error) {
-        console.error("Error fetching dashboard data:", error);
-      } finally {
-        setIsLoading(false);
+      // 1. Načíst profil
+      const userProfile = await dbService.getProfile(user.id);
+      if (userProfile) {
+        setProfile({ name: userProfile.name || 'Studente', grade: userProfile.grade || '' });
+      } else {
+        // Pokud profil neexistuje, poslat na onboarding
+        navigate('/onboarding');
       }
+
+      // 2. Načíst statistiky
+      const userStats = await dbService.getStats(user.id);
+      if (userStats) {
+        setStats({
+          streak: userStats.streak || 0,
+          average: Math.round(userStats.average || 0),
+          sessions: userStats.sessions || 0,
+          perfectSessions: userStats.perfect_sessions || 0
+        });
+      }
+
+      // 3. Načíst témata
+      const userTopics = await dbService.getUserTopics(user.id);
+      const data = { ...PREDEFINED_DATA };
+      if (userTopics.length > 0) {
+        data['custom'] = {
+          id: 'custom',
+          title: 'Vlastní',
+          iconName: 'BookText',
+          color: 'bg-indigo-600',
+          isCustom: true,
+          topics: userTopics
+        };
+      }
+      setStudyData(data);
     };
 
     fetchData();
@@ -111,25 +101,8 @@ const Index = () => {
     return Icon;
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 transition-colors duration-300">
-        <div className="relative">
-          <div className="absolute inset-0 bg-indigo-500/20 blur-2xl rounded-full animate-pulse" />
-          <div className="relative p-6 bg-indigo-600 rounded-3xl shadow-xl">
-            <Sparkles className="w-10 h-10 text-white animate-bounce" />
-          </div>
-        </div>
-        <div className="mt-8 flex flex-col items-center gap-2">
-          <Loader2 className="w-6 h-6 text-indigo-500 animate-spin" />
-          <p className="text-sm font-bold text-muted-foreground uppercase tracking-widest animate-pulse">Připravuji tvůj den...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-background p-6 pb-20 transition-colors duration-300 flex flex-col animate-in fade-in duration-700">
+    <div className="min-h-screen bg-background p-6 pb-20 transition-colors duration-300 flex flex-col">
       <header className="max-w-6xl mx-auto pt-20 md:pt-10 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-8 w-full">
         <div className="text-center md:text-left">
           <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
