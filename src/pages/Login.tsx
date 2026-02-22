@@ -1,23 +1,85 @@
 "use client";
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/AuthProvider';
 import { Card } from '@/components/ui/card';
-import { Sparkles, GraduationCap } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Sparkles, GraduationCap, Lock, Unlock, ArrowRight } from 'lucide-react';
+import { showError, showSuccess } from '@/utils/toast';
 
 const Login = () => {
   const { session } = useAuth();
   const navigate = useNavigate();
+  const [betaCode, setBetaCode] = useState("");
+  const [isUnlocked, setIsUnlocked] = useState(localStorage.getItem('beta_access') === 'true');
 
   useEffect(() => {
     if (session) {
       navigate('/app');
     }
   }, [session, navigate]);
+
+  const handleUnlock = () => {
+    // Definujeme kód pro přístup (např. 'EDU-BETA-2024')
+    const SECRET_CODE = "EDU-BETA-2024";
+    
+    if (betaCode.trim().toUpperCase() === SECRET_CODE) {
+      setIsUnlocked(true);
+      localStorage.setItem('beta_access', 'true');
+      showSuccess("Přístup povolen! Vítej v beta testování.");
+    } else {
+      showError("Neplatný kód. Kontaktuj vývojáře pro přístup.");
+    }
+  };
+
+  if (!isUnlocked) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-6 relative overflow-hidden">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-amber-500/10 rounded-full blur-[100px]" />
+        
+        <Card className="w-full max-w-md p-10 rounded-[3rem] border-border shadow-2xl bg-card relative z-10 text-center">
+          <div className="flex justify-center mb-8">
+            <div className="p-5 bg-amber-500 rounded-[2rem] shadow-xl shadow-amber-200 dark:shadow-none animate-bounce">
+              <Lock className="w-8 h-8 text-white" />
+            </div>
+          </div>
+          
+          <h1 className="text-3xl font-black text-foreground mb-3">Beta Testování</h1>
+          <p className="text-muted-foreground mb-8">
+            Aplikace je momentálně v uzavřeném testování. Pro vstup vlož kód od vývojáře.
+          </p>
+          
+          <div className="space-y-4">
+            <div className="relative">
+              <Input 
+                type="text"
+                placeholder="Vlož kód přístupu..."
+                value={betaCode}
+                onChange={(e) => setBetaCode(e.target.value)}
+                className="h-14 text-center text-lg font-bold rounded-2xl border-2 border-border focus:border-amber-400 focus:ring-amber-400 transition-all uppercase"
+                onKeyDown={(e) => e.key === 'Enter' && handleUnlock()}
+              />
+            </div>
+            <Button 
+              onClick={handleUnlock}
+              className="w-full h-14 text-lg font-bold rounded-2xl bg-amber-500 hover:bg-amber-600 text-white shadow-lg shadow-amber-200 dark:shadow-none gap-2"
+            >
+              Odemknout aplikaci <Unlock className="w-5 h-5" />
+            </Button>
+          </div>
+          
+          <p className="mt-8 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+            Beta v0.1.2 | plojharsim.cz
+          </p>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-6 relative overflow-hidden">
