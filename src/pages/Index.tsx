@@ -11,12 +11,10 @@ import { PREDEFINED_DATA, Category } from '@/data/studyData';
 import SettingsDialog from '@/components/Dashboard/SettingsDialog';
 import { useAuth } from '@/components/AuthProvider';
 import { dbService } from '@/services/dbService';
-import LoadingScreen from '@/components/LoadingScreen';
 
 const Index = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [profile, setProfile] = useState({ name: 'Studente', grade: '' });
   const [stats, setStats] = useState({ streak: 0, average: 0, sessions: 0, perfectSessions: 0 });
   const [studyData, setStudyData] = useState<Record<string, Category>>(PREDEFINED_DATA);
@@ -62,9 +60,6 @@ const Index = () => {
         setStudyData(data);
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
-      } finally {
-        // Přidáme malou prodlevu pro plynulejší přechod
-        setTimeout(() => setIsInitialLoading(false), 800);
       }
     };
 
@@ -105,12 +100,8 @@ const Index = () => {
     return Icon;
   };
 
-  if (isInitialLoading) {
-    return <LoadingScreen />;
-  }
-
   return (
-    <div className="min-h-screen bg-background p-6 pb-20 transition-colors duration-300 flex flex-col animate-in fade-in duration-700">
+    <div className="min-h-screen bg-background p-6 pb-20 transition-colors duration-300 flex flex-col">
       <header className="max-w-6xl mx-auto pt-6 md:pt-10 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-8 w-full">
         <div className="text-center md:text-left">
           <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
