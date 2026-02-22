@@ -6,6 +6,7 @@ import * as LucideIcons from 'lucide-react';
 import { Sparkles, TrendingUp, Edit3, Heart, Home } from 'lucide-react';
 import CategoryCard from '@/components/Dashboard/CategoryCard';
 import BadgesSection from '@/components/Dashboard/BadgesSection';
+import DashboardSkeleton from '@/components/Dashboard/DashboardSkeleton';
 import { Button } from "@/components/ui/button";
 import { PREDEFINED_DATA, Category } from '@/data/studyData';
 import SettingsDialog from '@/components/Dashboard/SettingsDialog';
@@ -15,7 +16,8 @@ import { dbService } from '@/services/dbService';
 const Index = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [profile, setProfile] = useState({ name: 'Studente', grade: '' });
+  const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState({ name: '', grade: '' });
   const [stats, setStats] = useState({ streak: 0, average: 0, sessions: 0, perfectSessions: 0 });
   const [studyData, setStudyData] = useState<Record<string, Category>>(PREDEFINED_DATA);
 
@@ -23,9 +25,14 @@ const Index = () => {
     if (!user) return;
 
     const fetchData = async () => {
+      setLoading(true);
       try {
-        // 1. Načíst profil
-        const userProfile = await dbService.getProfile(user.id);
+        const [userProfile, userStats, userTopics] = await Promise.all([
+          dbService.getProfile(user.id),
+          dbService.getStats(user.id),
+          dbService.getUserTopics(user.id)
+        ]);
+
         if (userProfile) {
           setProfile({ name: userProfile.name || 'Studente', grade: userProfile.grade || '' });
         } else {
@@ -33,8 +40,6 @@ const Index = () => {
           return;
         }
 
-        // 2. Načíst statistiky
-        const userStats = await dbService.getStats(user.id);
         if (userStats) {
           setStats({
             streak: userStats.streak || 0,
@@ -44,8 +49,6 @@ const Index = () => {
           });
         }
 
-        // 3. Načíst témata
-        const userTopics = await dbService.getUserTopics(user.id);
         const data = { ...PREDEFINED_DATA };
         if (userTopics.length > 0) {
           data['custom'] = {
@@ -60,6 +63,9 @@ const Index = () => {
         setStudyData(data);
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
+      } finally {
+        // Malá prodleva pro plynulejší přechod ze skeletonu
+        setTimeout(() => setLoading(false), 300);
       }
     };
 
@@ -100,8 +106,16 @@ const Index = () => {
     return Icon;
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background p-6 flex flex-col items-center justify-center">
+        <DashboardSkeleton />
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-background p-6 pb-20 transition-colors duration-300 flex flex-col">
+    <div className="min-h-screen bg-background p-6 pb-20 transition-colors duration-300 flex flex-col animate-in fade-in slide-in-from-bottom-2 duration-700">
       <header className="max-w-6xl mx-auto pt-6 md:pt-10 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-8 w-full">
         <div className="text-center md:text-left">
           <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
@@ -127,7 +141,7 @@ const Index = () => {
               <span className="text-3xl font-black text-emerald-500">{stats.average}%</span>
               <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-tighter">Průměr</span>
             </div>
-            <TrendingUp className="w-8 h-8 text-indigo-500/20 dark:text-indigo-400/20" />
+            <LucideIcons.TrendingUp className="w-8 h-8 text-indigo-500/20 dark:text-indigo-400/20" />
           </div>
           
           <div className="flex gap-2">

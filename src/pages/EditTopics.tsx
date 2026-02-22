@@ -8,15 +8,16 @@ import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
+import { Skeleton } from "@/components/ui/skeleton";
 import { 
   Plus, Trash2, ChevronLeft, Save, BookText, Layers, 
   CheckSquare, Keyboard, BookOpen, ArrowLeftRight, 
-  Share2, Download, Code, Copy, Check, LayoutPanelTop,
+  Share2, Download, Copy, Check, LayoutPanelTop,
   Sparkles, Loader2, Image as ImageIcon, X, Upload
 } from "lucide-react";
 import { Topic, StudyItem, StudyMode } from '@/data/studyData';
 import { showSuccess, showError } from '@/utils/toast';
-import { encodeTopic, decodeTopic, formatForDeveloper } from '@/lib/sharing';
+import { encodeTopic, decodeTopic } from '@/lib/sharing';
 import AITopicGenerator from '@/components/AITopicGenerator';
 import { useAuth } from '@/components/AuthProvider';
 import { dbService } from '@/services/dbService';
@@ -35,6 +36,7 @@ import { Textarea } from "@/components/ui/textarea";
 const EditTopics = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [loading, setLoading] = useState(true);
   const [topics, setTopics] = useState<Topic[]>([]);
   const [activeTopicId, setActiveTopicId] = useState<string | null>(null);
   const [importCode, setImportCode] = useState("");
@@ -46,8 +48,13 @@ const EditTopics = () => {
   useEffect(() => {
     if (!user) return;
     const fetchTopics = async () => {
-      const data = await dbService.getUserTopics(user.id);
-      setTopics(data);
+      setLoading(true);
+      try {
+        const data = await dbService.getUserTopics(user.id);
+        setTopics(data);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchTopics();
   }, [user]);
@@ -68,11 +75,9 @@ const EditTopics = () => {
 
   const handleImageUpload = async (topicId: string, itemIdx: number, file: File) => {
     if (!user) return;
-    
     const fileExt = file.name.split('.').pop();
     const fileName = `${user.id}/${Date.now()}.${fileExt}`;
     const filePath = `item-images/${fileName}`;
-
     setIsUploading(`${topicId}-${itemIdx}`);
 
     try {
@@ -159,12 +164,7 @@ const EditTopics = () => {
     const newTopics = [...topics];
     const topic = newTopics.find(t => t.id === topicId);
     if (topic) {
-      topic.items.push({
-        term: "",
-        definition: "",
-        options: ["", "", ""],
-        category: ""
-      });
+      topic.items.push({ term: "", definition: "", options: ["", "", ""], category: "" });
       setTopics(newTopics);
     }
   };
@@ -203,8 +203,26 @@ const EditTopics = () => {
     { id: 'sorting', label: 'Rozřazování', icon: LayoutPanelTop },
   ];
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background p-6 flex items-center justify-center">
+        <div className="max-w-6xl w-full space-y-8">
+           <Skeleton className="h-12 w-64 rounded-xl" />
+           <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+             <div className="md:col-span-4 space-y-4">
+               {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-14 w-full rounded-xl" />)}
+             </div>
+             <div className="md:col-span-8">
+               <Skeleton className="h-[600px] w-full rounded-[3rem]" />
+             </div>
+           </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-background p-4 sm:p-6 pb-20 pt-6 md:pt-10">
+    <div className="min-h-screen bg-background p-4 sm:p-6 pb-20 pt-6 md:pt-10 animate-in fade-in duration-500">
       <header className="max-w-6xl mx-auto mb-6 sm:mb-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
           <Button variant="ghost" onClick={() => navigate('/app')} className="rounded-2xl h-12 w-12 bg-card shadow-sm border border-border flex-shrink-0">
@@ -213,13 +231,9 @@ const EditTopics = () => {
           <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-foreground truncate">Moje témata</h1>
         </div>
         <div className="flex gap-2 w-full sm:w-auto justify-end sm:justify-start">
-          <Button 
-            onClick={() => setIsAIGeneratorOpen(true)} 
-            className="flex-1 sm:flex-none rounded-2xl h-12 px-6 bg-indigo-500/10 text-indigo-600 hover:bg-indigo-500/20 font-black border-2 border-indigo-500/30 gap-2 text-xs sm:text-sm animate-pulse"
-          >
+          <Button onClick={() => setIsAIGeneratorOpen(true)} className="flex-1 sm:flex-none rounded-2xl h-12 px-6 bg-indigo-500/10 text-indigo-600 hover:bg-indigo-500/20 font-black border-2 border-indigo-500/30 gap-2 text-xs sm:text-sm animate-pulse">
             <Sparkles className="w-5 h-5" /> AI
           </Button>
-          
           <Dialog>
             <DialogTrigger asChild>
               <Button variant="outline" className="flex-1 sm:flex-none rounded-2xl h-12 px-6 font-bold gap-2 bg-card border-border text-foreground text-xs sm:text-sm">
@@ -229,27 +243,15 @@ const EditTopics = () => {
             <DialogContent className="rounded-[2rem] bg-card border-border">
               <DialogHeader>
                 <DialogTitle className="text-foreground">Importovat téma</DialogTitle>
-                <DialogDescription className="text-muted-foreground">
-                  Vložte kód tématu, který vám někdo nasdílel.
-                </DialogDescription>
+                <DialogDescription className="text-muted-foreground">Vložte kód tématu, který vám někdo nasdílel.</DialogDescription>
               </DialogHeader>
-              <Textarea 
-                value={importCode}
-                onChange={(e) => setImportCode(e.target.value)}
-                placeholder="Vložte kód zde..."
-                className="min-h-[100px] rounded-xl bg-background border-border text-foreground"
-              />
+              <Textarea value={importCode} onChange={(e) => setImportCode(e.target.value)} placeholder="Vložte kód zde..." className="min-h-[100px] rounded-xl bg-background border-border text-foreground" />
               <DialogFooter>
                 <Button onClick={handleImport} className="rounded-xl bg-indigo-600">Importovat</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
-
-          <Button 
-            onClick={handleSaveAll} 
-            disabled={isSaving}
-            className="flex-1 sm:flex-none rounded-2xl h-12 px-8 bg-indigo-600 hover:bg-indigo-700 text-white font-bold gap-2 text-xs sm:text-sm shadow-lg shadow-indigo-200 dark:shadow-none"
-          >
+          <Button onClick={handleSaveAll} disabled={isSaving} className="flex-1 sm:flex-none rounded-2xl h-12 px-8 bg-indigo-600 hover:bg-indigo-700 text-white font-bold gap-2 text-xs sm:text-sm shadow-lg shadow-indigo-200 dark:shadow-none">
             {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
             <span className="hidden xs:inline">Uložit do cloudu</span>
           </Button>
@@ -274,10 +276,7 @@ const EditTopics = () => {
                 <BookText className={`mr-3 w-5 h-5 ${activeTopicId === topic.id ? 'text-white' : 'text-indigo-500/50'}`} />
                 <span className="truncate pr-6">{topic.name}</span>
               </Button>
-              <button 
-                onClick={(e) => { e.stopPropagation(); deleteTopic(topic.id); }}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-red-400 opacity-0 group-hover:opacity-100 hover:text-red-600 transition-all"
-              >
+              <button onClick={(e) => { e.stopPropagation(); deleteTopic(topic.id); }} className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-red-400 opacity-0 group-hover:opacity-100 hover:text-red-600 transition-all">
                 <Trash2 className="w-4 h-4" />
               </button>
             </div>
@@ -300,15 +299,13 @@ const EditTopics = () => {
                       <DialogContent className="rounded-[2rem] bg-card border-border max-w-md">
                         <DialogHeader>
                           <DialogTitle className="text-foreground">Nasdílej toto téma</DialogTitle>
-                          <DialogDescription className="text-muted-foreground">
-                            Tento kód si může kdokoliv jiný vložit do své aplikace.
-                          </DialogDescription>
+                          <DialogDescription className="text-muted-foreground">Tento kód si může kdokoliv jiný vložit do své aplikace.</DialogDescription>
                         </DialogHeader>
                         <div className="bg-muted p-4 rounded-xl border border-border break-all text-xs font-mono text-foreground/70 max-h-[200px] overflow-y-auto">
                           {encodeTopic(activeTopic)}
                         </div>
                         <Button onClick={() => copyToClipboard(encodeTopic(activeTopic))} className="w-full gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold mt-4">
-                          {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                          {copied ? <Check className="w-4 h-4" /> : <LucideIcons.Copy className="w-4 h-4" />}
                           Kopírovat kód pro kamaráda
                         </Button>
                       </DialogContent>
@@ -316,17 +313,12 @@ const EditTopics = () => {
                   </div>
                 </div>
                 
-                <Input 
-                  value={activeTopic.name}
-                  onChange={(e) => {
+                <Input value={activeTopic.name} onChange={(e) => {
                     const newTopics = [...topics];
                     const t = newTopics.find(x => x.id === activeTopic.id);
                     if (t) t.name = e.target.value;
                     setTopics(newTopics);
-                  }}
-                  className="mb-8 h-14 text-lg sm:text-xl font-bold border-2 border-border bg-background text-foreground"
-                  placeholder="Název tématu"
-                />
+                  }} className="mb-8 h-14 text-lg sm:text-xl font-bold border-2 border-border bg-background text-foreground" placeholder="Název tématu" />
 
                 <div className="space-y-6">
                   <div>
@@ -334,11 +326,7 @@ const EditTopics = () => {
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                       {MODES.map(mode => (
                         <div key={mode.id} className="flex items-center space-x-3 p-3 sm:p-4 bg-background rounded-2xl border border-border">
-                          <Checkbox 
-                            id={`mode-${mode.id}`}
-                            checked={(activeTopic.allowedModes || ['flashcards', 'abcd', 'writing', 'matching', 'sorting']).includes(mode.id)}
-                            onCheckedChange={() => toggleMode(activeTopic.id, mode.id)}
-                          />
+                          <Checkbox id={`mode-${mode.id}`} checked={(activeTopic.allowedModes || ['flashcards', 'abcd', 'writing', 'matching', 'sorting']).includes(mode.id)} onCheckedChange={() => toggleMode(activeTopic.id, mode.id)} />
                           <Label htmlFor={`mode-${mode.id}`} className="flex items-center gap-2 cursor-pointer font-medium text-foreground text-sm">
                             <mode.icon className="w-4 h-4 text-indigo-500" />
                             {mode.label}
@@ -347,22 +335,15 @@ const EditTopics = () => {
                       ))}
                     </div>
                   </div>
-
                   <div className="p-4 bg-indigo-500/5 rounded-2xl flex items-center justify-between border border-indigo-500/10">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-indigo-500/10 rounded-xl">
-                        <ArrowLeftRight className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-                      </div>
+                      <div className="p-2 bg-indigo-500/10 rounded-xl"><ArrowLeftRight className="w-5 h-5 text-indigo-600 dark:text-indigo-400" /></div>
                       <div>
                         <Label htmlFor="random-direction" className="font-bold text-foreground block text-sm sm:text-base">Náhodný směr</Label>
                         <span className="text-[10px] sm:text-xs text-muted-foreground">Randomizuje otázku a odpověď.</span>
                       </div>
                     </div>
-                    <Switch 
-                      id="random-direction"
-                      checked={activeTopic.randomizeDirection}
-                      onCheckedChange={() => toggleRandomDirection(activeTopic.id)}
-                    />
+                    <Switch id="random-direction" checked={activeTopic.randomizeDirection} onCheckedChange={() => toggleRandomDirection(activeTopic.id)} />
                   </div>
                 </div>
               </div>
@@ -389,69 +370,29 @@ const EditTopics = () => {
                       <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Termín (Otázka)</label>
-                          <Input 
-                            value={item.term}
-                            onChange={(e) => updateItem(activeTopic.id, idx, 'term', e.target.value)}
-                            placeholder="Např. Dog"
-                            className="h-10 sm:h-12 rounded-xl border-border bg-background text-foreground text-sm"
-                          />
+                          <Input value={item.term} onChange={(e) => updateItem(activeTopic.id, idx, 'term', e.target.value)} placeholder="Např. Dog" className="h-10 sm:h-12 rounded-xl border-border bg-background text-foreground text-sm" />
                         </div>
                         <div className="space-y-2">
                           <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Definice (Odpověď)</label>
-                          <Input 
-                            value={item.definition}
-                            onChange={(e) => updateItem(activeTopic.id, idx, 'definition', e.target.value)}
-                            placeholder="Např. Pes"
-                            className="h-10 sm:h-12 rounded-xl border-border bg-background text-foreground text-sm"
-                          />
+                          <Input value={item.definition} onChange={(e) => updateItem(activeTopic.id, idx, 'definition', e.target.value)} placeholder="Např. Pes" className="h-10 sm:h-12 rounded-xl border-border bg-background text-foreground text-sm" />
                         </div>
                       </div>
-
                       <div className="space-y-2">
                         <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Obrázek (URL nebo soubor)</label>
                         <div className="flex gap-2">
                           <div className="relative flex-1">
-                            <Input 
-                              value={item.imageUrl || ""}
-                              onChange={(e) => updateItem(activeTopic.id, idx, 'imageUrl', e.target.value)}
-                              placeholder="URL obrázku..."
-                              className="h-10 sm:h-12 pl-10 rounded-xl border-border bg-background text-xs"
-                            />
+                            <Input value={item.imageUrl || ""} onChange={(e) => updateItem(activeTopic.id, idx, 'imageUrl', e.target.value)} placeholder="URL obrázku..." className="h-10 sm:h-12 pl-10 rounded-xl border-border bg-background text-xs" />
                             <ImageIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                            {item.imageUrl && (
-                              <button 
-                                onClick={() => updateItem(activeTopic.id, idx, 'imageUrl', '')}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-red-500"
-                              >
-                                <X className="w-4 h-4" />
-                              </button>
-                            )}
+                            {item.imageUrl && <button onClick={() => updateItem(activeTopic.id, idx, 'imageUrl', '')} className="absolute right-3 top-1/2 -translate-y-1/2 text-red-500"><X className="w-4 h-4" /></button>}
                           </div>
-                          
                           <label className="cursor-pointer">
-                            <input 
-                              type="file" 
-                              className="hidden" 
-                              accept="image/*"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) handleImageUpload(activeTopic.id, idx, file);
-                              }}
-                            />
+                            <input type="file" className="hidden" accept="image/*" onChange={(e) => { const file = e.target.files?.[0]; if (file) handleImageUpload(activeTopic.id, idx, file); }} />
                             <div className="h-10 sm:h-12 w-12 rounded-xl border-2 border-dashed border-border flex items-center justify-center hover:bg-muted/50 transition-colors">
-                              {isUploading === `${activeTopic.id}-${idx}` ? (
-                                <Loader2 className="w-5 h-5 animate-spin text-indigo-500" />
-                              ) : (
-                                <Upload className="w-5 h-5 text-muted-foreground" />
-                              )}
+                              {isUploading === `${activeTopic.id}-${idx}` ? <Loader2 className="w-5 h-5 animate-spin text-indigo-500" /> : <Upload className="w-5 h-5 text-muted-foreground" />}
                             </div>
                           </label>
                         </div>
-                        {item.imageUrl && (
-                          <div className="mt-2 h-16 w-full rounded-xl overflow-hidden border border-border bg-slate-50 dark:bg-slate-900/50 flex items-center justify-center">
-                            <img src={item.imageUrl} alt="Preview" className="max-w-full max-h-full object-contain p-1" />
-                          </div>
-                        )}
+                        {item.imageUrl && <div className="mt-2 h-16 w-full rounded-xl overflow-hidden border border-border"><img src={item.imageUrl} alt="Preview" className="w-full h-full object-cover" /></div>}
                       </div>
                     </div>
 
@@ -459,31 +400,19 @@ const EditTopics = () => {
                       {isSortingModeEnabled && (
                         <div className="space-y-2">
                           <label className="text-[10px] font-bold uppercase text-indigo-500/60 tracking-widest">Kategorie (pro rozřazování)</label>
-                          <Input 
-                            value={item.category || ""}
-                            onChange={(e) => updateItem(activeTopic.id, idx, 'category', e.target.value)}
-                            placeholder="Např. Zvířata"
-                            className="h-10 sm:h-12 rounded-xl border-indigo-100 dark:border-indigo-900/30 bg-background text-foreground text-sm"
-                          />
+                          <Input value={item.category || ""} onChange={(e) => updateItem(activeTopic.id, idx, 'category', e.target.value)} placeholder="Např. Zvířata" className="h-10 sm:h-12 rounded-xl border-indigo-100 dark:border-indigo-900/30 bg-background text-foreground text-sm" />
                         </div>
                       )}
-                      
                       {isAbcdModeEnabled && (
                         <div className="space-y-3 p-3 sm:p-4 bg-muted/30 rounded-2xl border border-border">
                           <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Špatné odpovědi</label>
                           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
                             {item.options.map((opt, optIdx) => (
-                              <Input 
-                                key={optIdx}
-                                value={opt}
-                                onChange={(e) => {
+                              <Input key={optIdx} value={opt} onChange={(e) => {
                                   const newOpts = [...item.options];
                                   newOpts[optIdx] = e.target.value;
                                   updateItem(activeTopic.id, idx, 'options', newOpts);
-                                }}
-                                placeholder={`Chyba ${optIdx + 1}`}
-                                className="rounded-lg border-border h-9 text-xs sm:text-sm bg-background text-foreground"
-                              />
+                                }} placeholder={`Chyba ${optIdx + 1}`} className="rounded-lg border-border h-9 text-xs sm:text-sm bg-background text-foreground" />
                             ))}
                           </div>
                         </div>
@@ -502,12 +431,7 @@ const EditTopics = () => {
           )}
         </div>
       </main>
-
-      <AITopicGenerator 
-        isOpen={isAIGeneratorOpen} 
-        onOpenChange={setIsAIGeneratorOpen} 
-        onTopicGenerated={(newTopic) => addTopic(newTopic)}
-      />
+      <AITopicGenerator isOpen={isAIGeneratorOpen} onOpenChange={setIsAIGeneratorOpen} onTopicGenerated={(newTopic) => addTopic(newTopic)} />
     </div>
   );
 };
