@@ -23,6 +23,8 @@ const Landing = () => {
     }
   };
 
+  const GITHUB_URL = "https://github.com/plojharsim/edu";
+
   return (
     <div className="min-h-screen bg-background transition-colors duration-500 overflow-hidden">
       {/* Navigation */}
@@ -80,7 +82,7 @@ const Landing = () => {
             <Button 
               size="lg"
               variant="outline"
-              onClick={() => window.open('https://github.com/plojharsim', '_blank')}
+              onClick={() => window.open(GITHUB_URL, '_blank')}
               className="h-16 px-10 rounded-2xl border-2 font-bold text-lg gap-3"
             >
               <Github className="w-5 h-5" /> GitHub
@@ -182,8 +184,8 @@ const Landing = () => {
           </p>
 
           <div className="flex items-center gap-6">
-            <a href="#" className="text-muted-foreground hover:text-indigo-600 transition-colors"><Globe className="w-5 h-5" /></a>
-            <a href="#" className="text-muted-foreground hover:text-indigo-600 transition-colors"><Github className="w-5 h-5" /></a>
+            <a href="https://plojharsim.cz" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-indigo-600 transition-colors"><Globe className="w-5 h-5" /></a>
+            <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-indigo-600 transition-colors"><Github className="w-5 h-5" /></a>
           </div>
         </div>
       </footer>
