@@ -46,7 +46,6 @@ export const dbService = {
   async saveTopic(userId: string, topic: Topic) {
     const isNew = !topic.id.startsWith('topic_') && !topic.id.startsWith('ai_') && !topic.id.startsWith('imported_');
     
-    // 1. Uložit téma
     const { data: savedTopic, error: tError } = await supabase.from('topics').upsert({
       id: isNew ? topic.id : undefined,
       user_id: userId,
@@ -57,10 +56,8 @@ export const dbService = {
 
     if (tError) throw tError;
 
-    // 2. Smazat staré položky
     await supabase.from('study_items').delete().eq('topic_id', savedTopic.id);
 
-    // 3. Vložit nové položky
     const itemsToInsert = topic.items.map(item => ({
       topic_id: savedTopic.id,
       term: item.term,
@@ -81,34 +78,37 @@ export const dbService = {
     await supabase.from('topics').delete().eq('id', topicId);
   },
 
-  // Statistiky a Algoritmus
+  // Statistiky
   async getStats(userId: string) {
     const { data } = await supabase.from('study_stats').select('*').eq('user_id', userId).single();
     return data;
   },
 
   async getLeaderboard() {
-    // Načteme statistiky a propojíme je s profily uživatelů
     const { data, error } = await supabase
       .from('study_stats')
       .select(`
         average,
         sessions,
         streak,
-        profiles (
+        profiles!inner (
           name,
           grade
         )
       `)
+      .gt('sessions', 0)
       .order('average', { ascending: false })
       .limit(10);
     
-    if (error) throw error;
+    if (error) {
+      console.error("Leaderboard fetch error:", error);
+      return [];
+    }
     return data;
   },
 
   async updateStats(userId: string, score: number, performanceUpdate?: any) {
-    const { data: existing } = await supabase.from('study_stats').select('*').eq('user_id', userId).single();
+    const { data: existing } = await supabase.from('study_stats').select('*').eq('user_id', userId).maybeSingle();
     
     const today = new Date().toISOString().split('T')[0];
     let streak = existing?.streak || 0;
@@ -137,11 +137,11 @@ export const dbService = {
       updateData.performance_data = performanceUpdate;
     }
 
-    const { error } = await supabase.from('study_stats').upsert(updateData);
+    const { error } = await supabase.from('study_stats').upsert(updateData, { onConflict: 'user_id' });
+    if (error) console.error("Update stats error:", error);
     return { error };
   },
 
-  // Kompletní smazání účtu (přes Edge Function)
   async deleteAccount() {
     const { data, error } = await supabase.functions.invoke('delete-user', {
       method: 'POST'
