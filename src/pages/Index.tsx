@@ -15,7 +15,7 @@ import { dbService } from '@/services/dbService';
 const Index = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [profile, setProfile] = useState({ name: 'Studente', grade: '' });
+  const [profile, setProfile] = useState({ name: '', grade: '' });
   const [stats, setStats] = useState({ streak: 0, average: 0, sessions: 0, perfectSessions: 0 });
   const [studyData, setStudyData] = useState<Record<string, Category>>(PREDEFINED_DATA);
 
@@ -27,7 +27,7 @@ const Index = () => {
         // 1. Načíst profil
         const userProfile = await dbService.getProfile(user.id);
         if (userProfile) {
-          setProfile({ name: userProfile.name || 'Studente', grade: userProfile.grade || '' });
+          setProfile({ name: userProfile.name || '', grade: userProfile.grade || '' });
         } else {
           navigate('/onboarding');
           return;
@@ -106,8 +106,8 @@ const Index = () => {
         <div className="text-center md:text-left">
           <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
             <Sparkles className="w-5 h-5 text-indigo-500 fill-indigo-500" />
-            <span className="text-indigo-600 dark:text-indigo-400 font-bold uppercase tracking-widest text-xs">
-              Vítej zpět, {profile.name}! {profile.grade && `(${profile.grade})`}
+            <span className="text-indigo-600 dark:text-indigo-400 font-bold uppercase tracking-widest text-xs h-4">
+              {profile.name ? `Vítej zpět, ${profile.name}!` : 'Vítej zpět!'} {profile.grade && `(${profile.grade})`}
             </span>
           </div>
           <h1 className="text-4xl md:text-5xl font-black text-foreground leading-tight">
