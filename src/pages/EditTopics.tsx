@@ -235,11 +235,11 @@ const EditTopics = () => {
             <div key={topic.id} className="group relative">
               <Button
                 variant={activeTopicId === topic.id ? "secondary" : "ghost"}
-                className={`w-full justify-start h-14 rounded-xl text-left font-bold transition-all border border-transparent ${activeTopicId === topic.id ? 'bg-indigo-600 text-white hover:bg-indigo-700 border-indigo-500' : 'bg-card shadow-sm border-border text-foreground'}`}
+                className={`w-full justify-start h-auto py-4 rounded-xl text-left font-bold transition-all border border-transparent ${activeTopicId === topic.id ? 'bg-indigo-600 text-white hover:bg-indigo-700 border-indigo-500' : 'bg-card shadow-sm border-border text-foreground'}`}
                 onClick={() => setActiveTopicId(topic.id)}
               >
-                <BookText className={`mr-3 w-5 h-5 ${activeTopicId === topic.id ? 'text-white' : 'text-indigo-500/50'}`} />
-                <span className="truncate pr-6">{topic.name}</span>
+                <BookText className={`mr-3 w-5 h-5 shrink-0 ${activeTopicId === topic.id ? 'text-white' : 'text-indigo-500/50'}`} />
+                <span className="pr-6 whitespace-normal">{topic.name}</span>
               </Button>
               <button 
                 onClick={(e) => { e.stopPropagation(); deleteTopic(topic.id); }}
