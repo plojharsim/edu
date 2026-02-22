@@ -1,24 +1,56 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Dialog, DialogContent, DialogDescription, 
   DialogHeader, DialogTitle, DialogTrigger 
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Settings, LogOut, Sun, Moon, User } from "lucide-react";
+import { Settings, LogOut, Sun, Moon, User, Trash2, Loader2 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useAuth } from '@/components/AuthProvider';
 import { useNavigate } from 'react-router-dom';
+import { dbService } from '@/services/dbService';
+import { showError, showSuccess } from '@/utils/toast';
 
 const SettingsDialog = () => {
   const { theme, setTheme } = useTheme();
   const { signOut, user } = useAuth();
   const navigate = useNavigate();
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleLogout = async () => {
     await signOut();
     navigate('/');
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!user) return;
+    setIsDeleting(true);
+    
+    try {
+      const { error } = await dbService.deleteAccountData(user.id);
+      if (error) throw error;
+      
+      showSuccess("Tvá data byla úspěšně odstraněna.");
+      await signOut();
+      navigate('/');
+    } catch (e: any) {
+      showError("Nepodařilo se odstranit data: " + e.message);
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -42,7 +74,7 @@ const SettingsDialog = () => {
           </div>
           <DialogTitle className="text-2xl font-black text-center text-foreground">Nastavení</DialogTitle>
           <DialogDescription className="text-center text-muted-foreground">
-            Uprav si vzhled aplikace nebo se odhlásit.
+            Uprav si vzhled aplikace nebo spravuj svůj účet.
           </DialogDescription>
         </DialogHeader>
 
@@ -74,13 +106,45 @@ const SettingsDialog = () => {
              </div>
           </div>
           
-          <Button 
-            variant="destructive" 
-            onClick={handleLogout}
-            className="w-full h-14 rounded-2xl font-bold text-lg gap-2 mt-4 shadow-lg shadow-red-200 dark:shadow-none"
-          >
-            <LogOut className="w-5 h-5" /> Odhlásit se
-          </Button>
+          <div className="pt-4 space-y-3">
+            <Button 
+              variant="outline" 
+              onClick={handleLogout}
+              className="w-full h-12 rounded-xl font-bold gap-2 border-border bg-card hover:bg-slate-50 dark:hover:bg-slate-800"
+            >
+              <LogOut className="w-4 h-4" /> Odhlásit se
+            </Button>
+
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  className="w-full h-12 rounded-xl font-bold gap-2 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
+                >
+                  <Trash2 className="w-4 h-4" /> Odstranit účet a data
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent className="rounded-[2rem] bg-card border-border">
+                <AlertDialogHeader>
+                  <AlertDialogTitle className="text-foreground">Jsi si opravdu jistý?</AlertDialogTitle>
+                  <AlertDialogDescription className="text-muted-foreground">
+                    Tato akce je nevratná. Dojde k trvalému smazání tvého profilu, všech vytvořených témat a tvého studijního pokroku.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel className="rounded-xl">Zrušit</AlertDialogCancel>
+                  <AlertDialogAction 
+                    onClick={handleDeleteAccount}
+                    className="rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold"
+                    disabled={isDeleting}
+                  >
+                    {isDeleting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                    Ano, smazat vše
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

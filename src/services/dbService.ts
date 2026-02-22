@@ -29,7 +29,7 @@ export const dbService = {
         id: topic.id,
         name: topic.name,
         allowedModes: topic.allowed_modes,
-        randomizeDirection: topic.randomize_direction,
+        randomize_direction: topic.randomize_direction,
         items: items || []
       };
     }));
@@ -111,6 +111,13 @@ export const dbService = {
     }
 
     const { error } = await supabase.from('study_stats').upsert(updateData);
+    return { error };
+  },
+
+  // Odstranění účtu (dat)
+  async deleteAccountData(userId: string) {
+    // Smaže profil - díky kaskádám a RLS politikám by se měla smazat i ostatní data
+    const { error } = await supabase.from('profiles').delete().eq('id', userId);
     return { error };
   }
 };
