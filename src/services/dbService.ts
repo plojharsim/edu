@@ -2,6 +2,18 @@ import { supabase } from '@/integrations/supabase/client';
 import { Topic, StudyItem } from '@/data/studyData';
 
 export const dbService = {
+  // Verze aplikace
+  async getRequiredVersion() {
+    const { data, error } = await supabase
+      .from('app_config')
+      .select('value')
+      .eq('key', 'min_version')
+      .single();
+    
+    if (error) return null;
+    return data.value;
+  },
+
   // Profil
   async getProfile(userId: string) {
     const { data } = await supabase.from('profiles').select('*').eq('id', userId).single();
@@ -29,7 +41,7 @@ export const dbService = {
         id: topic.id,
         name: topic.name,
         allowedModes: topic.allowed_modes,
-        randomize_direction: topic.randomize_direction,
+        randomizeDirection: topic.randomize_direction,
         items: items?.map(item => ({
           term: item.term,
           definition: item.definition,
