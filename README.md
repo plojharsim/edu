@@ -1,4 +1,4 @@
-# Co se dnes naučíme? 🎓
+# Edu | by plojharsim 🎓
 
 Moderní webová aplikace pro efektivní učení a procvičování učiva formou interaktivních her a testů. Aplikace je navržena pro studenty, kteří si chtějí vytvářet vlastní studijní materiály nebo používat ty předpřipravené.
 
@@ -10,10 +10,10 @@ Moderní webová aplikace pro efektivní učení a procvičování učiva formou
 - **Mobilní design**: Plně responzivní rozhraní optimalizované pro telefony.
 
 ## 🚀 Technologie
-- **Frontend**: React 19 + TypeScript
+- **Frontend**: React 18 + TypeScript
 - **Styling**: Tailwind CSS + Shadcn/UI
 - **Stav**: React Router, TanStack Query, Lucide Icons
-- **Data**: LocalStorage pro ukládání postupu a vlastních témat
+- **Data**: Supabase pro autentizaci a cloudové ukládání
 
 ## 🎯 Cíle projektu (Roadmap)
 
@@ -22,14 +22,7 @@ Moderní webová aplikace pro efektivní učení a procvičování učiva formou
 - [x] **Sdílení vlastních témat**: Možnost exportovat téma do unikátního kódu a importovat sady od spolužáků.
 - [x] **Interaktivní režimy**: Implementace 4 základních způsobů procvičování.
 - [x] **Dark Mode**: Kompletní vizuální styly pro světlý i tmavý režim.
-
-### ⏳ V plánu (Backlog)
-- [ ] **Cloud synchronizace**: Možnost zálohování dat mimo LocalStorage.
-
----
-
-## ⚠️ Poznámka k instalaci
-Tato aplikace je koncipována jako **Cloud-First Web App**. Není primárně určena pro lokální vývoj nebo spouštění skrze terminál. Veškeré úpravy a používání probíhají v reálném čase v rámci platformy Dyad.
+- [x] **Cloud Sync**: Plná integrace se Supabase pro synchronizaci dat.
 
 ---
 Vytvořeno s ❤️ pro studenty. Autor: [plojharsim](https://plojharsim.cz)

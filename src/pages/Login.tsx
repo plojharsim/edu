@@ -37,7 +37,7 @@ const Login = () => {
               <GraduationCap className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
             </div>
           </div>
-          <h1 className="text-3xl font-black text-foreground tracking-tight">Vítej v Edu</h1>
+          <h1 className="text-3xl font-black text-foreground tracking-tight text-center">Vítej v Edu | by plojharsim</h1>
           <p className="text-muted-foreground text-center mt-3 font-medium">
             Přihlas se a pokračuj ve své cestě za vzděláním
           </p>

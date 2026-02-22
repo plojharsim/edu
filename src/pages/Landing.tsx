@@ -32,7 +32,7 @@ const Landing = () => {
             <div className="p-2 bg-indigo-600 rounded-xl shadow-lg shadow-indigo-200 dark:shadow-none">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-black tracking-tighter text-foreground">Edu</span>
+            <span className="text-xl font-black tracking-tighter text-foreground whitespace-nowrap">Edu | by plojharsim</span>
           </div>
           
           <div className="flex items-center gap-3">
@@ -172,7 +172,7 @@ const Landing = () => {
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="flex items-center gap-2">
             <Sparkles className="w-6 h-6 text-indigo-600" />
-            <span className="text-xl font-black tracking-tighter">Edu</span>
+            <span className="text-xl font-black tracking-tighter">Edu | by plojharsim</span>
           </div>
           
           <p className="text-muted-foreground text-sm font-medium flex items-center gap-1">
