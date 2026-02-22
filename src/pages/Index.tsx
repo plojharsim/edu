@@ -139,7 +139,7 @@ const Index = () => {
               className="rounded-2xl h-12 w-12 bg-card shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors border border-border"
               title="Domů"
             >
-              <Home className="w-6 h-6 text-slate-500" />
+              <Home className="w-6 h-6 text-foreground/70 dark:text-foreground" />
             </Button>
             <ThemeToggle />
             <Button 
