@@ -15,6 +15,7 @@ import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import UpdatePassword from "./pages/UpdatePassword";
 import NotFound from "./pages/NotFound";
+import LoadingScreen from "./components/LoadingScreen";
 
 const queryClient = new QueryClient();
 
@@ -38,7 +39,7 @@ const AuthHandler = () => {
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, loading } = useAuth();
   
-  if (loading) return <div className="min-h-screen flex items-center justify-center">Načítání...</div>;
+  if (loading) return <LoadingScreen message="Ověřuji přihlášení..." />;
   
   if (!session) {
     return <Navigate to="/login" replace />;

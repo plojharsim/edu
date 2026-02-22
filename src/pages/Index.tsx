@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as LucideIcons from 'lucide-react';
-import { Sparkles, TrendingUp, Edit3, Heart, Home, Loader2 } from 'lucide-react';
+import { Sparkles, TrendingUp, Edit3, Heart, Home } from 'lucide-react';
 import CategoryCard from '@/components/Dashboard/CategoryCard';
 import BadgesSection from '@/components/Dashboard/BadgesSection';
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import { PREDEFINED_DATA, Category } from '@/data/studyData';
 import SettingsDialog from '@/components/Dashboard/SettingsDialog';
 import { useAuth } from '@/components/AuthProvider';
 import { dbService } from '@/services/dbService';
+import LoadingScreen from '@/components/LoadingScreen';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -106,12 +107,7 @@ const Index = () => {
   };
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
-        <Loader2 className="w-12 h-12 text-indigo-600 animate-spin mb-4" />
-        <p className="text-muted-foreground font-bold uppercase tracking-widest text-xs">Připravuji tvůj dashboard...</p>
-      </div>
-    );
+    return <LoadingScreen message="Připravuji tvůj dashboard..." />;
   }
 
   return (
@@ -171,7 +167,6 @@ const Index = () => {
       </header>
 
       <main className="max-w-6xl mx-auto flex-1 w-full space-y-16">
-        {/* ... zbytek kódu zůstává stejný ... */}
         <div>
           <h2 className="text-2xl font-black text-foreground mb-6 text-center md:text-left">Tvoje studijní sady</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center md:justify-items-stretch">
