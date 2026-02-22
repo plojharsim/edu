@@ -17,14 +17,14 @@ const CategoryCard = ({ title, count, icon: Icon, color, onClick }: CategoryCard
   return (
     <Card 
       onClick={onClick}
-      className="group cursor-pointer p-6 rounded-[2.5rem] border border-border bg-card shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 w-full"
+      className="group cursor-pointer p-6 rounded-[2.5rem] border border-border bg-card shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
     >
-      <div className="flex items-center space-x-4 min-w-0">
-        <div className={cn("p-4 rounded-3xl transition-transform group-hover:scale-110 shrink-0", color)}>
+      <div className="flex items-center space-x-4">
+        <div className={cn("p-4 rounded-3xl transition-transform group-hover:scale-110", color)}>
           <Icon className="w-8 h-8 text-white" />
         </div>
-        <div className="flex-1 min-w-0">
-          <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 truncate" title={title}>{title}</h3>
+        <div>
+          <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100">{title}</h3>
           <p className="text-slate-500 dark:text-slate-400 font-medium">{count} položek</p>
         </div>
       </div>
