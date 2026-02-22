@@ -14,7 +14,7 @@ import { BookOpen, CheckSquare, Keyboard, Layers, ChevronLeft, BookText, Check, 
 import { PREDEFINED_DATA, Topic, StudyItem, StudyMode } from '@/data/studyData';
 import { useAuth } from '@/components/AuthProvider';
 import { dbService } from '@/services/dbService';
-import { learningAlgorithm, ItemPerformance } from '@/utils/learningAlgorithm';
+import learningAlgorithm, { ItemPerformance } from '@/utils/learningAlgorithm';
 import LoadingScreen from '@/components/LoadingScreen';
 
 const StudySession = () => {
