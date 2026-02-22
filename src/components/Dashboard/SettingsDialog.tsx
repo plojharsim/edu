@@ -27,10 +27,10 @@ const SettingsDialog = () => {
         <Button 
           variant="ghost" 
           size="icon" 
-          className="rounded-2xl h-12 w-12 bg-card shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors border border-border"
+          className="rounded-2xl h-12 w-12 bg-card shadow-sm hover:bg-indigo-50 dark:hover:bg-slate-800 transition-colors border border-border"
           title="Nastavení"
         >
-          <Settings className="w-6 h-6 text-foreground" />
+          <Settings className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
         </Button>
       </DialogTrigger>
       <DialogContent className="rounded-[2.5rem] bg-card border-border max-w-sm p-8">
