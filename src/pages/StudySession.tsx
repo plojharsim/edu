@@ -14,7 +14,7 @@ import { BookOpen, CheckSquare, Keyboard, Layers, ChevronLeft, BookText, Check, 
 import { PREDEFINED_DATA, Topic, StudyItem, StudyMode } from '@/data/studyData';
 import { useAuth } from '@/components/AuthProvider';
 import { dbService } from '@/services/dbService';
-import learningAlgorithm, { ItemPerformance } from '@/utils/learningAlgorithm';
+import { learningAlgorithm, type ItemPerformance } from '@/utils/learningAlgorithm';
 import LoadingScreen from '@/components/LoadingScreen';
 
 const StudySession = () => {
@@ -227,7 +227,7 @@ const StudySession = () => {
 
   if (view === 'topic-selection') {
     return (
-      <div className="min-h-screen bg-background p-6 pt-6 md:pt-6 flex flex-col items-center justify-center transition-colors duration-300">
+      <div className="min-h-screen bg-background p-6 pt-10 md:pt-10 flex flex-col items-center justify-center transition-colors duration-300">
         <Button 
           variant="ghost" 
           onClick={() => navigate('/app')} 
@@ -263,7 +263,7 @@ const StudySession = () => {
 
   if (view === 'mode-selection') {
     return (
-      <div className="min-h-screen bg-background p-6 pt-6 md:pt-6 flex flex-col items-center justify-center transition-colors duration-300">
+      <div className="min-h-screen bg-background p-6 pt-10 md:pt-10 flex flex-col items-center justify-center transition-colors duration-300">
         <Button 
           variant="ghost" 
           onClick={() => setView('topic-selection')} 
@@ -313,7 +313,7 @@ const StudySession = () => {
 
   if (view === 'results') {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-6 pt-6 md:pt-6 transition-colors duration-300">
+      <div className="min-h-screen bg-background flex items-center justify-center p-6 pt-10 md:pt-10 transition-colors duration-300">
         <StudyResults 
           total={selectedTopic!.items.length}
           correct={correctCount}
@@ -327,7 +327,7 @@ const StudySession = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pt-6 pb-12 md:py-12 flex flex-col items-center transition-colors duration-300">
+    <div className="min-h-screen bg-background pt-10 pb-12 md:py-12 flex flex-col items-center transition-colors duration-300">
       <StudyHeader 
         current={mode === 'matching' || mode === 'sorting' ? (selectedTopic!.items.length) : masteredCount} 
         total={selectedTopic!.items.length} 
