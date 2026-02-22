@@ -3,18 +3,18 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as LucideIcons from 'lucide-react';
-import { Sparkles, TrendingUp, LogOut, Edit3, Heart, Home, Loader2 } from 'lucide-react';
+import { Sparkles, TrendingUp, Edit3, Heart, Home, Loader2 } from 'lucide-react';
 import CategoryCard from '@/components/Dashboard/CategoryCard';
 import BadgesSection from '@/components/Dashboard/BadgesSection';
 import { Button } from "@/components/ui/button";
 import { PREDEFINED_DATA, Category } from '@/data/studyData';
-import { ThemeToggle } from "@/components/ThemeToggle";
+import SettingsDialog from '@/components/Dashboard/SettingsDialog';
 import { useAuth } from '@/components/AuthProvider';
 import { dbService } from '@/services/dbService';
 
 const Index = () => {
   const navigate = useNavigate();
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const [profile, setProfile] = useState({ name: 'Studente', grade: '' });
   const [stats, setStats] = useState({ streak: 0, average: 0, sessions: 0, perfectSessions: 0 });
   const [studyData, setStudyData] = useState<Record<string, Category>>({});
@@ -100,11 +100,6 @@ const Index = () => {
     };
   }, [studyData]);
 
-  const handleLogout = async () => {
-    await signOut();
-    navigate('/');
-  };
-
   const getIcon = (iconName: string = 'BookText') => {
     const Icon = (LucideIcons as any)[iconName] || LucideIcons.BookText;
     return Icon;
@@ -159,7 +154,7 @@ const Index = () => {
             >
               <Home className="w-6 h-6 text-foreground" />
             </Button>
-            <ThemeToggle />
+            
             <Button 
               variant="ghost" 
               size="icon" 
@@ -169,15 +164,8 @@ const Index = () => {
             >
               <Edit3 className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
             </Button>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={handleLogout}
-              className="rounded-2xl h-12 w-12 bg-card shadow-sm hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-500 transition-colors border border-border"
-              title="Odhlásit se"
-            >
-              <LogOut className="w-6 h-6 text-red-500" />
-            </Button>
+            
+            <SettingsDialog />
           </div>
         </div>
       </header>
