@@ -14,7 +14,7 @@ import { BookOpen, CheckSquare, Keyboard, Layers, ChevronLeft, BookText, Check, 
 import { PREDEFINED_DATA, Topic, StudyItem, StudyMode } from '@/data/studyData';
 import { useAuth } from '@/components/AuthProvider';
 import { dbService } from '@/services/dbService';
-import { learningAlgorithm } from '@/utils/learningAlgorithm';
+import { learningAlgorithm, ItemPerformance } from '@/utils/learningAlgorithm';
 
 const StudySession = () => {
   const { categoryId, topicId } = useParams();
@@ -27,7 +27,8 @@ const StudySession = () => {
   
   // Adaptivní fronta položek
   const [sessionQueue, setSessionQueue] = useState<StudyItem[]>([]);
-  const [masteredCount, setMasteredCount] = useState(0); // Kolik unikátních položek už uživatel zvládl
+  const [masteredCount, setMasteredCount] = useState(0); 
+  const [performanceData, setPerformanceData] = useState<ItemPerformance>({});
   
   const [mode, setMode] = useState<StudyMode | null>(null);
   const [correctCount, setCorrectCount] = useState(0);
@@ -40,7 +41,8 @@ const StudySession = () => {
 
   useEffect(() => {
     if (!user) return;
-    const fetchUserTopics = async () => {
+    const fetchData = async () => {
+      // Témata
       const userTopics = await dbService.getUserTopics(user.id);
       if (userTopics.length > 0) {
         setStudyData(prev => ({
@@ -52,8 +54,14 @@ const StudySession = () => {
           }
         }));
       }
+
+      // Výkonnostní data pro algoritmus
+      const stats = await dbService.getStats(user.id);
+      if (stats?.performance_data) {
+        setPerformanceData(stats.performance_data);
+      }
     };
-    fetchUserTopics();
+    fetchData();
   }, [user]);
 
   const category = studyData[categoryId || ''];
@@ -104,10 +112,9 @@ const StudySession = () => {
     const topic = topicOverride || selectedTopic;
     if (!topic) return;
 
-    // Prioritizujeme položky, které uživateli nejdou
-    let items = learningAlgorithm.prioritizeItems(topic.items);
+    // Prioritizace podle načtených dat ze Supabase
+    let items = learningAlgorithm.prioritizeItems(topic.items, performanceData);
 
-    // Náhodně proházíme ty se stejnou prioritou
     items = items.map(item => {
       const canRandomize = topic.randomizeDirection && selectedMode !== 'abcd' && selectedMode !== 'sorting' && Math.random() > 0.5;
       if (canRandomize) {
@@ -132,9 +139,9 @@ const StudySession = () => {
     setSeconds(0);
   };
 
-  const finalizeStats = async (score: number) => {
+  const finalizeSession = async (score: number, finalPerformance: ItemPerformance) => {
     if (!user) return;
-    await dbService.updateStats(user.id, score);
+    await dbService.updateStats(user.id, score, finalPerformance);
   };
 
   const handleNext = (isCorrect: boolean = true) => {
@@ -143,8 +150,9 @@ const StudySession = () => {
     const item = sessionQueue[0];
     const itemId = `${item.term}_${item.definition}`;
     
-    // Uložíme výkon do algoritmu pro příští relace
-    learningAlgorithm.savePerformance(itemId, isCorrect);
+    // Lokální update pro tuto session
+    const updatedPerformance = learningAlgorithm.calculateNewPerformance(performanceData, itemId, isCorrect);
+    setPerformanceData(updatedPerformance);
 
     if (isCorrect) {
       setCorrectCount(prev => prev + 1);
@@ -153,7 +161,7 @@ const StudySession = () => {
       const nextQueue = sessionQueue.slice(1);
       if (nextQueue.length === 0) {
         const finalScore = ((correctCount + 1) / (correctCount + 1 + incorrectCount)) * 100;
-        finalizeStats(finalScore);
+        finalizeSession(finalScore, updatedPerformance);
         setView('results');
       } else {
         if (mode === 'flashcards' && isCardFlipped) {
@@ -174,7 +182,6 @@ const StudySession = () => {
         setMistakes(prev => [...prev, item]);
       }
 
-      // Vložíme špatnou položku znovu do fronty (o 3-5 pozic dál)
       const nextQueue = [...sessionQueue.slice(1)];
       const insertAt = Math.min(nextQueue.length, 3); 
       nextQueue.splice(insertAt, 0, item);
@@ -202,7 +209,7 @@ const StudySession = () => {
     const correct = totalItems - incorrect;
     setCorrectCount(correct);
     setMistakes([]);
-    finalizeStats((correct / totalItems) * 100);
+    finalizeSession((correct / totalItems) * 100, performanceData);
     setView('results');
   };
 

@@ -13,6 +13,11 @@ export const dbService = {
     return { error };
   },
 
+  async updateAIKey(userId: string, key: string) {
+    const { error } = await supabase.from('profiles').update({ ai_key: key }).eq('id', userId);
+    return { error };
+  },
+
   // Témata a položky
   async getUserTopics(userId: string) {
     const { data: topics, error: tError } = await supabase.from('topics').select('*').eq('user_id', userId);
@@ -69,13 +74,13 @@ export const dbService = {
     await supabase.from('topics').delete().eq('id', topicId);
   },
 
-  // Statistiky
+  // Statistiky a Algoritmus
   async getStats(userId: string) {
     const { data } = await supabase.from('study_stats').select('*').eq('user_id', userId).single();
     return data;
   },
 
-  async updateStats(userId: string, score: number) {
+  async updateStats(userId: string, score: number, performanceUpdate?: any) {
     const { data: existing } = await supabase.from('study_stats').select('*').eq('user_id', userId).single();
     
     const today = new Date().toISOString().split('T')[0];
@@ -92,15 +97,20 @@ export const dbService = {
     const average = (((existing?.average || 0) * (existing?.sessions || 0)) + score) / sessions;
     const perfect_sessions = (existing?.perfect_sessions || 0) + (score === 100 ? 1 : 0);
 
-    const { error } = await supabase.from('study_stats').upsert({
+    const updateData: any = {
       user_id: userId,
       streak,
       average,
       sessions,
       perfect_sessions,
       last_date: today
-    });
+    };
 
+    if (performanceUpdate) {
+      updateData.performance_data = performanceUpdate;
+    }
+
+    const { error } = await supabase.from('study_stats').upsert(updateData);
     return { error };
   }
 };

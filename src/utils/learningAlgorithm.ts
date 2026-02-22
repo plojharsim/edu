@@ -1,54 +1,43 @@
 "use client";
 
-// Klíč pro localStorage
-const PERFORMANCE_KEY = 'edu_items_performance';
-
-interface ItemPerformance {
+export interface ItemPerformance {
   [itemId: string]: {
     correct: number;
     incorrect: number;
-    weight: number; // Vyšší váha = častější zobrazování
+    weight: number;
   }
 }
 
 export const learningAlgorithm = {
-  getPerformanceData(): ItemPerformance {
-    const data = localStorage.getItem(PERFORMANCE_KEY);
-    return data ? JSON.parse(data) : {};
-  },
-
-  savePerformance(itemId: string, isCorrect: boolean) {
-    const data = this.getPerformanceData();
-    if (!data[itemId]) {
-      data[itemId] = { correct: 0, incorrect: 0, weight: 1 };
+  /**
+   * Vypočítá novou váhu pro položku na základě odpovědi.
+   */
+  calculateNewPerformance(currentData: ItemPerformance, itemId: string, isCorrect: boolean): ItemPerformance {
+    const newData = { ...currentData };
+    if (!newData[itemId]) {
+      newData[itemId] = { correct: 0, incorrect: 0, weight: 1 };
     }
 
     if (isCorrect) {
-      data[itemId].correct += 1;
-      // Snižujeme váhu (položka je lehčí)
-      data[itemId].weight = Math.max(0.1, data[itemId].weight * 0.8);
+      newData[itemId].correct += 1;
+      newData[itemId].weight = Math.max(0.1, newData[itemId].weight * 0.8);
     } else {
-      data[itemId].incorrect += 1;
-      // Zvyšujeme váhu (položka je těžší)
-      data[itemId].weight = Math.min(5, data[itemId].weight * 1.5);
+      newData[itemId].incorrect += 1;
+      newData[itemId].weight = Math.min(5, newData[itemId].weight * 1.5);
     }
 
-    localStorage.setItem(PERFORMANCE_KEY, JSON.stringify(data));
+    return newData;
   },
 
   /**
-   * Seřadí položky tak, aby ty s vyšší váhou (obtížnější) byly na začátku nebo častěji zastoupeny.
+   * Seřadí položky podle jejich vah (náročnosti).
    */
-  prioritizeItems<T extends { term: string; definition: string }>(items: T[]): T[] {
-    const performance = this.getPerformanceData();
-    
+  prioritizeItems<T extends { term: string; definition: string }>(items: T[], performance: ItemPerformance): T[] {
     return [...items].sort((a, b) => {
       const idA = `${a.term}_${a.definition}`;
       const idB = `${b.term}_${b.definition}`;
       const weightA = performance[idA]?.weight || 1;
       const weightB = performance[idB]?.weight || 1;
-      
-      // Chceme ty s nejvyšší váhou nahoře
       return weightB - weightA;
     });
   }

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { 
   Dialog, DialogContent, DialogDescription, 
@@ -12,6 +12,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Wand2, Sparkles, Key, Loader2, Save } from "lucide-react";
 import { showSuccess, showError } from "@/utils/toast";
 import { Topic } from "@/data/studyData";
+import { useAuth } from '@/components/AuthProvider';
+import { dbService } from '@/services/dbService';
 
 interface AITopicGeneratorProps {
   isOpen: boolean;
@@ -20,20 +22,40 @@ interface AITopicGeneratorProps {
 }
 
 const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGeneratorProps) => {
+  const { user } = useAuth();
   const [prompt, setPrompt] = useState("");
-  const [apiKey, setApiKey] = useState(localStorage.getItem('gemini_api_key') || "");
+  const [apiKey, setApiKey] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [showKeyInput, setShowKeyInput] = useState(!apiKey);
+  const [showKeyInput, setShowKeyInput] = useState(false);
+
+  useEffect(() => {
+    if (!user || !isOpen) return;
+    
+    const fetchKey = async () => {
+      const profile = await dbService.getProfile(user.id);
+      if (profile?.ai_key) {
+        setApiKey(profile.ai_key);
+        setShowKeyInput(false);
+      } else {
+        setShowKeyInput(true);
+      }
+    };
+    fetchKey();
+  }, [user, isOpen]);
 
   const handleAction = async () => {
+    if (!user) return;
+
     if (showKeyInput) {
       if (!apiKey.trim()) {
         showError("Prosím vlož platný API klíč.");
         return;
       }
-      localStorage.setItem('gemini_api_key', apiKey);
+      setIsLoading(true);
+      await dbService.updateAIKey(user.id, apiKey);
       setShowKeyInput(false);
-      showSuccess("API klíč uložen.");
+      setIsLoading(false);
+      showSuccess("API klíč uložen do profilu.");
       return;
     }
 
@@ -121,7 +143,7 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
                 autoFocus
               />
               <p className="text-[10px] text-amber-600/70 dark:text-amber-400/50 italic">
-                Klíč získáš zdarma na Google AI Studio. Uložíme ho pouze u tebe v prohlížeči.
+                Klíč získáš zdarma na Google AI Studio. Bude uložen v tvém profilu.
               </p>
             </div>
           ) : (
@@ -155,11 +177,11 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
           >
             {isLoading ? (
               <>
-                <Loader2 className="w-5 h-5 animate-spin" /> Generuji...
+                <Loader2 className="w-5 h-5 animate-spin" /> {showKeyInput ? 'Ukládám...' : 'Generuji...'}
               </>
             ) : showKeyInput ? (
               <>
-                <Save className="w-5 h-5" /> Uložit klíč a pokračovat
+                <Save className="w-5 h-5" /> Uložit klíč do cloudu
               </>
             ) : (
               <>
