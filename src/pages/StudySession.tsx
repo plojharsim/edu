@@ -15,6 +15,7 @@ import { PREDEFINED_DATA, Topic, StudyItem, StudyMode } from '@/data/studyData';
 import { useAuth } from '@/components/AuthProvider';
 import { dbService } from '@/services/dbService';
 import { learningAlgorithm, ItemPerformance } from '@/utils/learningAlgorithm';
+import LoadingScreen from '@/components/LoadingScreen';
 
 const StudySession = () => {
   const { categoryId, topicId } = useParams();
@@ -22,10 +23,10 @@ const StudySession = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   
+  const [loading, setLoading] = useState(true);
   const [view, setView] = useState<'topic-selection' | 'mode-selection' | 'study' | 'results'>('topic-selection');
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
   
-  // Adaptivní fronta položek
   const [sessionQueue, setSessionQueue] = useState<StudyItem[]>([]);
   const [masteredCount, setMasteredCount] = useState(0); 
   const [performanceData, setPerformanceData] = useState<ItemPerformance>({});
@@ -42,23 +43,30 @@ const StudySession = () => {
   useEffect(() => {
     if (!user) return;
     const fetchData = async () => {
-      // Témata
-      const userTopics = await dbService.getUserTopics(user.id);
-      if (userTopics.length > 0) {
-        setStudyData(prev => ({
-          ...prev,
-          custom: {
-            id: 'custom',
-            title: 'Vlastní',
-            topics: userTopics
-          }
-        }));
-      }
+      try {
+        setLoading(true);
+        // Témata
+        const userTopics = await dbService.getUserTopics(user.id);
+        if (userTopics.length > 0) {
+          setStudyData(prev => ({
+            ...prev,
+            custom: {
+              id: 'custom',
+              title: 'Vlastní',
+              topics: userTopics
+            }
+          }));
+        }
 
-      // Výkonnostní data pro algoritmus
-      const stats = await dbService.getStats(user.id);
-      if (stats?.performance_data) {
-        setPerformanceData(stats.performance_data);
+        // Výkonnostní data pro algoritmus
+        const stats = await dbService.getStats(user.id);
+        if (stats?.performance_data) {
+          setPerformanceData(stats.performance_data);
+        }
+      } catch (e) {
+        console.error("Error loading session data:", e);
+      } finally {
+        setLoading(false);
       }
     };
     fetchData();
@@ -99,6 +107,8 @@ const StudySession = () => {
     return all.sort(() => Math.random() - 0.5);
   }, [currentItem]);
 
+  if (loading) return <LoadingScreen />;
+
   if (!category && view !== 'results') {
     return null;
   }
@@ -112,7 +122,6 @@ const StudySession = () => {
     const topic = topicOverride || selectedTopic;
     if (!topic) return;
 
-    // Prioritizace podle načtených dat ze Supabase
     let items = learningAlgorithm.prioritizeItems(topic.items, performanceData);
 
     items = items.map(item => {
@@ -150,7 +159,6 @@ const StudySession = () => {
     const item = sessionQueue[0];
     const itemId = `${item.term}_${item.definition}`;
     
-    // Lokální update pro tuto session
     const updatedPerformance = learningAlgorithm.calculateNewPerformance(performanceData, itemId, isCorrect);
     setPerformanceData(updatedPerformance);
 
@@ -192,6 +200,7 @@ const StudySession = () => {
         setTimeout(() => {
           setSessionQueue(nextQueue);
           setIsTransitioning(false);
+          setIsCardFlipped(false);
         }, 400);
       } else {
         setSessionQueue(nextQueue);
