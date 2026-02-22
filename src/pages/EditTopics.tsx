@@ -76,8 +76,7 @@ const EditTopics = () => {
     setIsUploading(`${topicId}-${itemIdx}`);
 
     try {
-      // Předpokládáme, že existuje bucket 'item-images'. Pokud ne, upload selže.
-      const { error: uploadError, data } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('item-images')
         .upload(filePath, file);
 
@@ -90,7 +89,7 @@ const EditTopics = () => {
       updateItem(topicId, itemIdx, 'imageUrl', publicUrl);
       showSuccess("Obrázek nahrán.");
     } catch (error: any) {
-      showError("Chyba při nahrávání: " + error.message + ". Ujistěte se, že existuje veřejný bucket 'item-images' v Supabase.");
+      showError("Chyba při nahrávání: " + error.message);
     } finally {
       setIsUploading(null);
     }
@@ -171,13 +170,16 @@ const EditTopics = () => {
   };
 
   const updateItem = (topicId: string, itemIdx: number, field: keyof StudyItem, value: any) => {
-    const newTopics = [...topics];
-    const topic = newTopics.find(t => x => x.id === topicId); // Oprava logiky find
-    const targetTopic = newTopics.find(t => t.id === topicId);
-    if (targetTopic && targetTopic.items[itemIdx]) {
-      (targetTopic.items[itemIdx] as any)[field] = value;
-      setTopics(newTopics);
-    }
+    setTopics(prevTopics => prevTopics.map(t => {
+      if (t.id === topicId) {
+        const newItems = [...t.items];
+        if (newItems[itemIdx]) {
+          newItems[itemIdx] = { ...newItems[itemIdx], [field]: value };
+        }
+        return { ...t, items: newItems };
+      }
+      return t;
+    }));
   };
 
   const deleteItem = (topicId: string, itemIdx: number) => {
