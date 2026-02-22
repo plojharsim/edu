@@ -16,6 +16,11 @@ const SettingsDialog = () => {
   const { signOut, user } = useAuth();
   const navigate = useNavigate();
 
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/');
+  };
+
   return (
     <Dialog>
       <DialogTrigger asChild>
