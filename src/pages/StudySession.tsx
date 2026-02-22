@@ -14,6 +14,7 @@ import { BookOpen, CheckSquare, Keyboard, Layers, ChevronLeft, BookText, Check, 
 import { PREDEFINED_DATA, Topic, StudyItem, StudyMode } from '@/data/studyData';
 import { useAuth } from '@/components/AuthProvider';
 import { dbService } from '@/services/dbService';
+import { learningAlgorithm } from '@/utils/learningAlgorithm';
 
 const StudySession = () => {
   const { categoryId, topicId } = useParams();
@@ -23,9 +24,12 @@ const StudySession = () => {
   
   const [view, setView] = useState<'topic-selection' | 'mode-selection' | 'study' | 'results'>('topic-selection');
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
-  const [shuffledItems, setShuffledItems] = useState<StudyItem[]>([]);
+  
+  // Adaptivní fronta položek
+  const [sessionQueue, setSessionQueue] = useState<StudyItem[]>([]);
+  const [masteredCount, setMasteredCount] = useState(0); // Kolik unikátních položek už uživatel zvládl
+  
   const [mode, setMode] = useState<StudyMode | null>(null);
-  const [currentIndex, setCurrentIndex] = useState(0);
   const [correctCount, setCorrectCount] = useState(0);
   const [incorrectCount, setIncorrectCount] = useState(0);
   const [mistakes, setMistakes] = useState<StudyItem[]>([]);
@@ -79,7 +83,7 @@ const StudySession = () => {
     }
   }, [topicId, category, searchParams]);
 
-  const currentItem = shuffledItems[currentIndex];
+  const currentItem = sessionQueue[0];
 
   const shuffledOptions = useMemo(() => {
     if (!currentItem) return [];
@@ -88,7 +92,7 @@ const StudySession = () => {
   }, [currentItem]);
 
   if (!category && view !== 'results') {
-    return null; // Odstraněno "Načítání..."
+    return null;
   }
 
   const handleTopicSelect = (topic: Topic) => {
@@ -100,28 +104,26 @@ const StudySession = () => {
     const topic = topicOverride || selectedTopic;
     if (!topic) return;
 
-    const items = topic.items.map(item => {
-      const canRandomize = topic.randomizeDirection && selectedMode !== 'abcd' && selectedMode !== 'sorting' && Math.random() > 0.5;
+    // Prioritizujeme položky, které uživateli nejdou
+    let items = learningAlgorithm.prioritizeItems(topic.items);
 
+    // Náhodně proházíme ty se stejnou prioritou
+    items = items.map(item => {
+      const canRandomize = topic.randomizeDirection && selectedMode !== 'abcd' && selectedMode !== 'sorting' && Math.random() > 0.5;
       if (canRandomize) {
         return {
           ...item,
           term: item.definition,
           definition: item.term,
-          options: topic.items
-            .filter(i => i !== item)
-            .map(i => i.term)
-            .sort(() => Math.random() - 0.5)
-            .slice(0, 3)
         };
       }
       return item;
-    }).sort(() => Math.random() - 0.5);
+    });
     
-    setShuffledItems(items);
+    setSessionQueue(items);
+    setMasteredCount(0);
     setMode(selectedMode);
     setView('study');
-    setCurrentIndex(0);
     setCorrectCount(0);
     setIncorrectCount(0);
     setMistakes([]);
@@ -138,32 +140,54 @@ const StudySession = () => {
   const handleNext = (isCorrect: boolean = true) => {
     if (isTransitioning) return;
     
-    const item = shuffledItems[currentIndex];
+    const item = sessionQueue[0];
+    const itemId = `${item.term}_${item.definition}`;
     
+    // Uložíme výkon do algoritmu pro příští relace
+    learningAlgorithm.savePerformance(itemId, isCorrect);
+
     if (isCorrect) {
       setCorrectCount(prev => prev + 1);
+      setMasteredCount(prev => prev + 1);
+      
+      const nextQueue = sessionQueue.slice(1);
+      if (nextQueue.length === 0) {
+        const finalScore = ((correctCount + 1) / (correctCount + 1 + incorrectCount)) * 100;
+        finalizeStats(finalScore);
+        setView('results');
+      } else {
+        if (mode === 'flashcards' && isCardFlipped) {
+          setIsTransitioning(true);
+          setIsCardFlipped(false);
+          setTimeout(() => {
+            setSessionQueue(nextQueue);
+            setIsTransitioning(false);
+          }, 400);
+        } else {
+          setSessionQueue(nextQueue);
+          setIsCardFlipped(false);
+        }
+      }
     } else {
       setIncorrectCount(prev => prev + 1);
-      setMistakes(prev => [...prev, item]);
-    }
+      if (!mistakes.some(m => m.term === item.term)) {
+        setMistakes(prev => [...prev, item]);
+      }
 
-    const isLast = currentIndex >= shuffledItems.length - 1;
-
-    if (isLast) {
-      const finalCorrect = isCorrect ? correctCount + 1 : correctCount;
-      const finalScore = (finalCorrect / shuffledItems.length) * 100;
-      finalizeStats(finalScore);
-      setView('results');
-    } else {
+      // Vložíme špatnou položku znovu do fronty (o 3-5 pozic dál)
+      const nextQueue = [...sessionQueue.slice(1)];
+      const insertAt = Math.min(nextQueue.length, 3); 
+      nextQueue.splice(insertAt, 0, item);
+      
       if (mode === 'flashcards' && isCardFlipped) {
         setIsTransitioning(true);
         setIsCardFlipped(false);
         setTimeout(() => {
-          setCurrentIndex(prev => prev + 1);
+          setSessionQueue(nextQueue);
           setIsTransitioning(false);
         }, 400);
       } else {
-        setCurrentIndex(prev => prev + 1);
+        setSessionQueue(nextQueue);
         setIsCardFlipped(false);
       }
     }
@@ -172,8 +196,8 @@ const StudySession = () => {
   const handleCompletion = (incorrect: number) => {
     setIncorrectCount(incorrect);
     const totalItems = mode === 'sorting' 
-      ? shuffledItems.filter(i => i.category && i.category.trim() !== "").length 
-      : shuffledItems.length;
+      ? sessionQueue.filter(i => i.category && i.category.trim() !== "").length 
+      : sessionQueue.length;
     
     const correct = totalItems - incorrect;
     setCorrectCount(correct);
@@ -278,7 +302,7 @@ const StudySession = () => {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-6 pt-20 md:pt-6 transition-colors duration-300">
         <StudyResults 
-          total={mode === 'sorting' ? shuffledItems.filter(i => i.category && i.category.trim() !== "").length : selectedTopic!.items.length}
+          total={selectedTopic!.items.length}
           correct={correctCount}
           incorrect={incorrectCount}
           mistakes={mistakes}
@@ -292,7 +316,7 @@ const StudySession = () => {
   return (
     <div className="min-h-screen bg-background pt-20 pb-12 md:py-12 flex flex-col items-center transition-colors duration-300">
       <StudyHeader 
-        current={mode === 'matching' || mode === 'sorting' ? (selectedTopic!.items.length) : currentIndex + 1} 
+        current={mode === 'matching' || mode === 'sorting' ? (selectedTopic!.items.length) : masteredCount} 
         total={selectedTopic!.items.length} 
         title={`${category?.title}: ${selectedTopic?.name}`} 
         time={seconds}
@@ -338,10 +362,10 @@ const StudySession = () => {
           <TranslationInput term={currentItem.term} correctTranslation={currentItem.definition} onAnswer={(correct) => handleNext(correct)} />
         )}
         {mode === 'matching' && (
-          <MatchingGame items={shuffledItems} onComplete={(inc) => handleCompletion(inc)} />
+          <MatchingGame items={selectedTopic!.items} onComplete={(inc) => handleCompletion(inc)} />
         )}
         {mode === 'sorting' && (
-          <SortingGame items={shuffledItems} onComplete={(inc) => handleCompletion(inc)} />
+          <SortingGame items={selectedTopic!.items} onComplete={(inc) => handleCompletion(inc)} />
         )}
       </div>
     </div>
