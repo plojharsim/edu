@@ -30,43 +30,6 @@ export const dbService = {
     return { error };
   },
 
-  // Platba a dárkové kódy
-  async claimGiftCode(userId: string, code: string) {
-    // 1. Najít platný kód
-    const { data: giftCode, error: findError } = await supabase
-      .from('gift_codes')
-      .select('*')
-      .eq('code', code)
-      .eq('is_used', false)
-      .maybeSingle();
-
-    if (findError || !giftCode) {
-      throw new Error("Tento kód je neplatný nebo již byl použit.");
-    }
-
-    // 2. Označit kód jako použitý
-    const { error: updateCodeError } = await supabase
-      .from('gift_codes')
-      .update({ 
-        is_used: true, 
-        used_by: userId, 
-        used_at: new Date().toISOString() 
-      })
-      .eq('id', giftCode.id);
-
-    if (updateCodeError) throw updateCodeError;
-
-    // 3. Aktivovat profil
-    const { error: updateProfileError } = await supabase
-      .from('profiles')
-      .update({ is_paid: true })
-      .eq('id', userId);
-
-    if (updateProfileError) throw updateProfileError;
-
-    return true;
-  },
-
   // Témata a položky
   async getUserTopics(userId: string) {
     const { data: topics, error: tError } = await supabase.from('topics').select('*').eq('user_id', userId);
@@ -99,8 +62,8 @@ export const dbService = {
       id: isNew ? topic.id : undefined,
       user_id: userId,
       name: topic.name,
-      allowed_modes: topic.allowed_modes,
-      randomize_direction: topic.randomize_direction
+      allowed_modes: topic.allowedModes,
+      randomize_direction: topic.randomizeDirection
     }).select().single();
 
     if (tError) throw tError;
