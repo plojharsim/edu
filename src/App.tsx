@@ -18,6 +18,7 @@ import EditTopics from "./pages/EditTopics";
 import Leaderboard from "./pages/Leaderboard";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
+import PaymentGate from "./pages/PaymentGate";
 import UpdatePassword from "./pages/UpdatePassword";
 import UpdateRequired from "./pages/UpdateRequired";
 import NotFound from "./pages/NotFound";
@@ -63,13 +64,33 @@ const AuthHandler = () => {
 };
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { session, loading } = useAuth();
+  const { session, user, loading } = useAuth();
+  const [isPaid, setIsPaid] = useState<boolean | null>(null);
   
+  useEffect(() => {
+    if (!user) return;
+    const checkPayment = async () => {
+      const profile = await dbService.getProfile(user.id);
+      setIsPaid(profile?.is_paid || false);
+    };
+    checkPayment();
+  }, [user]);
+
   if (loading) return <LoadingScreen message="Ověřuji tvůj účet..." />;
+  if (!session) return <Navigate to="/login" replace />;
   
-  if (!session) {
-    return <Navigate to="/login" replace />;
+  if (isPaid === null) return <LoadingScreen message="Kontroluji stav platby..." />;
+  
+  // Pokud není zaplaceno a nejsme na stránce platby, přesměrovat
+  if (!isPaid && window.location.pathname !== '/payment') {
+    return <Navigate to="/payment" replace />;
   }
+
+  // Pokud je zaplaceno a uživatel se snaží jít na platbu, poslat ho do aplikace
+  if (isPaid && window.location.pathname === '/payment') {
+    return <Navigate to="/app" replace />;
+  }
+
   return <>{children}</>;
 };
 
@@ -94,6 +115,16 @@ const App = () => (
                 />
                 
                 <Route path="/login" element={<Login />} />
+                
+                <Route 
+                  path="/payment" 
+                  element={
+                    <ProtectedRoute>
+                      <PaymentGate />
+                    </ProtectedRoute>
+                  } 
+                />
+
                 <Route 
                   path="/update-password" 
                   element={
