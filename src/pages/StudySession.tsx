@@ -8,15 +8,13 @@ import MultipleChoice from '@/components/Learning/MultipleChoice';
 import TranslationInput from '@/components/Learning/TranslationInput';
 import MatchingGame from '@/components/Learning/MatchingGame';
 import SortingGame from '@/components/Learning/SortingGame';
-import MathProblem from '@/components/Learning/MathProblem';
 import StudyResults from '@/components/Learning/StudyResults';
 import { Button } from '@/components/ui/button';
-import { BookOpen, CheckSquare, Keyboard, Layers, ChevronLeft, BookText, Check, X, LayoutPanelTop, Calculator } from 'lucide-react';
+import { BookOpen, CheckSquare, Keyboard, Layers, ChevronLeft, BookText, Check, X, LayoutPanelTop } from 'lucide-react';
 import { PREDEFINED_DATA, Topic, StudyItem, StudyMode } from '@/data/studyData';
 import { useAuth } from '@/components/AuthProvider';
 import { dbService } from '@/services/dbService';
 import { learningAlgorithm, ItemPerformance } from '@/utils/learningAlgorithm';
-import { generateMathProblems } from '@/utils/mathGenerator';
 import LoadingScreen from '@/components/LoadingScreen';
 
 const StudySession = () => {
@@ -42,24 +40,24 @@ const StudySession = () => {
   const [studyData, setStudyData] = useState<Record<string, any>>({ ...PREDEFINED_DATA });
   const [loading, setLoading] = useState(true);
 
+  // Funkce definovány před useEffecty, aby se předešlo chybě inicializace
   const handleModeSelect = (selectedMode: StudyMode, topicOverride?: Topic) => {
     const topic = topicOverride || selectedTopic;
     if (!topic) return;
 
-    let items: StudyItem[] = [];
+    let items = learningAlgorithm.prioritizeItems(topic.items, performanceData);
 
-    if (selectedMode === 'math' && topic.isMathTopic && topic.mathConfig) {
-      items = generateMathProblems(topic.mathConfig.operations, topic.mathConfig.difficulty, topic.mathConfig.count);
-    } else {
-      items = learningAlgorithm.prioritizeItems(topic.items, performanceData);
-      items = items.map(item => {
-        const canRandomize = topic.randomizeDirection && selectedMode !== 'abcd' && selectedMode !== 'sorting' && Math.random() > 0.5;
-        if (canRandomize) {
-          return { ...item, term: item.definition, definition: item.term };
-        }
-        return item;
-      });
-    }
+    items = items.map(item => {
+      const canRandomize = topic.randomizeDirection && selectedMode !== 'abcd' && selectedMode !== 'sorting' && Math.random() > 0.5;
+      if (canRandomize) {
+        return {
+          ...item,
+          term: item.definition,
+          definition: item.term,
+        };
+      }
+      return item;
+    });
     
     setSessionQueue(items);
     setMasteredCount(0);
@@ -79,13 +77,21 @@ const StudySession = () => {
       try {
         setLoading(true);
         const userTopics = await dbService.getUserTopics(user.id);
-        const data = { ...PREDEFINED_DATA };
         if (userTopics.length > 0) {
-          data.custom = { id: 'custom', title: 'Vlastní', topics: userTopics };
+          setStudyData(prev => ({
+            ...prev,
+            custom: {
+              id: 'custom',
+              title: 'Vlastní',
+              topics: userTopics
+            }
+          }));
         }
-        setStudyData(data);
+
         const stats = await dbService.getStats(user.id);
-        if (stats?.performance_data) setPerformanceData(stats.performance_data);
+        if (stats?.performance_data) {
+          setPerformanceData(stats.performance_data);
+        }
       } finally {
         setLoading(false);
       }
@@ -98,7 +104,9 @@ const StudySession = () => {
   useEffect(() => {
     let interval: any;
     if (view === 'study') {
-      interval = setInterval(() => setSeconds(s => s + 1), 1000);
+      interval = setInterval(() => {
+        setSeconds(s => s + 1);
+      }, 1000);
     }
     return () => clearInterval(interval);
   }, [view]);
@@ -109,7 +117,7 @@ const StudySession = () => {
       if (topic) {
         setSelectedTopic(topic);
         const forcedMode = searchParams.get('mode') as any;
-        if (forcedMode && ['flashcards', 'abcd', 'writing', 'matching', 'sorting', 'math'].includes(forcedMode)) {
+        if (forcedMode && ['flashcards', 'abcd', 'writing', 'matching', 'sorting'].includes(forcedMode)) {
           handleModeSelect(forcedMode, topic);
         } else {
           setView('mode-selection');
@@ -135,63 +143,112 @@ const StudySession = () => {
     if (isCorrect) {
       setCorrectCount(prev => prev + 1);
       setMasteredCount(prev => prev + 1);
+      
       const nextQueue = sessionQueue.slice(1);
       if (nextQueue.length === 0) {
         const finalScore = ((correctCount + 1) / (correctCount + 1 + incorrectCount)) * 100;
         finalizeSession(finalScore, updatedPerformance);
         setView('results');
       } else {
-        setSessionQueue(nextQueue);
-        setIsCardFlipped(false);
+        if (mode === 'flashcards' && isCardFlipped) {
+          setIsTransitioning(true);
+          setIsCardFlipped(false);
+          setTimeout(() => {
+            setSessionQueue(nextQueue);
+            setIsTransitioning(false);
+          }, 400);
+        } else {
+          setSessionQueue(nextQueue);
+          setIsCardFlipped(false);
+        }
       }
     } else {
       setIncorrectCount(prev => prev + 1);
-      if (!mistakes.some(m => m.term === item.term)) setMistakes(prev => [...prev, item]);
+      if (!mistakes.some(m => m.term === item.term)) {
+        setMistakes(prev => [...prev, item]);
+      }
+
       const nextQueue = [...sessionQueue.slice(1)];
-      nextQueue.splice(Math.min(nextQueue.length, 3), 0, item);
-      setSessionQueue(nextQueue);
-      setIsCardFlipped(false);
+      const insertAt = Math.min(nextQueue.length, 3); 
+      nextQueue.splice(insertAt, 0, item);
+      
+      if (mode === 'flashcards' && isCardFlipped) {
+        setIsTransitioning(true);
+        setIsCardFlipped(false);
+        setTimeout(() => {
+          setSessionQueue(nextQueue);
+          setIsTransitioning(false);
+        }, 400);
+      } else {
+        setSessionQueue(nextQueue);
+        setIsCardFlipped(false);
+      }
     }
   };
 
   const handleCompletion = (incorrect: number) => {
     setIncorrectCount(incorrect);
-    const totalItems = sessionQueue.length;
+    const totalItems = mode === 'sorting' 
+      ? sessionQueue.filter(i => i.category && i.category.trim() !== "").length 
+      : sessionQueue.length;
+    
     const correct = totalItems - incorrect;
     setCorrectCount(correct);
+    setMistakes([]);
     finalizeSession((correct / totalItems) * 100, performanceData);
     setView('results');
   };
 
   const currentItem = sessionQueue[0];
+
   const shuffledOptions = useMemo(() => {
     if (!currentItem) return [];
     const all = [currentItem.definition, ...currentItem.options.filter(o => o.trim() !== "")];
     return all.sort(() => Math.random() - 0.5);
   }, [currentItem]);
 
+  const handleTopicSelect = (topic: Topic) => {
+    setSelectedTopic(topic);
+    setView('mode-selection');
+  };
+
+  const isModeAllowed = (m: StudyMode) => {
+    if (!selectedTopic) return false;
+    const allowed = selectedTopic.allowedModes || ['flashcards', 'abcd', 'writing', 'matching', 'sorting'];
+    return allowed.includes(m);
+  };
+
   if (loading) return <LoadingScreen message="Připravuji tvou lekci..." />;
   if (!category && view !== 'results') return null;
 
   if (view === 'topic-selection') {
     return (
-      <div className="min-h-screen bg-background p-6 pt-safe flex flex-col items-center justify-center">
-        <Button variant="ghost" onClick={() => navigate('/app')} className="absolute top-[calc(2rem+env(safe-area-inset-top,0px))] left-8 rounded-2xl">
-          <ChevronLeft className="mr-2 w-5 h-5" /> Zpět
+      <div className="min-h-screen bg-background p-6 pt-safe flex flex-col items-center justify-center transition-colors duration-300">
+        <Button 
+          variant="ghost" 
+          onClick={() => navigate('/app')} 
+          className="absolute top-[calc(2rem+env(safe-area-inset-top,0px))] left-8 rounded-2xl hover:bg-card dark:hover:bg-slate-800"
+        >
+          <ChevronLeft className="mr-2 w-5 h-5" /> Zpět na přehled
         </Button>
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-black text-foreground mb-2">{category.title}</h1>
-          <p className="text-muted-foreground font-medium">Vyber si téma</p>
+          <h1 className="text-4xl font-black text-slate-800 dark:text-slate-100 mb-2">{category.title}</h1>
+          <p className="text-slate-500 dark:text-slate-400 font-medium">Vyber si téma, které chceš procvičit</p>
         </div>
         <div className="flex flex-wrap justify-center gap-4 w-full max-w-4xl">
           {category.topics.map((topic: any) => (
-            <Button key={topic.id} variant="outline" className="h-24 w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.33%-1rem)] rounded-[2rem] bg-card flex items-center justify-start px-8 gap-4" onClick={() => { setSelectedTopic(topic); setView('mode-selection'); }}>
+            <Button 
+              key={topic.id} 
+              variant="outline" 
+              className="h-24 w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.33%-1rem)] rounded-[2rem] border-2 border-white dark:border-slate-800 bg-card shadow-sm hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-900 flex items-center justify-start px-8 gap-4 transition-all" 
+              onClick={() => handleTopicSelect(topic)}
+            >
               <div className="p-3 bg-indigo-50 dark:bg-indigo-950/30 rounded-2xl">
-                {topic.isMathTopic ? <Calculator className="w-6 h-6 text-rose-500" /> : <BookText className="w-6 h-6 text-indigo-600" />}
+                <BookText className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
               </div>
               <div className="text-left">
-                <span className="block font-bold text-lg">{topic.name}</span>
-                <span className="text-xs text-muted-foreground font-bold uppercase">{topic.items.length || topic.mathConfig?.count} položek</span>
+                <span className="block font-bold text-lg text-slate-800 dark:text-slate-100">{topic.name}</span>
+                <span className="text-xs text-slate-400 dark:text-slate-500 font-bold uppercase">{topic.items.length} položek</span>
               </div>
             </Button>
           ))}
@@ -202,43 +259,48 @@ const StudySession = () => {
 
   if (view === 'mode-selection') {
     return (
-      <div className="min-h-screen bg-background p-6 pt-safe flex flex-col items-center justify-center">
-        <Button variant="ghost" onClick={() => setView('topic-selection')} className="absolute top-[calc(2rem+env(safe-area-inset-top,0px))] left-8 rounded-2xl">
+      <div className="min-h-screen bg-background p-6 pt-safe flex flex-col items-center justify-center transition-colors duration-300">
+        <Button 
+          variant="ghost" 
+          onClick={() => setView('topic-selection')} 
+          className="absolute top-[calc(2rem+env(safe-area-inset-top,0px))] left-8 rounded-2xl hover:bg-card dark:hover:bg-slate-800"
+        >
           <ChevronLeft className="mr-2 w-5 h-5" /> Změnit téma
         </Button>
-        <div className="text-center mb-12">
+        <div className="text-center mb-12 px-4">
           <span className="text-indigo-600 dark:text-indigo-400 font-bold uppercase tracking-widest text-xs mb-2 block">{selectedTopic?.name}</span>
-          <h1 className="text-4xl font-black text-foreground mb-2">Jak se chceš učit?</h1>
+          <h1 className="text-4xl font-black text-slate-800 dark:text-slate-100 mb-2">Jak se chceš učit?</h1>
         </div>
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 w-full max-w-3xl">
-          {selectedTopic?.isMathTopic ? (
-            <Button variant="outline" className="h-32 rounded-[2rem] border-2 border-rose-100 bg-card flex flex-col gap-2 hover:border-rose-500 hover:bg-rose-50" onClick={() => handleModeSelect('math')}>
-              <Calculator className="w-8 h-8 text-rose-600" />
-              <span className="font-bold text-lg">Matematika</span>
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 w-full max-w-3xl px-2">
+          {isModeAllowed('flashcards') && (
+            <Button variant="outline" className="h-28 sm:h-32 w-full rounded-[2rem] border-2 border-indigo-100 dark:border-indigo-900/30 bg-card flex flex-col gap-2 hover:border-indigo-500 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 transition-all" onClick={() => handleModeSelect('flashcards')}>
+              <Layers className="w-7 h-7 sm:w-8 sm:h-8 text-indigo-600 dark:text-indigo-400" />
+              <span className="font-bold text-base sm:text-lg">Kartičky</span>
             </Button>
-          ) : (
-            <>
-              <Button variant="outline" className="h-32 rounded-[2rem] border-2 border-indigo-100 bg-card flex flex-col gap-2 hover:border-indigo-500" onClick={() => handleModeSelect('flashcards')}>
-                <Layers className="w-8 h-8 text-indigo-600" />
-                <span className="font-bold text-lg">Kartičky</span>
-              </Button>
-              <Button variant="outline" className="h-32 rounded-[2rem] border-2 border-emerald-100 bg-card flex flex-col gap-2 hover:border-emerald-50" onClick={() => handleModeSelect('abcd')}>
-                <CheckSquare className="w-8 h-8 text-emerald-600" />
-                <span className="font-bold text-lg">Výběr</span>
-              </Button>
-              <Button variant="outline" className="h-32 rounded-[2rem] border-2 border-amber-100 bg-card flex flex-col gap-2 hover:border-amber-50" onClick={() => handleModeSelect('writing')}>
-                <Keyboard className="w-8 h-8 text-amber-600" />
-                <span className="font-bold text-lg">Psaní</span>
-              </Button>
-              <Button variant="outline" className="h-32 rounded-[2rem] border-2 border-rose-100 bg-card flex flex-col gap-2 hover:border-rose-50" onClick={() => handleModeSelect('matching')}>
-                <BookOpen className="w-8 h-8 text-rose-600" />
-                <span className="font-bold text-lg">Dvojice</span>
-              </Button>
-              <Button variant="outline" className="h-32 rounded-[2rem] border-2 border-purple-100 bg-card flex flex-col gap-2 hover:border-purple-50" onClick={() => handleModeSelect('sorting')}>
-                <LayoutPanelTop className="w-8 h-8 text-purple-600" />
-                <span className="font-bold text-lg">Rozřazování</span>
-              </Button>
-            </>
+          )}
+          {isModeAllowed('abcd') && (
+            <Button variant="outline" className="h-28 sm:h-32 w-full rounded-[2rem] border-2 border-emerald-100 dark:border-emerald-900/30 bg-card flex flex-col gap-2 hover:border-emerald-500 dark:hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 transition-all" onClick={() => handleModeSelect('abcd')}>
+              <CheckSquare className="w-7 h-7 sm:w-8 sm:h-8 text-emerald-600 dark:text-emerald-400" />
+              <span className="font-bold text-base sm:text-lg">Výběr</span>
+            </Button>
+          )}
+          {isModeAllowed('writing') && (
+            <Button variant="outline" className="h-28 sm:h-32 w-full rounded-[2rem] border-2 border-amber-100 dark:border-amber-900/30 bg-card flex flex-col gap-2 hover:border-amber-500 dark:hover:border-amber-500 hover:bg-amber-50 dark:hover:bg-indigo-950/20 transition-all" onClick={() => handleModeSelect('writing')}>
+              <Keyboard className="w-7 h-7 sm:w-8 sm:h-8 text-amber-600 dark:text-amber-400" />
+              <span className="font-bold text-base sm:text-lg">Psaní</span>
+            </Button>
+          )}
+          {isModeAllowed('matching') && (
+            <Button variant="outline" className="h-28 sm:h-32 w-full rounded-[2rem] border-2 border-rose-100 dark:border-rose-900/30 bg-card flex flex-col gap-2 hover:border-rose-500 dark:hover:border-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all" onClick={() => handleModeSelect('matching')}>
+              <BookOpen className="w-7 h-7 sm:w-8 sm:h-8 text-rose-600 dark:text-rose-400" />
+              <span className="font-bold text-base sm:text-lg">Dvojice</span>
+            </Button>
+          )}
+          {isModeAllowed('sorting') && (
+            <Button variant="outline" className="h-28 sm:h-32 w-full rounded-[2rem] border-2 border-purple-100 dark:border-purple-900/30 bg-card flex flex-col gap-2 hover:border-purple-500 dark:hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-950/20 transition-all" onClick={() => handleModeSelect('sorting')}>
+              <LayoutPanelTop className="w-7 h-7 sm:w-8 sm:h-8 text-purple-600 dark:text-purple-400" />
+              <span className="font-bold text-base sm:text-lg">Rozřazování</span>
+            </Button>
           )}
         </div>
       </div>
@@ -247,9 +309,9 @@ const StudySession = () => {
 
   if (view === 'results') {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-6 pt-safe">
+      <div className="min-h-screen bg-background flex items-center justify-center p-6 pt-safe transition-colors duration-300">
         <StudyResults 
-          total={selectedTopic!.isMathTopic ? selectedTopic!.mathConfig!.count : selectedTopic!.items.length}
+          total={selectedTopic!.items.length}
           correct={correctCount}
           incorrect={incorrectCount}
           mistakes={mistakes}
@@ -261,30 +323,61 @@ const StudySession = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pt-safe pb-12 flex flex-col items-center">
+    <div className="min-h-screen bg-background pt-safe pb-12 md:py-12 flex flex-col items-center transition-colors duration-300">
       <StudyHeader 
-        current={mode === 'math' || mode === 'matching' || mode === 'sorting' ? (sessionQueue.length > 0 ? masteredCount : (selectedTopic!.isMathTopic ? selectedTopic!.mathConfig!.count : selectedTopic!.items.length)) : masteredCount} 
-        total={selectedTopic!.isMathTopic ? selectedTopic!.mathConfig!.count : selectedTopic!.items.length} 
+        current={mode === 'matching' || mode === 'sorting' ? (selectedTopic!.items.length) : masteredCount} 
+        total={selectedTopic!.items.length} 
         title={`${category?.title}: ${selectedTopic?.name}`} 
         time={seconds}
       />
       <div className="flex-1 flex items-center justify-center w-full px-4">
-        {mode === 'math' && currentItem && (
-          <MathProblem term={currentItem.term} correctAnswer={currentItem.definition} onAnswer={(correct) => handleNext(correct)} />
-        )}
         {mode === 'flashcards' && currentItem && (
           <div className="flex flex-col items-center gap-8 w-full">
-            <Flashcard front={currentItem.term} back={currentItem.definition} imageUrl={currentItem.imageUrl} isFlipped={isCardFlipped} onFlip={() => !isTransitioning && setIsCardFlipped(true)} />
+            <Flashcard 
+              front={currentItem.term} 
+              back={currentItem.definition} 
+              imageUrl={currentItem.imageUrl}
+              isFlipped={isCardFlipped}
+              onFlip={() => !isTransitioning && setIsCardFlipped(true)}
+            />
+            
             <div className={`flex gap-4 transition-all duration-500 ${isCardFlipped ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
-              <Button onClick={() => handleNext(false)} variant="outline" className="h-16 px-8 rounded-2xl border-2 border-red-100 text-red-600 font-bold gap-2"><X className="w-5 h-5" /> Nevěděl jsem</Button>
-              <Button onClick={() => handleNext(true)} className="h-16 px-8 rounded-2xl bg-emerald-600 text-white font-bold gap-2 shadow-lg"><Check className="w-5 h-5" /> Věděl jsem</Button>
+              <Button 
+                onClick={() => handleNext(false)} 
+                variant="outline"
+                disabled={isTransitioning}
+                className="h-16 px-8 rounded-2xl border-2 border-red-100 dark:border-red-900/30 text-red-600 dark:text-red-400 font-bold gap-2 hover:bg-red-50 dark:hover:bg-red-950/20"
+              >
+                <X className="w-5 h-5" /> Nevěděl jsem
+              </Button>
+              <Button 
+                onClick={() => handleNext(true)} 
+                disabled={isTransitioning}
+                className="h-16 px-8 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold gap-2 shadow-lg shadow-emerald-200 dark:shadow-none"
+              >
+                <Check className="w-5 h-5" /> Věděl jsem
+              </Button>
             </div>
           </div>
         )}
-        {mode === 'abcd' && currentItem && <MultipleChoice question={currentItem.term} imageUrl={currentItem.imageUrl} options={shuffledOptions} correctAnswer={currentItem.definition} onAnswer={(correct) => handleNext(correct)} />}
-        {mode === 'writing' && currentItem && <TranslationInput term={currentItem.term} imageUrl={currentItem.imageUrl} correctTranslation={currentItem.definition} onAnswer={(correct) => handleNext(correct)} />}
-        {mode === 'matching' && <MatchingGame items={selectedTopic!.items} onComplete={(inc) => handleCompletion(inc)} />}
-        {mode === 'sorting' && <SortingGame items={selectedTopic!.items} onComplete={(inc) => handleCompletion(inc)} />}
+        {mode === 'abcd' && currentItem && (
+          <MultipleChoice 
+            question={currentItem.term} 
+            imageUrl={currentItem.imageUrl}
+            options={shuffledOptions} 
+            correctAnswer={currentItem.definition} 
+            onAnswer={(correct) => handleNext(correct)} 
+          />
+        )}
+        {mode === 'writing' && currentItem && (
+          <TranslationInput term={currentItem.term} imageUrl={currentItem.imageUrl} correctTranslation={currentItem.definition} onAnswer={(correct) => handleNext(correct)} />
+        )}
+        {mode === 'matching' && (
+          <MatchingGame items={selectedTopic!.items} onComplete={(inc) => handleCompletion(inc)} />
+        )}
+        {mode === 'sorting' && (
+          <SortingGame items={selectedTopic!.items} onComplete={(inc) => handleCompletion(inc)} />
+        )}
       </div>
     </div>
   );
