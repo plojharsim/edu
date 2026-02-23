@@ -9,14 +9,12 @@ import TranslationInput from '@/components/Learning/TranslationInput';
 import MatchingGame from '@/components/Learning/MatchingGame';
 import SortingGame from '@/components/Learning/SortingGame';
 import StudyResults from '@/components/Learning/StudyResults';
-import MathSettings from '@/components/Learning/MathSettings';
 import { Button } from '@/components/ui/button';
 import { BookOpen, CheckSquare, Keyboard, Layers, ChevronLeft, BookText, Check, X, LayoutPanelTop } from 'lucide-react';
 import { PREDEFINED_DATA, Topic, StudyItem, StudyMode } from '@/data/studyData';
 import { useAuth } from '@/components/AuthProvider';
 import { dbService } from '@/services/dbService';
 import { learningAlgorithm, ItemPerformance } from '@/utils/learningAlgorithm';
-import { generateMathProblems, MathConfig } from '@/utils/mathGenerator';
 import LoadingScreen from '@/components/LoadingScreen';
 
 const StudySession = () => {
@@ -25,7 +23,7 @@ const StudySession = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   
-  const [view, setView] = useState<'topic-selection' | 'mode-selection' | 'math-settings' | 'study' | 'results'>('topic-selection');
+  const [view, setView] = useState<'topic-selection' | 'mode-selection' | 'study' | 'results'>('topic-selection');
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
   
   const [sessionQueue, setSessionQueue] = useState<StudyItem[]>([]);
@@ -42,7 +40,7 @@ const StudySession = () => {
   const [studyData, setStudyData] = useState<Record<string, any>>({ ...PREDEFINED_DATA });
   const [loading, setLoading] = useState(true);
 
-  // Funkce definovány před useEffecty
+  // Funkce definovány před useEffecty, aby se předešlo chybě inicializace
   const handleModeSelect = (selectedMode: StudyMode, topicOverride?: Topic) => {
     const topic = topicOverride || selectedTopic;
     if (!topic) return;
@@ -71,14 +69,6 @@ const StudySession = () => {
     setIsCardFlipped(false);
     setIsTransitioning(false);
     setSeconds(0);
-  };
-
-  const handleMathStart = (config: MathConfig) => {
-    if (!selectedTopic) return;
-    const generatedItems = generateMathProblems(config);
-    const mathTopic = { ...selectedTopic, items: generatedItems };
-    setSelectedTopic(mathTopic);
-    setView('mode-selection');
   };
 
   useEffect(() => {
@@ -126,15 +116,11 @@ const StudySession = () => {
       const topic = category.topics.find((t: any) => t.id === topicId);
       if (topic) {
         setSelectedTopic(topic);
-        if (categoryId === 'matematika') {
-          setView('math-settings');
+        const forcedMode = searchParams.get('mode') as any;
+        if (forcedMode && ['flashcards', 'abcd', 'writing', 'matching', 'sorting'].includes(forcedMode)) {
+          handleModeSelect(forcedMode, topic);
         } else {
-          const forcedMode = searchParams.get('mode') as any;
-          if (forcedMode && ['flashcards', 'abcd', 'writing', 'matching', 'sorting'].includes(forcedMode)) {
-            handleModeSelect(forcedMode, topic);
-          } else {
-            setView('mode-selection');
-          }
+          setView('mode-selection');
         }
       }
     }
@@ -223,11 +209,7 @@ const StudySession = () => {
 
   const handleTopicSelect = (topic: Topic) => {
     setSelectedTopic(topic);
-    if (categoryId === 'matematika') {
-      setView('math-settings');
-    } else {
-      setView('mode-selection');
-    }
+    setView('mode-selection');
   };
 
   const isModeAllowed = (m: StudyMode) => {
@@ -266,26 +248,11 @@ const StudySession = () => {
               </div>
               <div className="text-left">
                 <span className="block font-bold text-lg text-slate-800 dark:text-slate-100">{topic.name}</span>
-                <span className="text-xs text-slate-400 dark:text-slate-500 font-bold uppercase">{categoryId === 'matematika' ? 'Generátor' : `${topic.items.length} položek`}</span>
+                <span className="text-xs text-slate-400 dark:text-slate-500 font-bold uppercase">{topic.items.length} položek</span>
               </div>
             </Button>
           ))}
         </div>
-      </div>
-    );
-  }
-
-  if (view === 'math-settings') {
-    return (
-      <div className="min-h-screen bg-background p-6 pt-safe flex items-center justify-center">
-        <Button 
-          variant="ghost" 
-          onClick={() => setView('topic-selection')} 
-          className="absolute top-[calc(2rem+env(safe-area-inset-top,0px))] left-8 rounded-2xl hover:bg-card dark:hover:bg-slate-800"
-        >
-          <ChevronLeft className="mr-2 w-5 h-5" /> Změnit téma
-        </Button>
-        <MathSettings onStart={handleMathStart} />
       </div>
     );
   }
@@ -295,10 +262,10 @@ const StudySession = () => {
       <div className="min-h-screen bg-background p-6 pt-safe flex flex-col items-center justify-center transition-colors duration-300">
         <Button 
           variant="ghost" 
-          onClick={() => categoryId === 'matematika' ? setView('math-settings') : setView('topic-selection')} 
+          onClick={() => setView('topic-selection')} 
           className="absolute top-[calc(2rem+env(safe-area-inset-top,0px))] left-8 rounded-2xl hover:bg-card dark:hover:bg-slate-800"
         >
-          <ChevronLeft className="mr-2 w-5 h-5" /> Změnit nastavení
+          <ChevronLeft className="mr-2 w-5 h-5" /> Změnit téma
         </Button>
         <div className="text-center mb-12 px-4">
           <span className="text-indigo-600 dark:text-indigo-400 font-bold uppercase tracking-widest text-xs mb-2 block">{selectedTopic?.name}</span>
