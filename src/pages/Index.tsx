@@ -177,17 +177,23 @@ const Index = () => {
         <div>
           <h2 className="text-2xl font-black text-foreground mb-6 text-center md:text-left">Tvoje studijní sady</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center md:justify-items-stretch">
-            {Object.values(studyData).map((cat) => (
-              <div key={cat.id} className="w-full max-w-sm md:max-w-none">
-                <CategoryCard 
-                  title={cat.title} 
-                  count={cat.topics.reduce((acc, t) => acc + t.items.length, 0)} 
-                  icon={getIcon(cat.iconName)} 
-                  color={cat.color || 'bg-slate-500'} 
-                  onClick={() => navigate(`/app/study/${cat.id}`)}
-                />
-              </div>
-            ))}
+            {Object.values(studyData).map((cat) => {
+              const itemCount = cat.topics.reduce((acc, t) => acc + t.items.length, 0);
+              const hasDynamic = cat.topics.some(t => t.isDynamic);
+              const label = `${itemCount} položek${hasDynamic ? ' a generované' : ''}`;
+
+              return (
+                <div key={cat.id} className="w-full max-w-sm md:max-w-none">
+                  <CategoryCard 
+                    title={cat.title} 
+                    label={label}
+                    icon={getIcon(cat.iconName)} 
+                    color={cat.color || 'bg-slate-500'} 
+                    onClick={() => navigate(`/app/study/${cat.id}`)}
+                  />
+                </div>
+              );
+            })}
           </div>
         </div>
 

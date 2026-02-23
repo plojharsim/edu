@@ -7,13 +7,13 @@ import { cn } from "@/lib/utils";
 
 interface CategoryCardProps {
   title: string;
-  count: number;
+  label: string; // Změněno z count: number na label: string
   icon: LucideIcon;
   color: string;
   onClick: () => void;
 }
 
-const CategoryCard = ({ title, count, icon: Icon, color, onClick }: CategoryCardProps) => {
+const CategoryCard = ({ title, label, icon: Icon, color, onClick }: CategoryCardProps) => {
   return (
     <Card 
       onClick={onClick}
@@ -25,7 +25,7 @@ const CategoryCard = ({ title, count, icon: Icon, color, onClick }: CategoryCard
         </div>
         <div className="min-w-0 flex-1">
           <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 truncate">{title}</h3>
-          <p className="text-slate-500 dark:text-slate-400 font-medium truncate">{count} položek</p>
+          <p className="text-slate-500 dark:text-slate-400 font-medium truncate">{label}</p>
         </div>
       </div>
     </Card>
