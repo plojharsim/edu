@@ -9,14 +9,12 @@ import TranslationInput from '@/components/Learning/TranslationInput';
 import MatchingGame from '@/components/Learning/MatchingGame';
 import SortingGame from '@/components/Learning/SortingGame';
 import StudyResults from '@/components/Learning/StudyResults';
-import MathSetupDialog from '@/components/Math/MathSetupDialog';
 import { Button } from '@/components/ui/button';
 import { BookOpen, CheckSquare, Keyboard, Layers, ChevronLeft, BookText, Check, X, LayoutPanelTop } from 'lucide-react';
 import { PREDEFINED_DATA, Topic, StudyItem, StudyMode } from '@/data/studyData';
 import { useAuth } from '@/components/AuthProvider';
 import { dbService } from '@/services/dbService';
 import { learningAlgorithm, ItemPerformance } from '@/utils/learningAlgorithm';
-import { mathGenerator, MathConfig } from '@/utils/mathGenerator';
 import LoadingScreen from '@/components/LoadingScreen';
 
 const StudySession = () => {
@@ -25,9 +23,8 @@ const StudySession = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   
-  const [view, setView] = useState<'topic-selection' | 'mode-selection' | 'study' | 'results' | 'math-setup'>('topic-selection');
+  const [view, setView] = useState<'topic-selection' | 'mode-selection' | 'study' | 'results'>('topic-selection');
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
-  const [isMathSetupOpen, setIsMathSetupOpen] = useState(false);
   
   const [sessionQueue, setSessionQueue] = useState<StudyItem[]>([]);
   const [masteredCount, setMasteredCount] = useState(0); 
@@ -43,25 +40,15 @@ const StudySession = () => {
   const [studyData, setStudyData] = useState<Record<string, any>>({ ...PREDEFINED_DATA });
   const [loading, setLoading] = useState(true);
 
+  // Funkce definovány před useEffecty, aby se předešlo chybě inicializace
   const handleModeSelect = (selectedMode: StudyMode, topicOverride?: Topic) => {
     const topic = topicOverride || selectedTopic;
     if (!topic) return;
 
-    // Pokud jde o generátor matematiky, potřebujeme nejdřív nastavení
-    if (topic.id === 'math-generator') {
-      setMode(selectedMode);
-      setIsMathSetupOpen(true);
-      return;
-    }
+    let items = learningAlgorithm.prioritizeItems(topic.items, performanceData);
 
-    startSession(topic.items, selectedMode, topic.randomizeDirection);
-  };
-
-  const startSession = (items: StudyItem[], selectedMode: StudyMode, randomize?: boolean) => {
-    let prioritized = learningAlgorithm.prioritizeItems(items, performanceData);
-
-    prioritized = prioritized.map(item => {
-      const canRandomize = randomize && selectedMode !== 'abcd' && selectedMode !== 'sorting' && Math.random() > 0.5;
+    items = items.map(item => {
+      const canRandomize = topic.randomizeDirection && selectedMode !== 'abcd' && selectedMode !== 'sorting' && Math.random() > 0.5;
       if (canRandomize) {
         return {
           ...item,
@@ -72,7 +59,7 @@ const StudySession = () => {
       return item;
     });
     
-    setSessionQueue(prioritized);
+    setSessionQueue(items);
     setMasteredCount(0);
     setMode(selectedMode);
     setView('study');
@@ -84,27 +71,22 @@ const StudySession = () => {
     setSeconds(0);
   };
 
-  const handleMathStart = (config: MathConfig) => {
-    const generatedItems = mathGenerator.generate(config);
-    setIsMathSetupOpen(false);
-    startSession(generatedItems, mode || 'abcd', false);
-  };
-
   useEffect(() => {
     if (!user) return;
     const fetchData = async () => {
       try {
         setLoading(true);
         const userTopics = await dbService.getUserTopics(user.id);
-        const data = { ...PREDEFINED_DATA };
         if (userTopics.length > 0) {
-          data['custom'] = {
-            id: 'custom',
-            title: 'Vlastní',
-            topics: userTopics
-          };
+          setStudyData(prev => ({
+            ...prev,
+            custom: {
+              id: 'custom',
+              title: 'Vlastní',
+              topics: userTopics
+            }
+          }));
         }
-        setStudyData(data);
 
         const stats = await dbService.getStats(user.id);
         if (stats?.performance_data) {
@@ -145,7 +127,7 @@ const StudySession = () => {
   }, [topicId, category, searchParams]);
 
   const finalizeSession = async (score: number, finalPerformance: ItemPerformance) => {
-    if (!user || selectedTopic?.id === 'math-generator') return; // Neukládat performance pro náhodné příklady
+    if (!user) return;
     await dbService.updateStats(user.id, score, finalPerformance);
   };
 
@@ -156,9 +138,7 @@ const StudySession = () => {
     const itemId = `${item.term}_${item.definition}`;
     
     const updatedPerformance = learningAlgorithm.calculateNewPerformance(performanceData, itemId, isCorrect);
-    if (selectedTopic?.id !== 'math-generator') {
-      setPerformanceData(updatedPerformance);
-    }
+    setPerformanceData(updatedPerformance);
 
     if (isCorrect) {
       setCorrectCount(prev => prev + 1);
@@ -263,12 +243,12 @@ const StudySession = () => {
               className="h-24 w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.33%-1rem)] rounded-[2rem] border-2 border-white dark:border-slate-800 bg-card shadow-sm hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-900 flex items-center justify-start px-8 gap-4 transition-all" 
               onClick={() => handleTopicSelect(topic)}
             >
-              <div className={`p-3 rounded-2xl ${topic.id === 'math-generator' ? 'bg-amber-100 dark:bg-amber-950/30' : 'bg-indigo-50 dark:bg-indigo-950/30'}`}>
-                <BookText className={`w-6 h-6 ${topic.id === 'math-generator' ? 'text-amber-600 dark:text-amber-400' : 'text-indigo-600 dark:text-indigo-400'}`} />
+              <div className="p-3 bg-indigo-50 dark:bg-indigo-950/30 rounded-2xl">
+                <BookText className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
               </div>
               <div className="text-left">
                 <span className="block font-bold text-lg text-slate-800 dark:text-slate-100">{topic.name}</span>
-                <span className="text-xs text-slate-400 dark:text-slate-500 font-bold uppercase">{topic.id === 'math-generator' ? 'Dynamické' : `${topic.items.length} položek`}</span>
+                <span className="text-xs text-slate-400 dark:text-slate-500 font-bold uppercase">{topic.items.length} položek</span>
               </div>
             </Button>
           ))}
@@ -323,12 +303,6 @@ const StudySession = () => {
             </Button>
           )}
         </div>
-
-        <MathSetupDialog 
-          isOpen={isMathSetupOpen} 
-          onOpenChange={setIsMathSetupOpen}
-          onStart={handleMathStart}
-        />
       </div>
     );
   }
@@ -337,7 +311,7 @@ const StudySession = () => {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-6 pt-safe transition-colors duration-300">
         <StudyResults 
-          total={sessionQueue.length > 0 ? sessionQueue.length : (correctCount + incorrectCount)}
+          total={selectedTopic!.items.length}
           correct={correctCount}
           incorrect={incorrectCount}
           mistakes={mistakes}
@@ -351,8 +325,8 @@ const StudySession = () => {
   return (
     <div className="min-h-screen bg-background pt-safe pb-12 md:py-12 flex flex-col items-center transition-colors duration-300">
       <StudyHeader 
-        current={mode === 'matching' || mode === 'sorting' ? (sessionQueue.length) : masteredCount} 
-        total={sessionQueue.length} 
+        current={mode === 'matching' || mode === 'sorting' ? (selectedTopic!.items.length) : masteredCount} 
+        total={selectedTopic!.items.length} 
         title={`${category?.title}: ${selectedTopic?.name}`} 
         time={seconds}
       />
@@ -399,10 +373,10 @@ const StudySession = () => {
           <TranslationInput term={currentItem.term} imageUrl={currentItem.imageUrl} correctTranslation={currentItem.definition} onAnswer={(correct) => handleNext(correct)} />
         )}
         {mode === 'matching' && (
-          <MatchingGame items={sessionQueue} onComplete={(inc) => handleCompletion(inc)} />
+          <MatchingGame items={selectedTopic!.items} onComplete={(inc) => handleCompletion(inc)} />
         )}
         {mode === 'sorting' && (
-          <SortingGame items={sessionQueue} onComplete={(inc) => handleCompletion(inc)} />
+          <SortingGame items={selectedTopic!.items} onComplete={(inc) => handleCompletion(inc)} />
         )}
       </div>
     </div>
