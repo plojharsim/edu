@@ -9,14 +9,12 @@ import TranslationInput from '@/components/Learning/TranslationInput';
 import MatchingGame from '@/components/Learning/MatchingGame';
 import SortingGame from '@/components/Learning/SortingGame';
 import StudyResults from '@/components/Learning/StudyResults';
-import MathConfigUI from '@/components/Math/MathConfig';
 import { Button } from '@/components/ui/button';
 import { BookOpen, CheckSquare, Keyboard, Layers, ChevronLeft, BookText, Check, X, LayoutPanelTop } from 'lucide-react';
 import { PREDEFINED_DATA, Topic, StudyItem, StudyMode } from '@/data/studyData';
 import { useAuth } from '@/components/AuthProvider';
 import { dbService } from '@/services/dbService';
 import { learningAlgorithm, ItemPerformance } from '@/utils/learningAlgorithm';
-import { mathGenerator, MathConfig } from '@/utils/mathGenerator';
 import LoadingScreen from '@/components/LoadingScreen';
 
 const StudySession = () => {
@@ -25,7 +23,7 @@ const StudySession = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   
-  const [view, setView] = useState<'topic-selection' | 'mode-selection' | 'math-config' | 'study' | 'results'>('topic-selection');
+  const [view, setView] = useState<'topic-selection' | 'mode-selection' | 'study' | 'results'>('topic-selection');
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
   
   const [sessionQueue, setSessionQueue] = useState<StudyItem[]>([]);
@@ -42,23 +40,14 @@ const StudySession = () => {
   const [studyData, setStudyData] = useState<Record<string, any>>({ ...PREDEFINED_DATA });
   const [loading, setLoading] = useState(true);
 
+  // Funkce definovány před useEffecty, aby se předešlo chybě inicializace
   const handleModeSelect = (selectedMode: StudyMode, topicOverride?: Topic) => {
     const topic = topicOverride || selectedTopic;
     if (!topic) return;
 
-    if (topic.isDynamic) {
-      setMode(selectedMode);
-      setView('math-config');
-      return;
-    }
+    let items = learningAlgorithm.prioritizeItems(topic.items, performanceData);
 
-    startSession(selectedMode, topic.items, topic);
-  };
-
-  const startSession = (selectedMode: StudyMode, items: StudyItem[], topic: Topic) => {
-    let processedItems = topic.isDynamic ? items : learningAlgorithm.prioritizeItems(items, performanceData);
-
-    processedItems = processedItems.map(item => {
+    items = items.map(item => {
       const canRandomize = topic.randomizeDirection && selectedMode !== 'abcd' && selectedMode !== 'sorting' && Math.random() > 0.5;
       if (canRandomize) {
         return {
@@ -70,7 +59,7 @@ const StudySession = () => {
       return item;
     });
     
-    setSessionQueue(processedItems);
+    setSessionQueue(items);
     setMasteredCount(0);
     setMode(selectedMode);
     setView('study');
@@ -80,12 +69,6 @@ const StudySession = () => {
     setIsCardFlipped(false);
     setIsTransitioning(false);
     setSeconds(0);
-  };
-
-  const handleMathStart = (config: MathConfig) => {
-    if (!selectedTopic || !mode) return;
-    const generatedItems = mathGenerator.generateItems(config);
-    startSession(mode, generatedItems, selectedTopic);
   };
 
   useEffect(() => {
@@ -163,8 +146,7 @@ const StudySession = () => {
       
       const nextQueue = sessionQueue.slice(1);
       if (nextQueue.length === 0) {
-        const total = correctCount + 1 + incorrectCount;
-        const finalScore = ((correctCount + 1) / total) * 100;
+        const finalScore = ((correctCount + 1) / (correctCount + 1 + incorrectCount)) * 100;
         finalizeSession(finalScore, updatedPerformance);
         setView('results');
       } else {
@@ -261,14 +243,12 @@ const StudySession = () => {
               className="h-24 w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.33%-1rem)] rounded-[2rem] border-2 border-white dark:border-slate-800 bg-card shadow-sm hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-900 flex items-center justify-start px-8 gap-4 transition-all" 
               onClick={() => handleTopicSelect(topic)}
             >
-              <div className={`p-3 rounded-2xl ${topic.isDynamic ? 'bg-rose-50 dark:bg-rose-950/30' : 'bg-indigo-50 dark:bg-indigo-950/30'}`}>
-                <BookText className={`w-6 h-6 ${topic.isDynamic ? 'text-rose-600 dark:text-rose-400' : 'text-indigo-600 dark:text-indigo-400'}`} />
+              <div className="p-3 bg-indigo-50 dark:bg-indigo-950/30 rounded-2xl">
+                <BookText className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
               </div>
               <div className="text-left">
                 <span className="block font-bold text-lg text-slate-800 dark:text-slate-100">{topic.name}</span>
-                <span className="text-xs text-slate-400 dark:text-slate-500 font-bold uppercase">
-                  {topic.isDynamic ? 'Dynamické generování' : `${topic.items.length} položek`}
-                </span>
+                <span className="text-xs text-slate-400 dark:text-slate-500 font-bold uppercase">{topic.items.length} položek</span>
               </div>
             </Button>
           ))}
@@ -327,26 +307,11 @@ const StudySession = () => {
     );
   }
 
-  if (view === 'math-config') {
-    return (
-      <div className="min-h-screen bg-background p-6 pt-safe flex items-center justify-center transition-colors duration-300">
-        <Button 
-          variant="ghost" 
-          onClick={() => setView('mode-selection')} 
-          className="absolute top-[calc(2rem+env(safe-area-inset-top,0px))] left-8 rounded-2xl hover:bg-card"
-        >
-          <ChevronLeft className="mr-2 w-5 h-5" /> Zpět k režimům
-        </Button>
-        <MathConfigUI onStart={handleMathStart} />
-      </div>
-    );
-  }
-
   if (view === 'results') {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-6 pt-safe transition-colors duration-300">
         <StudyResults 
-          total={sessionQueue.length + masteredCount}
+          total={selectedTopic!.items.length}
           correct={correctCount}
           incorrect={incorrectCount}
           mistakes={mistakes}
@@ -361,7 +326,7 @@ const StudySession = () => {
     <div className="min-h-screen bg-background pt-safe pb-12 md:py-12 flex flex-col items-center transition-colors duration-300">
       <StudyHeader 
         current={mode === 'matching' || mode === 'sorting' ? (selectedTopic!.items.length) : masteredCount} 
-        total={selectedTopic!.isDynamic ? (sessionQueue.length + masteredCount) : selectedTopic!.items.length} 
+        total={selectedTopic!.items.length} 
         title={`${category?.title}: ${selectedTopic?.name}`} 
         time={seconds}
       />

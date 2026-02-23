@@ -16,7 +16,6 @@ export interface Topic {
   items: StudyItem[];
   allowedModes?: StudyMode[];
   randomizeDirection?: boolean;
-  isDynamic?: boolean; // Flag pro dynamické generování
 }
 
 export interface Category {
