@@ -9,12 +9,14 @@ import TranslationInput from '@/components/Learning/TranslationInput';
 import MatchingGame from '@/components/Learning/MatchingGame';
 import SortingGame from '@/components/Learning/SortingGame';
 import StudyResults from '@/components/Learning/StudyResults';
+import MathConfigurator from '@/components/Learning/MathConfigurator';
 import { Button } from '@/components/ui/button';
 import { BookOpen, CheckSquare, Keyboard, Layers, ChevronLeft, BookText, Check, X, LayoutPanelTop } from 'lucide-react';
 import { PREDEFINED_DATA, Topic, StudyItem, StudyMode } from '@/data/studyData';
 import { useAuth } from '@/components/AuthProvider';
 import { dbService } from '@/services/dbService';
 import { learningAlgorithm, ItemPerformance } from '@/utils/learningAlgorithm';
+import { mathGenerator, MathOperation } from '@/utils/mathGenerator';
 import LoadingScreen from '@/components/LoadingScreen';
 
 const StudySession = () => {
@@ -23,7 +25,7 @@ const StudySession = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   
-  const [view, setView] = useState<'topic-selection' | 'mode-selection' | 'study' | 'results'>('topic-selection');
+  const [view, setView] = useState<'topic-selection' | 'mode-selection' | 'config' | 'study' | 'results'>('topic-selection');
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
   
   const [sessionQueue, setSessionQueue] = useState<StudyItem[]>([]);
@@ -40,10 +42,16 @@ const StudySession = () => {
   const [studyData, setStudyData] = useState<Record<string, any>>({ ...PREDEFINED_DATA });
   const [loading, setLoading] = useState(true);
 
-  // Funkce definovány před useEffecty, aby se předešlo chybě inicializace
   const handleModeSelect = (selectedMode: StudyMode, topicOverride?: Topic) => {
     const topic = topicOverride || selectedTopic;
     if (!topic) return;
+
+    // Pokud je to dynamické téma, musíme nejdřív do konfigurace (pokud tam už nejsme)
+    if (topic.isDynamic && view !== 'config' && view !== 'study') {
+      setView('config');
+      setMode(selectedMode);
+      return;
+    }
 
     let items = learningAlgorithm.prioritizeItems(topic.items, performanceData);
 
@@ -71,22 +79,29 @@ const StudySession = () => {
     setSeconds(0);
   };
 
+  const handleMathStart = (types: MathOperation[], count: number) => {
+    if (!selectedTopic) return;
+    const items = mathGenerator.generate(types, count);
+    const updatedTopic = { ...selectedTopic, items };
+    setSelectedTopic(updatedTopic);
+    handleModeSelect(mode!, updatedTopic);
+  };
+
   useEffect(() => {
     if (!user) return;
     const fetchData = async () => {
       try {
         setLoading(true);
         const userTopics = await dbService.getUserTopics(user.id);
+        const data = { ...PREDEFINED_DATA };
         if (userTopics.length > 0) {
-          setStudyData(prev => ({
-            ...prev,
-            custom: {
-              id: 'custom',
-              title: 'Vlastní',
-              topics: userTopics
-            }
-          }));
+          data.custom = {
+            id: 'custom',
+            title: 'Vlastní',
+            topics: userTopics
+          };
         }
+        setStudyData(data);
 
         const stats = await dbService.getStats(user.id);
         if (stats?.performance_data) {
@@ -248,7 +263,9 @@ const StudySession = () => {
               </div>
               <div className="text-left">
                 <span className="block font-bold text-lg text-slate-800 dark:text-slate-100">{topic.name}</span>
-                <span className="text-xs text-slate-400 dark:text-slate-500 font-bold uppercase">{topic.items.length} položek</span>
+                <span className="text-xs text-slate-400 dark:text-slate-500 font-bold uppercase">
+                  {topic.isDynamic ? 'Dynamické generování' : `${topic.items.length} položek`}
+                </span>
               </div>
             </Button>
           ))}
@@ -303,6 +320,14 @@ const StudySession = () => {
             </Button>
           )}
         </div>
+      </div>
+    );
+  }
+
+  if (view === 'config') {
+    return (
+      <div className="min-h-screen bg-background pt-safe flex flex-col items-center">
+        <MathConfigurator onStart={handleMathStart} />
       </div>
     );
   }

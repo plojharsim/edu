@@ -16,6 +16,8 @@ export interface Topic {
   items: StudyItem[];
   allowedModes?: StudyMode[];
   randomizeDirection?: boolean;
+  isDynamic?: boolean;
+  dynamicType?: 'math';
 }
 
 export interface Category {
