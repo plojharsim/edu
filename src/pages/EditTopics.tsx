@@ -277,15 +277,15 @@ const EditTopics = () => {
             <div key={topic.id} className="group relative">
               <Button
                 variant={activeTopicId === topic.id ? "secondary" : "ghost"}
-                className={`w-full justify-start h-14 rounded-xl text-left font-bold transition-all border border-transparent pr-12 ${activeTopicId === topic.id ? 'bg-indigo-600 text-white hover:bg-indigo-700 border-indigo-500' : 'bg-card shadow-sm border-border text-foreground'}`}
+                className={`w-full justify-start h-14 rounded-xl text-left font-bold transition-all border border-transparent ${activeTopicId === topic.id ? 'bg-indigo-600 text-white hover:bg-indigo-700 border-indigo-500' : 'bg-card shadow-sm border-border text-foreground'}`}
                 onClick={() => setActiveTopicId(topic.id)}
               >
-                <BookText className={`flex-shrink-0 mr-3 w-5 h-5 ${activeTopicId === topic.id ? 'text-white' : 'text-indigo-500/50'}`} />
-                <span className="truncate">{topic.name}</span>
+                <BookText className={`mr-3 w-5 h-5 ${activeTopicId === topic.id ? 'text-white' : 'text-indigo-500/50'}`} />
+                <span className="truncate pr-6">{topic.name}</span>
               </Button>
               <button 
                 onClick={(e) => { e.stopPropagation(); deleteTopic(topic.id); }}
-                className={`absolute right-3 top-1/2 -translate-y-1/2 p-2 transition-all ${activeTopicId === topic.id ? 'text-white/60 hover:text-white' : 'text-red-400 opacity-0 group-hover:opacity-100 hover:text-red-600'}`}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-red-400 opacity-0 group-hover:opacity-100 hover:text-red-600 transition-all"
               >
                 <Trash2 className="w-4 h-4" />
               </button>

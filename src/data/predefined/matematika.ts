@@ -8,7 +8,7 @@ export const matematika: Category = {
   topics: [
     {
       id: 'math-word-problems',
-      name: 'Slovní úlohy',
+      name: 'Slovní úlohy (Klasika)',
       allowedModes: ['abcd', 'writing'],
       items: [
         { 

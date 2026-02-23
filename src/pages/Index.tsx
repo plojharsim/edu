@@ -194,9 +194,9 @@ const Index = () => {
         {dailyChallenge && (
           <div className="bg-indigo-600 dark:bg-indigo-700 rounded-[3rem] p-8 md:p-12 text-white relative overflow-hidden shadow-2xl shadow-indigo-200 dark:shadow-none">
             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8 text-center md:text-left">
-              <div className="max-w-md w-full">
+              <div className="max-w-md">
                 <h3 className="text-3xl font-bold mb-2">Dnešní výzva</h3>
-                <p className="text-indigo-100 text-xl font-medium mb-2 line-clamp-2">
+                <p className="text-indigo-100 text-xl font-medium mb-2">
                   {dailyChallenge.categoryName}: <span className="text-white font-black">{dailyChallenge.topicName}</span>
                 </p>
                 <p className="text-indigo-100/80 text-sm mb-8">Zopakuj si toto téma pomocí režimu <span className="font-bold">{
@@ -211,7 +211,7 @@ const Index = () => {
                   Spustit výzvu
                 </button>
               </div>
-              <div className="w-48 h-48 bg-indigo-500/30 rounded-full flex items-center justify-center border-4 border-white/20 flex-shrink-0">
+              <div className="w-48 h-48 bg-indigo-500/30 rounded-full flex items-center justify-center border-4 border-white/20">
                 <LucideIcons.Sparkles className="w-24 h-24 text-white opacity-40" />
               </div>
             </div>

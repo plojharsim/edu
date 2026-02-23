@@ -46,6 +46,7 @@ const StudySession = () => {
     const topic = topicOverride || selectedTopic;
     if (!topic) return;
 
+    // Pokud je to dynamické téma, musíme nejdřív do konfigurace (pokud tam už nejsme)
     if (topic.isDynamic && view !== 'config' && view !== 'study') {
       setView('config');
       setMode(selectedMode);
@@ -254,18 +255,16 @@ const StudySession = () => {
             <Button 
               key={topic.id} 
               variant="outline" 
-              className="h-24 w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.33%-1rem)] rounded-[2rem] border-2 border-white dark:border-slate-800 bg-card shadow-sm hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-900 flex items-center justify-start px-6 sm:px-8 gap-4 transition-all overflow-hidden" 
+              className="h-24 w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.33%-1rem)] rounded-[2rem] border-2 border-white dark:border-slate-800 bg-card shadow-sm hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-900 flex items-center justify-start px-8 gap-4 transition-all" 
               onClick={() => handleTopicSelect(topic)}
             >
-              <div className="p-3 bg-indigo-50 dark:bg-indigo-950/30 rounded-2xl flex-shrink-0">
+              <div className="p-3 bg-indigo-50 dark:bg-indigo-950/30 rounded-2xl">
                 <BookText className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
               </div>
-              <div className="text-left min-w-0 flex-1">
-                <span className="block font-bold text-base sm:text-lg text-slate-800 dark:text-slate-100 leading-tight line-clamp-2">
-                  {topic.name}
-                </span>
-                <span className="text-[10px] text-slate-400 dark:text-slate-500 font-black uppercase tracking-tighter">
-                  {topic.isDynamic ? 'Dynamické' : `${topic.items.length} položek`}
+              <div className="text-left">
+                <span className="block font-bold text-lg text-slate-800 dark:text-slate-100">{topic.name}</span>
+                <span className="text-xs text-slate-400 dark:text-slate-500 font-bold uppercase">
+                  {topic.isDynamic ? 'Dynamické generování' : `${topic.items.length} položek`}
                 </span>
               </div>
             </Button>
@@ -285,11 +284,9 @@ const StudySession = () => {
         >
           <ChevronLeft className="mr-2 w-5 h-5" /> Změnit téma
         </Button>
-        <div className="text-center mb-12 px-4 max-w-xl">
-          <span className="text-indigo-600 dark:text-indigo-400 font-bold uppercase tracking-widest text-xs mb-2 block line-clamp-1">
-            {selectedTopic?.name}
-          </span>
-          <h1 className="text-4xl font-black text-slate-800 dark:text-slate-100 mb-2 leading-tight">Jak se chceš učit?</h1>
+        <div className="text-center mb-12 px-4">
+          <span className="text-indigo-600 dark:text-indigo-400 font-bold uppercase tracking-widest text-xs mb-2 block">{selectedTopic?.name}</span>
+          <h1 className="text-4xl font-black text-slate-800 dark:text-slate-100 mb-2">Jak se chceš učit?</h1>
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 w-full max-w-3xl px-2">
           {isModeAllowed('flashcards') && (
