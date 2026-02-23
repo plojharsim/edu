@@ -246,23 +246,23 @@ const StudySession = () => {
           <ChevronLeft className="mr-2 w-5 h-5" /> Zpět na přehled
         </Button>
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-black text-slate-800 dark:text-slate-100 mb-2 truncate max-w-xl mx-auto">{category.title}</h1>
+          <h1 className="text-4xl font-black text-slate-800 dark:text-slate-100 mb-2 truncate max-w-xl mx-auto px-4">{category.title}</h1>
           <p className="text-slate-500 dark:text-slate-400 font-medium">Vyber si téma, které chceš procvičit</p>
         </div>
-        <div className="flex flex-wrap justify-center gap-4 w-full max-w-4xl">
+        <div className="flex flex-wrap justify-center gap-4 w-full max-w-4xl px-2">
           {category.topics.map((topic: any) => (
             <Button 
               key={topic.id} 
               variant="outline" 
-              className="h-24 w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.33%-1rem)] rounded-[2rem] border-2 border-white dark:border-slate-800 bg-card shadow-sm hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-900 flex items-center justify-start px-8 gap-4 transition-all overflow-hidden" 
+              className="h-24 w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.33%-1rem)] rounded-[2rem] border-2 border-white dark:border-slate-800 bg-card shadow-sm hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-900 flex items-center justify-center px-6 gap-4 transition-all overflow-hidden text-center" 
               onClick={() => handleTopicSelect(topic)}
             >
-              <div className="p-3 bg-indigo-50 dark:bg-indigo-950/30 rounded-2xl shrink-0">
+              <div className="p-3 bg-indigo-50 dark:bg-indigo-950/30 rounded-2xl shrink-0 hidden xs:block">
                 <BookText className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
               </div>
-              <div className="text-left min-w-0">
-                <span className="block font-bold text-lg text-slate-800 dark:text-slate-100 truncate">{topic.name}</span>
-                <span className="text-xs text-slate-400 dark:text-slate-500 font-bold uppercase truncate block">
+              <div className="min-w-0 flex flex-col items-center sm:items-start text-center sm:text-left">
+                <span className="block font-bold text-lg text-slate-800 dark:text-slate-100 truncate w-full">{topic.name}</span>
+                <span className="text-xs text-slate-400 dark:text-slate-500 font-bold uppercase truncate block w-full">
                   {topic.isDynamic ? 'Dynamické generování' : `${topic.items.length} položek`}
                 </span>
               </div>
