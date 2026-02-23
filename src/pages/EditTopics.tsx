@@ -12,14 +12,12 @@ import {
   Plus, Trash2, ChevronLeft, Save, BookText, Layers, 
   CheckSquare, Keyboard, BookOpen, ArrowLeftRight, 
   Share2, Download, Code, Copy, Check, LayoutPanelTop,
-  Sparkles, Loader2, Image as ImageIcon, X, Upload,
-  Calculator
+  Sparkles, Loader2, Image as ImageIcon, X, Upload
 } from "lucide-react";
 import { Topic, StudyItem, StudyMode } from '@/data/studyData';
 import { showSuccess, showError } from '@/utils/toast';
 import { encodeTopic, decodeTopic, formatForDeveloper } from '@/lib/sharing';
 import AITopicGenerator from '@/components/AITopicGenerator';
-import MathProblemGenerator from '@/components/MathProblemGenerator';
 import { useAuth } from '@/components/AuthProvider';
 import { dbService } from '@/services/dbService';
 import { supabase } from '@/integrations/supabase/client';
@@ -43,7 +41,6 @@ const EditTopics = () => {
   const [importCode, setImportCode] = useState("");
   const [copied, setCopied] = useState(false);
   const [isAIGeneratorOpen, setIsAIGeneratorOpen] = useState(false);
-  const [isMathGeneratorOpen, setIsMathGeneratorOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -175,15 +172,6 @@ const EditTopics = () => {
         options: ["", "", ""],
         category: ""
       });
-      setTopics(newTopics);
-    }
-  };
-
-  const addGeneratedItems = (topicId: string, items: StudyItem[]) => {
-    const newTopics = [...topics];
-    const topic = newTopics.find(t => t.id === topicId);
-    if (topic) {
-      topic.items = [...topic.items, ...items];
       setTopics(newTopics);
     }
   };
@@ -390,18 +378,9 @@ const EditTopics = () => {
 
               <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-4 mb-4 pt-4 border-t border-border">
                 <h2 className="font-bold text-muted-foreground uppercase text-[10px] sm:text-xs tracking-widest">Karty v tématu ({activeTopic.items.length})</h2>
-                <div className="flex gap-2 w-full xs:w-auto">
-                  <Button 
-                    variant="outline" 
-                    onClick={() => setIsMathGeneratorOpen(true)}
-                    className="flex-1 xs:flex-none rounded-xl border-emerald-200 dark:border-emerald-900/30 text-emerald-600 font-bold gap-2"
-                  >
-                    <Calculator className="w-4 h-4" /> Math
-                  </Button>
-                  <Button onClick={() => addItem(activeTopic.id)} className="flex-1 xs:flex-none rounded-xl bg-indigo-600 text-white font-bold gap-2">
-                    <Plus className="w-4 h-4" /> Přidat kartu
-                  </Button>
-                </div>
+                <Button onClick={() => addItem(activeTopic.id)} className="w-full xs:w-auto rounded-xl bg-indigo-600 text-white font-bold gap-2">
+                  <Plus className="w-4 h-4" /> Přidat kartu
+                </Button>
               </div>
 
               <div className="space-y-4">
@@ -537,12 +516,6 @@ const EditTopics = () => {
         isOpen={isAIGeneratorOpen} 
         onOpenChange={setIsAIGeneratorOpen} 
         onTopicGenerated={(newTopic) => addTopic(newTopic)}
-      />
-
-      <MathProblemGenerator 
-        isOpen={isMathGeneratorOpen}
-        onOpenChange={setIsMathGeneratorOpen}
-        onItemsGenerated={(newItems) => activeTopicId && addGeneratedItems(activeTopicId, newItems)}
       />
     </div>
   );
