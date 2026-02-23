@@ -52,8 +52,13 @@ const StudySession = () => {
       return;
     }
 
+    // Nejprve získáme položky (případně prioritizované algoritmem)
     let items = learningAlgorithm.prioritizeItems(topic.items, performanceData);
+    
+    // Vždy náhodně promícháme pořadí (Shuffle)
+    items = [...items].sort(() => Math.random() - 0.5);
 
+    // Aplikujeme případnou randomizaci směru (termín vs definice)
     items = items.map(item => {
       const canRandomize = topic.randomizeDirection && selectedMode !== 'abcd' && selectedMode !== 'sorting' && Math.random() > 0.5;
       if (canRandomize) {
@@ -236,7 +241,6 @@ const StudySession = () => {
   if (!category && view !== 'results') return null;
 
   if (view === 'topic-selection') {
-    // Řazení témat: dynamická témata (isDynamic: true) jdou na první místo
     const sortedTopics = [...(category.topics || [])].sort((a, b) => {
       if (a.isDynamic && !b.isDynamic) return -1;
       if (!a.isDynamic && b.isDynamic) return 1;
