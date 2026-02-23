@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider, useAuth } from "./components/AuthProvider";
 import { useEffect, useState } from "react";
@@ -18,7 +18,6 @@ import EditTopics from "./pages/EditTopics";
 import Leaderboard from "./pages/Leaderboard";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
-import Payment from "./pages/Payment";
 import UpdatePassword from "./pages/UpdatePassword";
 import UpdateRequired from "./pages/UpdateRequired";
 import NotFound from "./pages/NotFound";
@@ -64,25 +63,13 @@ const AuthHandler = () => {
 };
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { session, hasPaid, loading } = useAuth();
-  const location = useLocation();
+  const { session, loading } = useAuth();
   
   if (loading) return <LoadingScreen message="Ověřuji tvůj účet..." />;
   
   if (!session) {
     return <Navigate to="/login" replace />;
   }
-
-  // Pokud uživatel nezaplatil a není na platební stránce, redirect na /payment
-  if (!hasPaid && location.pathname !== '/payment') {
-    return <Navigate to="/payment" replace />;
-  }
-
-  // Pokud uživatel zaplatil a snaží se jít na platbu, redirect do aplikace
-  if (hasPaid && location.pathname === '/payment') {
-    return <Navigate to="/app" replace />;
-  }
-
   return <>{children}</>;
 };
 
@@ -107,16 +94,6 @@ const App = () => (
                 />
                 
                 <Route path="/login" element={<Login />} />
-                
-                <Route 
-                  path="/payment" 
-                  element={
-                    <ProtectedRoute>
-                      <Payment />
-                    </ProtectedRoute>
-                  } 
-                />
-
                 <Route 
                   path="/update-password" 
                   element={
