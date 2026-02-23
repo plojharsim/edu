@@ -287,33 +287,34 @@ const StudySession = () => {
           <span className="text-indigo-600 dark:text-indigo-400 font-bold uppercase tracking-widest text-xs mb-2 block truncate">{selectedTopic?.name}</span>
           <h1 className="text-4xl font-black text-slate-800 dark:text-slate-100 mb-2">Jak se chceš učit?</h1>
         </div>
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 w-full max-w-3xl px-2">
+        {/* Změna na flex-wrap a justify-center pro vycentrování při menším počtu režimů */}
+        <div className="flex flex-wrap justify-center gap-3 sm:gap-4 w-full max-w-3xl px-2">
           {isModeAllowed('flashcards') && (
-            <Button variant="outline" className="h-28 sm:h-32 w-full rounded-[2rem] border-2 border-indigo-100 dark:border-indigo-900/30 bg-card flex flex-col gap-2 hover:border-indigo-500 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 transition-all" onClick={() => handleModeSelect('flashcards')}>
+            <Button variant="outline" className="h-28 sm:h-32 w-[calc(50%-0.5rem)] sm:w-[calc(50%-1rem)] md:w-[calc(33.33%-1rem)] rounded-[2rem] border-2 border-indigo-100 dark:border-indigo-900/30 bg-card flex flex-col gap-2 hover:border-indigo-500 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 transition-all" onClick={() => handleModeSelect('flashcards')}>
               <Layers className="w-7 h-7 sm:w-8 sm:h-8 text-indigo-600 dark:text-indigo-400" />
               <span className="font-bold text-base sm:text-lg">Kartičky</span>
             </Button>
           )}
           {isModeAllowed('abcd') && (
-            <Button variant="outline" className="h-28 sm:h-32 w-full rounded-[2rem] border-2 border-emerald-100 dark:border-emerald-900/30 bg-card flex flex-col gap-2 hover:border-emerald-500 dark:hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 transition-all" onClick={() => handleModeSelect('abcd')}>
+            <Button variant="outline" className="h-28 sm:h-32 w-[calc(50%-0.5rem)] sm:w-[calc(50%-1rem)] md:w-[calc(33.33%-1rem)] rounded-[2rem] border-2 border-emerald-100 dark:border-emerald-900/30 bg-card flex flex-col gap-2 hover:border-emerald-500 dark:hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 transition-all" onClick={() => handleModeSelect('abcd')}>
               <CheckSquare className="w-7 h-7 sm:w-8 sm:h-8 text-emerald-600 dark:text-emerald-400" />
               <span className="font-bold text-base sm:text-lg">Výběr</span>
             </Button>
           )}
           {isModeAllowed('writing') && (
-            <Button variant="outline" className="h-28 sm:h-32 w-full rounded-[2rem] border-2 border-amber-100 dark:border-amber-900/30 bg-card flex flex-col gap-2 hover:border-amber-500 dark:hover:border-amber-500 hover:bg-amber-50 dark:hover:bg-indigo-950/20 transition-all" onClick={() => handleModeSelect('writing')}>
+            <Button variant="outline" className="h-28 sm:h-32 w-[calc(50%-0.5rem)] sm:w-[calc(50%-1rem)] md:w-[calc(33.33%-1rem)] rounded-[2rem] border-2 border-amber-100 dark:border-amber-900/30 bg-card flex flex-col gap-2 hover:border-amber-500 dark:hover:border-amber-500 hover:bg-amber-50 dark:hover:bg-indigo-950/20 transition-all" onClick={() => handleModeSelect('writing')}>
               <Keyboard className="w-7 h-7 sm:w-8 sm:h-8 text-amber-600 dark:text-amber-400" />
               <span className="font-bold text-base sm:text-lg">Psaní</span>
             </Button>
           )}
           {isModeAllowed('matching') && (
-            <Button variant="outline" className="h-28 sm:h-32 w-full rounded-[2rem] border-2 border-rose-100 dark:border-rose-900/30 bg-card flex flex-col gap-2 hover:border-rose-500 dark:hover:border-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all" onClick={() => handleModeSelect('matching')}>
+            <Button variant="outline" className="h-28 sm:h-32 w-[calc(50%-0.5rem)] sm:w-[calc(50%-1rem)] md:w-[calc(33.33%-1rem)] rounded-[2rem] border-2 border-rose-100 dark:border-rose-900/30 bg-card flex flex-col gap-2 hover:border-rose-500 dark:hover:border-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all" onClick={() => handleModeSelect('matching')}>
               <BookOpen className="w-7 h-7 sm:w-8 sm:h-8 text-rose-600 dark:text-rose-400" />
               <span className="font-bold text-base sm:text-lg">Dvojice</span>
             </Button>
           )}
           {isModeAllowed('sorting') && (
-            <Button variant="outline" className="h-28 sm:h-32 w-full rounded-[2rem] border-2 border-purple-100 dark:border-purple-900/30 bg-card flex flex-col gap-2 hover:border-purple-500 dark:hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-950/20 transition-all" onClick={() => handleModeSelect('sorting')}>
+            <Button variant="outline" className="h-28 sm:h-32 w-[calc(50%-0.5rem)] sm:w-[calc(50%-1rem)] md:w-[calc(33.33%-1rem)] rounded-[2rem] border-2 border-purple-100 dark:border-purple-900/30 bg-card flex flex-col gap-2 hover:border-purple-500 dark:hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-950/20 transition-all" onClick={() => handleModeSelect('sorting')}>
               <LayoutPanelTop className="w-7 h-7 sm:w-8 sm:h-8 text-purple-600 dark:text-purple-400" />
               <span className="font-bold text-base sm:text-lg">Rozřazování</span>
             </Button>
