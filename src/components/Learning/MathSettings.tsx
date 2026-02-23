@@ -13,12 +13,13 @@ interface MathSettingsProps {
 }
 
 const MathSettings = ({ onStart }: MathSettingsProps) => {
-  const [selectedOps, setSelectedOps] = useState<MathOp[]>(['basic', 'equations', 'percentages']);
+  const [selectedOps, setSelectedOps] = useState<MathOp[]>(['basic', 'equations', 'word_problems']);
   const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium');
   const [count, setCount] = useState(10);
 
   const OPTIONS: { id: MathOp; label: string }[] = [
     { id: 'basic', label: 'Sčítání, odčítání, násobení, dělení' },
+    { id: 'word_problems', label: 'Slovní úlohy' },
     { id: 'powers', label: 'Mocniny a odmocniny' },
     { id: 'equations', label: 'Rovnice o jedné neznámé' },
     { id: 'fractions', label: 'Zlomky (+, -, *, /)' },

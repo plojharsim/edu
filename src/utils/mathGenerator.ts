@@ -3,7 +3,8 @@ import { StudyItem } from "@/data/studyData";
 export type MathOp = 
   | 'basic' | 'powers' | 'brackets' | 'rounding' 
   | 'fractions' | 'fract_to_dec' | 'ratios' | 'percentages' 
-  | 'proportion' | 'equations' | 'units' | 'mixed_numbers' | 'polynomials';
+  | 'proportion' | 'equations' | 'units' | 'mixed_numbers' | 'polynomials'
+  | 'word_problems';
 
 export interface MathConfig {
   ops: MathOp[];
@@ -80,7 +81,6 @@ export const generateMathProblems = (config: MathConfig): StudyItem[] => {
         term = `(${a1}/${a2}) ${type} (${b1}/${b2}) = ?`;
         category = "Zlomky";
         
-        // Zjednodušený výpočet pro výsledek (vždy string zlomku)
         if (type === '·') definition = `${a1 * b1}/${a2 * b2}`;
         else if (type === ':') definition = `${a1 * b2}/${a2 * b1}`;
         else {
@@ -128,6 +128,42 @@ export const generateMathProblems = (config: MathConfig): StudyItem[] => {
         definition = (val * unit.mul).toString();
         options = [(val * unit.mul) / 10, (val * unit.mul) * 10, val * unit.mul + 100].map(String);
         category = "Jednotky";
+        break;
+      }
+
+      case 'word_problems': {
+        const templates = [
+          {
+            q: (a: number, b: number) => `Petr má ${a} kuliček. Jana mu dala dalších ${b} kuliček. Kolik jich má Petr teď?`,
+            calc: (a: number, b: number) => a + b
+          },
+          {
+            q: (a: number, b: number) => `V kině je ${a} řad a v každé řadě je ${b} sedadel. Jaká je celková kapacita kina?`,
+            calc: (a: number, b: number) => a * b
+          },
+          {
+            q: (a: number, b: number) => `Koupil jsem ${a} kg jablek. Pokud 1 kg stojí ${b} Kč, kolik jsem zaplatil celkem?`,
+            calc: (a: number, b: number) => a * b
+          },
+          {
+            q: (a: number, b: number) => `Auto jede konstantní rychlostí ${a} km/h. Jakou vzdálenost (v km) ujede za ${b} hodiny?`,
+            calc: (a: number, b: number) => a * b
+          },
+          {
+            q: (a: number, b: number) => `Babička rozdělila ${a * b} bonbonů rovnoměrně mezi ${b} vnoučat. Kolik bonbonů dostalo každé dítě?`,
+            calc: (a: number, b: number) => a
+          }
+        ];
+        
+        const template = templates[rand(0, templates.length - 1)];
+        const a = rand(2, difficulty === 'easy' ? 10 : 30);
+        const b = rand(2, difficulty === 'easy' ? 10 : 20);
+        
+        term = template.q(a, b);
+        const ans = template.calc(a, b);
+        definition = ans.toString();
+        options = [ans + 5, ans - 5, ans + 10].map(String);
+        category = "Slovní úlohy";
         break;
       }
 
