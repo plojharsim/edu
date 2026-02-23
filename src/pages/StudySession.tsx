@@ -236,6 +236,13 @@ const StudySession = () => {
   if (!category && view !== 'results') return null;
 
   if (view === 'topic-selection') {
+    // Řazení témat: dynamická témata (isDynamic: true) jdou na první místo
+    const sortedTopics = [...(category.topics || [])].sort((a, b) => {
+      if (a.isDynamic && !b.isDynamic) return -1;
+      if (!a.isDynamic && b.isDynamic) return 1;
+      return 0;
+    });
+
     return (
       <div className="min-h-screen bg-background p-6 pt-safe flex flex-col items-center justify-center transition-colors duration-300">
         <Button 
@@ -250,7 +257,7 @@ const StudySession = () => {
           <p className="text-slate-500 dark:text-slate-400 font-medium">Vyber si téma, které chceš procvičit</p>
         </div>
         <div className="flex flex-wrap justify-center gap-4 w-full max-w-4xl">
-          {category.topics.map((topic: any) => (
+          {sortedTopics.map((topic: Topic) => (
             <Button 
               key={topic.id} 
               variant="outline" 
@@ -287,7 +294,6 @@ const StudySession = () => {
           <span className="text-indigo-600 dark:text-indigo-400 font-bold uppercase tracking-widest text-xs mb-2 block truncate">{selectedTopic?.name}</span>
           <h1 className="text-4xl font-black text-slate-800 dark:text-slate-100 mb-2">Jak se chceš učit?</h1>
         </div>
-        {/* Změna na flex-wrap a justify-center pro vycentrování při menším počtu režimů */}
         <div className="flex flex-wrap justify-center gap-3 sm:gap-4 w-full max-w-3xl px-2">
           {isModeAllowed('flashcards') && (
             <Button variant="outline" className="h-28 sm:h-32 w-[calc(50%-0.5rem)] sm:w-[calc(50%-1rem)] md:w-[calc(33.33%-1rem)] rounded-[2rem] border-2 border-indigo-100 dark:border-indigo-900/30 bg-card flex flex-col gap-2 hover:border-indigo-500 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 transition-all" onClick={() => handleModeSelect('flashcards')}>
