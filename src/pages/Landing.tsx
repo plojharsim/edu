@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { 
   Sparkles, BookOpen, Layers, CheckSquare, 
   Keyboard, Zap, Trophy, Heart, ArrowRight,
-  Github, Globe
+  Github, Globe, CreditCard, Gift, CheckCircle2
 } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from '@/components/AuthProvider';
@@ -80,7 +80,7 @@ const Landing = () => {
               onClick={handleStart}
               className="h-16 px-10 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xl gap-3 shadow-xl shadow-indigo-200 dark:shadow-none transition-all hover:scale-105"
             >
-              {session ? 'Pokračovat v učení' : 'Začít se učit hned'} <ArrowRight className="w-6 h-6" />
+              {session ? 'Pokračovat v učení' : 'Získat plný přístup'} <ArrowRight className="w-6 h-6" />
             </Button>
             <Button 
               size="lg"
@@ -89,6 +89,59 @@ const Landing = () => {
               className="h-16 px-10 rounded-2xl border-2 font-bold text-lg gap-3"
             >
               <Github className="w-5 h-5" /> GitHub
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section className="py-20 px-6 relative">
+        <div className="max-w-4xl mx-auto text-center mb-16">
+          <h2 className="text-4xl font-black text-foreground mb-4">Žádné předplatné. Žádné limity.</h2>
+          <p className="text-muted-foreground">Věříme v jednoduchost. Jedna platba, doživotní přístup ke všem funkcím.</p>
+        </div>
+
+        <div className="max-w-md mx-auto relative group">
+          <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-[3rem] blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+          <div className="relative bg-card border-2 border-indigo-500 rounded-[3rem] p-10 shadow-2xl overflow-hidden">
+            <div className="flex justify-between items-start mb-8">
+              <div>
+                <h3 className="text-2xl font-black text-foreground">Plná verze</h3>
+                <p className="text-muted-foreground font-bold uppercase tracking-widest text-[10px]">Jednorázový poplatek</p>
+              </div>
+              <div className="text-right">
+                <span className="text-4xl font-black text-indigo-600">120 Kč</span>
+              </div>
+            </div>
+
+            <ul className="space-y-4 mb-10">
+              <li className="flex items-center gap-3 font-medium">
+                <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                Všechny studijní režimy (Flashcards, ABCD, atd.)
+              </li>
+              <li className="flex items-center gap-3 font-medium">
+                <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                AI generování témat (vlastní Gemini klíč)
+              </li>
+              <li className="flex items-center gap-3 font-medium">
+                <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                Sdílení a import vlastních témat
+              </li>
+              <li className="flex items-center gap-3 font-medium">
+                <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                Cloudová synchronizace a statistiky
+              </li>
+              <li className="flex items-center gap-3 font-medium">
+                <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                Doživotní aktualizace zdarma
+              </li>
+            </ul>
+
+            <Button 
+              onClick={handleStart}
+              className="w-full h-14 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-lg shadow-lg shadow-indigo-200 dark:shadow-none"
+            >
+              Koupit a začít se učit
             </Button>
           </div>
         </div>
@@ -122,54 +175,6 @@ const Landing = () => {
               description="Propojuj souvislosti v dynamické interaktivní hře."
               color="bg-rose-500"
             />
-          </div>
-        </div>
-      </section>
-
-      {/* Stats/Badges Highlight */}
-      <section className="py-20 px-6 overflow-hidden">
-        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-16">
-          <div className="flex-1 space-y-8">
-            <h2 className="text-4xl md:text-5xl font-black text-foreground leading-tight">
-              Gamifikace, která tě <br />
-              <span className="text-indigo-600">donutí k výsledkům.</span>
-            </h2>
-            <p className="text-lg text-muted-foreground">
-              Sbírej odznaky za své úspěchy, udržuj si denní sérii a sleduj, 
-              jak se tvá průměrná úspěšnost zlepšuje s každou lekcí.
-            </p>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="p-6 bg-card rounded-[2rem] border border-border shadow-sm">
-                <Trophy className="w-8 h-8 text-amber-500 mb-4" />
-                <h4 className="text-2xl font-black">15+</h4>
-                <p className="text-sm text-muted-foreground font-bold uppercase tracking-widest">Odznaků</p>
-              </div>
-              <div className="p-6 bg-card rounded-[2rem] border border-border shadow-sm">
-                <Sparkles className="w-8 h-8 text-indigo-500 mb-4" />
-                <h4 className="text-2xl font-black">AI</h4>
-                <p className="text-sm text-muted-foreground font-bold uppercase tracking-widest">Generování</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="flex-1 relative">
-            <div className="absolute inset-0 bg-indigo-600/10 blur-[100px] rounded-full" />
-            <div className="relative bg-card border-4 border-border rounded-[3rem] p-8 shadow-2xl rotate-3 hover:rotate-0 transition-transform duration-500">
-               <div className="flex items-center gap-4 mb-6">
-                 <div className="w-12 h-12 bg-indigo-600 rounded-2xl" />
-                 <div className="space-y-1">
-                   <div className="h-4 w-32 bg-muted rounded-full" />
-                   <div className="h-3 w-20 bg-muted/60 rounded-full" />
-                 </div>
-               </div>
-               <div className="space-y-4">
-                 <div className="h-32 w-full bg-slate-100 dark:bg-slate-800 rounded-2xl" />
-                 <div className="grid grid-cols-2 gap-4">
-                   <div className="h-20 bg-emerald-50 dark:bg-emerald-950/20 rounded-2xl" />
-                   <div className="h-20 bg-red-50 dark:bg-red-950/20 rounded-2xl" />
-                 </div>
-               </div>
-            </div>
           </div>
         </div>
       </section>
