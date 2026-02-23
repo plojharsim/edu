@@ -30,6 +30,12 @@ export const dbService = {
     return { error };
   },
 
+  // Platba
+  async markAsPaid(userId: string) {
+    const { error } = await supabase.from('profiles').update({ has_paid: true }).eq('id', userId);
+    return { error };
+  },
+
   // Témata a položky
   async getUserTopics(userId: string) {
     const { data: topics, error: tError } = await supabase.from('topics').select('*').eq('user_id', userId);
@@ -63,7 +69,7 @@ export const dbService = {
       user_id: userId,
       name: topic.name,
       allowed_modes: topic.allowedModes,
-      randomize_direction: topic.randomizeDirection
+      randomize_direction: topic.randomize_direction
     }).select().single();
 
     if (tError) throw tError;
