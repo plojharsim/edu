@@ -20,6 +20,16 @@
 *   **☁️ Cloud Sync**: Všechna vaše témata, statistiky a nastavení jsou bezpečně uložena v Supabase. Přihlaste se odkudkoliv a pokračujte tam, kde jste skončili.
 *   **🤝 Sdílení**: Každé téma lze exportovat do unikátního kódu. Pošlete ho spolužákům a učte se společně!
 
+## 🚀 Plánované cíle (Roadmap)
+
+Chceme, aby se Edu neustále posouvala kupředu. Zde jsou cíle, které plánujeme splnit:
+
+*   **⚔️ Multiplayer Souboje**: Vyzvi kamaráda v reálném čase na souboj v rychlosti přiřazování dvojic.
+*   **🎙️ Hlasové Procvičování**: Využití Speech-to-Text pro trénink výslovnosti u cizích jazyků.
+*   **📄 Export do PDF**: Generování fyzických pracovních listů a testů přímo z vašich témat.
+*   **👥 Učitelský Portál**: Nástroje pro učitele pro správu tříd a sledování pokroku studentů.
+*   **📱 Nativní Mobilní App**: Plnohodnotná aplikace v App Store a Google Play s push notifikacemi pro připomenutí série.
+
 ## 🛠️ Technologie
 
 Aplikace je postavena na nejmodernějším webovém stacku pro zajištění rychlosti a bezpečnosti:

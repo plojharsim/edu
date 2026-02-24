@@ -4,7 +4,7 @@ import React from 'react';
 import { 
   Trophy, Flame, Target, BookOpen, Star, Sparkles, 
   Zap, GraduationCap, Library, Crown, Medal, Award,
-  CheckCircle, Lightbulb
+  CheckCircle, Lightbulb, Rocket, ShieldCheck, Heart
 } from "lucide-react";
 import Badge from './Badge';
 
@@ -124,12 +124,36 @@ const BadgesSection = ({ stats }: BadgesSectionProps) => {
       unlocked: stats.streak >= 14
     },
     {
+      id: 'month-streak',
+      label: 'Měsíční vládce',
+      description: 'Udržuj si denní sérii 30 dní v řadě.',
+      icon: Rocket,
+      color: 'bg-rose-700',
+      unlocked: stats.streak >= 30
+    },
+    {
+      id: 'perfect-shield',
+      label: 'Čistý štít',
+      description: 'Dosáhni 50 perfektních lekcí na 100 %.',
+      icon: ShieldCheck,
+      color: 'bg-emerald-700',
+      unlocked: (stats.perfectSessions || 0) >= 50
+    },
+    {
       id: 'professor',
       label: 'Profesor',
       description: 'Dokonči celkem 200 studijních lekcí.',
       icon: Crown,
       color: 'bg-slate-800',
       unlocked: stats.sessions >= 200
+    },
+    {
+      id: 'ultimate-scholar',
+      label: 'Génius',
+      description: 'Dokonči neuvěřitelných 500 studijních lekcí.',
+      icon: Heart,
+      color: 'bg-indigo-900',
+      unlocked: stats.sessions >= 500
     },
     {
       id: 'content-king',
@@ -150,7 +174,7 @@ const BadgesSection = ({ stats }: BadgesSectionProps) => {
         </span>
       </div>
       
-      <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-4">
+      <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-9 gap-4">
         {BADGES.map(badge => (
           <Badge key={badge.id} {...badge} />
         ))}
