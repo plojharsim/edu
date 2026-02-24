@@ -20,6 +20,17 @@
 *   **☁️ Cloud Sync**: Všechna vaše témata, statistiky a nastavení jsou bezpečně uložena v Supabase. Přihlaste se odkudkoliv a pokračujte tam, kde jste skončili.
 *   **🤝 Sdílení**: Každé téma lze exportovat do unikátního kódu. Pošlete ho spolužákům a učte se společně!
 
+## 🚀 Plánované funkce (Roadmap)
+
+Aplikace se neustále vyvíjí. Zde jsou cíle, které chceme v budoucnu splnit:
+
+*   **⚔️ Multiplayer Souboje**: Vyzvi kamaráda na souboj v reálném čase a zjistěte, kdo ovládá látku lépe.
+*   **📸 OCR Skenování**: Vyfoť si poznámky v sešitě a AI je automaticky převede na studijní sadu.
+*   **🔊 Hlasový výstup**: Integrace Text-to-Speech pro procvičování výslovnosti v cizích jazycích.
+*   **🌍 Veřejná Knihovna**: Globální databáze témat, kde si uživatelé mohou navzájem hodnotit a stahovat studijní sady.
+*   **🔔 Push Notifikace**: Chytré připomenutí, abys neztratil svou denní sérii (streak).
+*   **🏢 Školní Týmy**: Možnost vytvářet třídy pro učitele, kteří mohou zadávat "úkoly" jako studijní sady.
+
 ## 🛠️ Technologie
 
 Aplikace je postavena na nejmodernějším webovém stacku pro zajištění rychlosti a bezpečnosti:
