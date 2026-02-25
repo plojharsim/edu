@@ -94,13 +94,11 @@ const StudySession = () => {
       try {
         setLoading(true);
         
-        // Načíst profil pro filtrování
         const profile = await dbService.getProfile(user.id);
         if (profile) {
           setUserGrade(profile.grade);
         }
 
-        // Pokud je categoryId 'public', načteme jen konkrétní téma
         if (categoryId === 'public' && topicId) {
           const topic = await dbService.getTopicById(topicId);
           if (topic) {
@@ -113,7 +111,6 @@ const StudySession = () => {
             }
           }
         } else {
-          // Standardní načítání kategorií
           const userTopics = await dbService.getUserTopics(user.id);
           const data = { ...PREDEFINED_DATA };
           if (userTopics.length > 0) {
@@ -148,7 +145,6 @@ const StudySession = () => {
     return () => clearInterval(interval);
   }, [view]);
 
-  // Vedlejší efekt pro navigaci z kategorií
   useEffect(() => {
     if (topicId && categoryId !== 'public') {
       const category = studyData[categoryId || ''];
@@ -255,6 +251,13 @@ const StudySession = () => {
 
   const isModeAllowed = (m: StudyMode) => {
     if (!selectedTopic) return false;
+    
+    // Logika pro režim Rozřazování (sorting): musí existovat alespoň jedna položka s kategorií
+    if (m === 'sorting') {
+      const hasCategories = selectedTopic.items.some(item => item.category && item.category.trim() !== "");
+      if (!hasCategories) return false;
+    }
+
     const allowed = selectedTopic.allowedModes || ['flashcards', 'abcd', 'writing', 'matching', 'sorting'];
     return allowed.includes(m);
   };
