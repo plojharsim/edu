@@ -63,9 +63,16 @@ export const dbService = {
   },
 
   async getPublicTopics() {
+    // Dotaz s explicitním načtením profilu autora
     const { data: topics, error: tError } = await supabase
       .from('topics')
-      .select('*, profiles(name, school)')
+      .select(`
+        *,
+        profiles (
+          name,
+          school
+        )
+      `)
       .eq('is_public', true)
       .order('created_at', { ascending: false });
     
@@ -74,15 +81,20 @@ export const dbService = {
       return [];
     }
 
+    if (!topics) return [];
+
     const topicsWithItems = await Promise.all(topics.map(async (topic) => {
       const { data: items } = await supabase.from('study_items').select('*').eq('topic_id', topic.id);
+      
+      const profileData = (topic as any).profiles;
+      
       return {
         id: topic.id,
         name: topic.name,
         allowedModes: topic.allowed_modes,
         randomizeDirection: topic.randomize_direction,
-        authorName: (topic as any).profiles?.name || 'Anonym',
-        authorSchool: (topic as any).profiles?.school || 'Neznámá škola',
+        authorName: profileData?.name || 'Anonymní student',
+        authorSchool: profileData?.school || 'Neznámá škola',
         items: items?.map(item => ({
           term: item.term,
           definition: item.definition,
@@ -97,7 +109,6 @@ export const dbService = {
   },
 
   async saveTopic(userId: string, topic: Topic) {
-    // Pokud ID začíná speciálním prefixem, považujeme ho za nové (necháme Supabase vygenerovat UUID)
     const isExisting = !topic.id.startsWith('topic_') && !topic.id.startsWith('ai_') && !topic.id.startsWith('imported_');
     
     const { data: savedTopic, error: tError } = await supabase.from('topics').upsert({
@@ -111,7 +122,6 @@ export const dbService = {
 
     if (tError) throw tError;
 
-    // Smažeme staré položky a vložíme nové
     await supabase.from('study_items').delete().eq('topic_id', savedTopic.id);
 
     const itemsToInsert = topic.items.map(item => ({
