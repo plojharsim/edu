@@ -26,7 +26,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Settings, LogOut, Sun, Moon, User, Trash2, Loader2, Save, GraduationCap } from "lucide-react";
+import { Settings, LogOut, Sun, Moon, User, Trash2, Loader2, Save, GraduationCap, School } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useAuth } from '@/components/AuthProvider';
 import { useNavigate } from 'react-router-dom';
@@ -41,6 +41,12 @@ const GRADE_OPTIONS = [
   { value: "Dospělý", label: "Dospělý" },
 ];
 
+const SCHOOL_OPTIONS = [
+  { value: "Základní škola, Příbram VIII, Školní 75", label: "Základní škola, Příbram VIII, Školní 75" },
+  { value: "Jiná škola", label: "Jiná škola" },
+  { value: "Nechodím do školy", label: "Nechodím do školy" },
+];
+
 const SettingsDialog = () => {
   const { theme, setTheme } = useTheme();
   const { signOut, user } = useAuth();
@@ -50,6 +56,7 @@ const SettingsDialog = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [name, setName] = useState('');
   const [grade, setGrade] = useState('');
+  const [school, setSchool] = useState('');
 
   useEffect(() => {
     if (user) {
@@ -57,19 +64,19 @@ const SettingsDialog = () => {
         if (profile) {
           setName(profile.name || '');
           setGrade(profile.grade || '');
+          setSchool(profile.school || '');
         }
       });
     }
   }, [user]);
 
   const handleUpdateProfile = async () => {
-    if (!user || !name || !grade) return;
+    if (!user || !name || !grade || !school) return;
     setIsSaving(true);
     try {
-      const { error } = await dbService.updateProfile(user.id, name, grade);
+      const { error } = await dbService.updateProfile(user.id, name, grade, school);
       if (error) throw error;
       showSuccess("Profil byl úspěšně aktualizován!");
-      // Volitelně vynutit obnovení stránky pro projev změn na nástěnce
       window.location.reload();
     } catch (e: any) {
       showError("Chyba při ukládání: " + e.message);
@@ -124,7 +131,6 @@ const SettingsDialog = () => {
         </DialogHeader>
 
         <div className="space-y-6 py-4">
-          {/* SEKCE PROFILU */}
           <div className="space-y-4 p-5 bg-muted/30 rounded-[2rem] border border-border">
             <div className="flex items-center gap-2 mb-2">
               <User className="w-4 h-4 text-indigo-500" />
@@ -156,9 +162,23 @@ const SettingsDialog = () => {
               </Select>
             </div>
 
+            <div className="space-y-2">
+              <Label htmlFor="settings-school" className="text-xs font-bold ml-1">Škola</Label>
+              <Select value={school} onValueChange={setSchool}>
+                <SelectTrigger id="settings-school" className="rounded-xl border-border bg-background">
+                  <SelectValue placeholder="Vyber školu..." />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl border-border">
+                  {SCHOOL_OPTIONS.map(opt => (
+                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             <Button 
               onClick={handleUpdateProfile} 
-              disabled={isSaving || !name || !grade}
+              disabled={isSaving || !name || !grade || !school}
               className="w-full rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold gap-2"
             >
               {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
@@ -166,7 +186,6 @@ const SettingsDialog = () => {
             </Button>
           </div>
 
-          {/* SEKCE VZHLEDU */}
           <div className="flex items-center justify-between p-4 bg-muted/30 rounded-2xl border border-border">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-background rounded-xl border border-border">

@@ -20,8 +20,14 @@ export const dbService = {
     return data;
   },
 
-  async updateProfile(userId: string, name: string, grade: string) {
-    const { error } = await supabase.from('profiles').upsert({ id: userId, name, grade, updated_at: new Date().toISOString() });
+  async updateProfile(userId: string, name: string, grade: string, school: string) {
+    const { error } = await supabase.from('profiles').upsert({ 
+      id: userId, 
+      name, 
+      grade, 
+      school,
+      updated_at: new Date().toISOString() 
+    });
     return { error };
   },
 
@@ -122,38 +128,28 @@ export const dbService = {
   async updateStats(userId: string, score: number, performanceUpdate?: any) {
     const { data: existing } = await supabase.from('study_stats').select('*').eq('user_id', userId).maybeSingle();
     
-    // Získání lokálního data ve formátu YYYY-MM-DD
     const now = new Date();
     const today = now.getFullYear() + '-' + 
                   String(now.getMonth() + 1).padStart(2, '0') + '-' + 
                   String(now.getDate()).padStart(2, '0');
 
     let streak = existing?.streak || 0;
-    const lastDate = existing?.last_date; // Formát YYYY-MM-DD ze Supabase
+    const lastDate = existing?.last_date;
 
     if (!lastDate) {
-      // První studium v historii
       streak = 1;
     } else if (lastDate === today) {
-      // Dnes už uživatel studoval, streak se nemění (zůstává stejný jako v DB)
       streak = existing.streak;
     } else {
-      // Porovnání kalendářních dnů
       const lastDateObj = new Date(lastDate);
       const todayObj = new Date(today);
-      
-      // Vynulování času pro přesné porovnání dnů
       lastDateObj.setHours(0, 0, 0, 0);
       todayObj.setHours(0, 0, 0, 0);
-
       const diffTime = todayObj.getTime() - lastDateObj.getTime();
       const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-
       if (diffDays === 1) {
-        // Studoval včera, pokračujeme v sérii
         streak += 1;
       } else {
-        // Mezi dneškem a posledním studiem je mezera, resetujeme na 1 (začátek nové série dnes)
         streak = 1;
       }
     }
