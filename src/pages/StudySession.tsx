@@ -404,6 +404,7 @@ const StudySession = () => {
         current={mode === 'matching' || mode === 'sorting' ? (selectedTopic!.items.length) : masteredCount} 
         total={selectedTopic!.items.length} 
         title={`${category?.title}: ${selectedTopic?.name}`} 
+        title={`${category?.title}: ${selectedTopic?.name}`} 
         time={seconds}
       />
       <div className="flex-1 flex items-center justify-center w-full px-4">
