@@ -3,8 +3,7 @@ import { StudyItem } from "@/data/studyData";
 export type MathOperation = 
   | 'basic' | 'powers_roots' | 'brackets' | 'rounding' 
   | 'fractions' | 'decimal_conversion' | 'ratios' | 'percentages' 
-  | 'proportions' | 'equations' | 'units' | 'mixed_numbers' | 'polynomials'
-  | 'functions';
+  | 'proportions' | 'equations' | 'units' | 'mixed_numbers' | 'polynomials';
 
 export const mathGenerator = {
   generate(types: MathOperation[], count: number = 15): StudyItem[] {
@@ -31,7 +30,6 @@ export const mathGenerator = {
       case 'units': return this.genUnits();
       case 'mixed_numbers': return this.genMixedNumbers();
       case 'polynomials': return this.genPolynomials();
-      case 'functions': return this.genFunctions();
       default: return this.genBasic();
     }
   },
@@ -87,6 +85,7 @@ export const mathGenerator = {
     if (op === '·') {
       resTerm = `${a * c}/${b * d}`;
     } else {
+      // Zjednodušené sčítání pro procvičování (společný jmenovatel)
       resTerm = `${a * d + c * b}/${b * d}`;
     }
     return {
@@ -161,19 +160,6 @@ export const mathGenerator = {
       definition: `x² + ${a + b}x + ${a * b}`,
       options: [`x² + ${a * b}x + ${a + b}`, `x + ${a + b}`, `2x + ${a * b}`],
       category: 'Mnohočleny'
-    };
-  },
-
-  genFunctions(): StudyItem {
-    const a = this.rnd(1, 5);
-    const b = this.rnd(-10, 10);
-    const x = this.rnd(-5, 5);
-    const res = a * x + b;
-    return {
-      term: `Je dána funkce f(x) = ${a}x ${b >= 0 ? '+ ' + b : '- ' + Math.abs(b)}. Vypočítej f(${x}):`,
-      definition: res.toString(),
-      options: [(res + 2).toString(), (res - a).toString(), (res + x).toString()],
-      category: 'Funkce'
     };
   },
 

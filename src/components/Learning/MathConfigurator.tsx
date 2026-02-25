@@ -15,7 +15,6 @@ interface MathConfiguratorProps {
 const OPERATIONS: { id: MathOperation, label: string }[] = [
   { id: 'basic', label: 'Základní (+, -, ·, :)' },
   { id: 'powers_roots', label: 'Mocniny a odmocniny' },
-  { id: 'functions', label: 'Funkce (hodnoty)' },
   { id: 'brackets', label: 'Složité závorky' },
   { id: 'rounding', label: 'Zaokrouhlování' },
   { id: 'fractions', label: 'Zlomky (výpočty)' },
