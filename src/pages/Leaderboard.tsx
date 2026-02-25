@@ -99,7 +99,7 @@ const Leaderboard = () => {
                   <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-tighter">Průměr</span>
                 </div>
                 
-                <div className="hidden xs:flex flex-col items-center">
+                <div className="flex flex-col items-center">
                   <div className="flex items-center gap-1">
                     <Flame className="w-4 h-4 text-orange-500" />
                     <span className="text-xl sm:text-2xl font-black text-foreground">{entry.streak}</span>
