@@ -84,6 +84,7 @@ export const dbService = {
       name: topic.name,
       allowedModes: topic.allowed_modes,
       randomizeDirection: topic.randomize_direction,
+      isPublic: topic.is_public,
       authorName: profileData?.name || 'Anonymní student',
       authorGrade: profileData?.grade || 'Neznámý ročník',
       items: items?.map(item => ({
@@ -126,6 +127,7 @@ export const dbService = {
         name: topic.name,
         allowedModes: topic.allowed_modes,
         randomizeDirection: topic.randomize_direction,
+        isPublic: topic.is_public,
         authorName: profileData?.name || 'Anonymní student',
         authorGrade: profileData?.grade || 'Neznámý ročník',
         items: items?.map(item => ({
@@ -150,7 +152,7 @@ export const dbService = {
       name: topic.name,
       allowed_modes: topic.allowed_modes,
       randomize_direction: topic.randomize_direction,
-      is_public: topic.is_public,
+      is_public: topic.isPublic,
     }).select().single();
 
     if (tError) throw tError;
