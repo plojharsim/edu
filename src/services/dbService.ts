@@ -20,8 +20,14 @@ export const dbService = {
     return data;
   },
 
-  async updateProfile(userId: string, name: string, grade: string) {
-    const { error } = await supabase.from('profiles').upsert({ id: userId, name, grade, updated_at: new Date().toISOString() });
+  async updateProfile(userId: string, name: string, grade: string, school?: string) {
+    const { error } = await supabase.from('profiles').upsert({ 
+      id: userId, 
+      name, 
+      grade, 
+      school,
+      updated_at: new Date().toISOString() 
+    });
     return { error };
   },
 
