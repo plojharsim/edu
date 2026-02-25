@@ -7,6 +7,18 @@ export const matematika: Category = {
   color: 'bg-rose-600',
   topics: [
     {
+      id: 'math-functions-basics',
+      name: 'Lineární funkce – základy',
+      allowedModes: ['abcd', 'writing', 'matching'],
+      items: [
+        { term: 'f(x) = ax + b', definition: 'Lineární funkce', category: 'Předpis', options: ['Kvadratická funkce', 'Konstantní funkce', 'Exponenciální funkce'] },
+        { term: 'f(x) = c', definition: 'Konstantní funkce', category: 'Předpis', options: ['Lineární funkce', 'Kvadratická funkce', 'Lomená funkce'] },
+        { term: 'Průsečík s osou y', definition: '[0; b]', category: 'Body', options: ['[b; 0]', '[1; b]', '[0; a]'] },
+        { term: 'Směrnice přímky', definition: 'Parametr a', category: 'Parametry', options: ['Parametr b', 'Proměnná x', 'Hodnota y'] },
+        { term: 'Grafem je...', definition: 'Přímka', category: 'Graf', options: ['Parabola', 'Hyperbola', 'Kružnice'] }
+      ]
+    },
+    {
       id: 'math-word-problems',
       name: 'Slovní úlohy',
       allowedModes: ['abcd', 'writing'],
@@ -43,7 +55,7 @@ export const matematika: Category = {
       isDynamic: true,
       dynamicType: 'math',
       allowedModes: ['abcd', 'writing', 'matching'],
-      items: [] // Generuje se dynamicky
+      items: [] 
     }
   ]
 };
