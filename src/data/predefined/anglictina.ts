@@ -1,7 +1,7 @@
 import { Category } from "../studyData";
 
 export const anglictina: Category = {
-  id: 'anglictina',
+  id: 'english',
   title: 'Angličtina',
   iconName: 'Languages',
   color: 'bg-sky-600',

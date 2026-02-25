@@ -1,7 +1,7 @@
 import { Category } from "../studyData";
 
 export const matematika: Category = {
-  id: 'matematika',
+  id: 'math',
   title: 'Matematika',
   iconName: 'Calculator',
   color: 'bg-rose-600',

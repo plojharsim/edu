@@ -1,13 +1,13 @@
 import { Category } from "../studyData";
 
 export const nemcina: Category = {
-  id: 'nemcina',
+  id: 'german',
   title: 'Němčina',
   iconName: 'Languages',
   color: 'bg-amber-600',
   topics: [
     {
-      id: 'klett-maximal-2-lekce-3-2',
+      id: 'german-klett-3-2',
       name: 'Klett Maximal interaktiv 2 - Lekce 3.2',
       allowedModes: ['flashcards', 'abcd', 'writing', 'matching', 'sorting'],
       randomizeDirection: true,

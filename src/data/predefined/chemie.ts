@@ -1,13 +1,13 @@
 import { Category } from "../studyData";
 
 export const chemie: Category = {
-  id: 'chemie',
+  id: 'chemistry',
   title: 'Chemie',
   iconName: 'FlaskConical',
   color: 'bg-purple-600',
   topics: [
     {
-      id: 'chemicke-prvky-zaklady',
+      id: 'chemical-elements-basics',
       name: 'Základní chemické prvky',
       allowedModes: ['flashcards', 'abcd', 'writing', 'matching', 'sorting'],
       randomizeDirection: true,

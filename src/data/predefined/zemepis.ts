@@ -1,13 +1,13 @@
 import { Category } from "../studyData";
 
 export const zemepis: Category = {
-  id: 'zemepis',
+  id: 'geography',
   title: 'Zeměpis',
   iconName: 'Globe',
   color: 'bg-emerald-600',
   topics: [
     {
-      id: 'evropa-mesta',
+      id: 'europe-capitals',
       name: 'Hlavní města Evropy',
       allowedModes: ['flashcards', 'abcd', 'writing', 'matching', 'sorting'],
       randomizeDirection: true,
