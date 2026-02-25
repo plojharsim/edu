@@ -75,7 +75,6 @@ export const dbService = {
       const { data: items } = await supabase.from('study_items').select('*').eq('topic_id', topic.id);
       return {
         id: topic.id,
-        user_id: topic.user_id, // Přidáno pro identifikaci autora
         name: topic.name,
         allowedModes: topic.allowed_modes,
         randomizeDirection: topic.randomize_direction,
@@ -102,9 +101,9 @@ export const dbService = {
       id: isExisting ? topic.id : undefined,
       user_id: userId,
       name: topic.name,
-      allowed_modes: topic.allowedModes,
-      randomize_direction: topic.randomizeDirection,
-      is_public: topic.isPublic || false
+      allowed_modes: topic.allowedModes, // OPRAVA: v TypeScriptu máme allowedModes (camelCase)
+      randomize_direction: topic.randomizeDirection, // OPRAVA: v TypeScriptu máme randomizeDirection (camelCase)
+      is_public: topic.isPublic || false // OPRAVA: v TypeScriptu máme isPublic (camelCase)
     }).select().single();
 
     if (tError) throw tError;
