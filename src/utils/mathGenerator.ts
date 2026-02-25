@@ -37,6 +37,20 @@ export const mathGenerator = {
   // Pomocné funkce pro generování konkrétních typů
   rnd(min: number, max: number) { return Math.floor(Math.random() * (max - min + 1)) + min; },
 
+  // Největší společný dělitel pro krácení zlomků
+  gcd(a: number, b: number): number {
+    return b === 0 ? a : this.gcd(b, a % b);
+  },
+
+  // Převede zlomek do základního tvaru
+  simplifyFraction(num: number, den: number): string {
+    const common = this.gcd(Math.abs(num), Math.abs(den));
+    const sNum = num / common;
+    const sDen = den / common;
+    if (sDen === 1) return sNum.toString();
+    return `${sNum}/${sDen}`;
+  },
+
   genBasic(): StudyItem {
     const ops = ['+', '-', '*', '/'];
     const op = ops[this.rnd(0, 3)];
@@ -81,17 +95,27 @@ export const mathGenerator = {
     const a = this.rnd(1, 6), b = this.rnd(2, 8), c = this.rnd(1, 6), d = this.rnd(2, 8);
     const ops = ['+', '·'];
     const op = ops[this.rnd(0, 1)];
-    let resTerm;
+    
+    let resNum, resDen;
     if (op === '·') {
-      resTerm = `${a * c}/${b * d}`;
+      resNum = a * c;
+      resDen = b * d;
     } else {
-      // Zjednodušené sčítání pro procvičování (společný jmenovatel)
-      resTerm = `${a * d + c * b}/${b * d}`;
+      resNum = a * d + c * b;
+      resDen = b * d;
     }
+
+    const definition = this.simplifyFraction(resNum, resDen);
+    const options = [
+      this.simplifyFraction(resNum + this.rnd(1, 3), resDen),
+      this.simplifyFraction(resNum, resDen + this.rnd(1, 3)),
+      this.simplifyFraction(a + c, b + d)
+    ].filter(opt => opt !== definition);
+
     return {
-      term: `${a}/${b} ${op} ${c}/${d} = ?`,
-      definition: resTerm,
-      options: [`${a + c}/${b + d}`, `${a * 2}/${b}`, `${c}/${d * 2}`],
+      term: `${this.simplifyFraction(a, b)} ${op} ${this.simplifyFraction(c, d)} = ?`,
+      definition,
+      options: options.slice(0, 3),
       category: 'Zlomky'
     };
   },
@@ -169,7 +193,7 @@ export const mathGenerator = {
     const num = this.rnd(1, den - 1);
     const res = (num / den).toString().replace('.', ',');
     return {
-      term: `Převeď zlomek ${num}/${den} na desetinné číslo:`,
+      term: `Převeď zlomek ${this.simplifyFraction(num, den)} na desetinné číslo:`,
       definition: res,
       options: [(num / den + 0.1).toFixed(2).replace('.', ','), '0,5', '1,2'],
       category: 'Zlomky'
@@ -206,9 +230,9 @@ export const mathGenerator = {
     const num = this.rnd(1, 4), den = 5;
     const resNum = whole * den + num;
     return {
-      term: `Převeď smíšené číslo ${whole} a ${num}/${den} na zlomek:`,
-      definition: `${resNum}/${den}`,
-      options: [`${resNum + 1}/${den}`, `${whole * num}/${den}`, `${resNum}/${whole}`],
+      term: `Převeď smíšené číslo ${whole} a ${this.simplifyFraction(num, den)} na zlomek:`,
+      definition: this.simplifyFraction(resNum, den),
+      options: [this.simplifyFraction(resNum + 1, den), this.simplifyFraction(whole * num, den), this.simplifyFraction(resNum, whole)],
       category: 'Smíšená čísla'
     };
   },
