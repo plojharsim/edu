@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ChevronLeft, Globe, BookOpen, PlayCircle, User, School, Search, GraduationCap } from "lucide-react";
+import { ChevronLeft, Globe, BookOpen, PlayCircle, User, Search, GraduationCap } from "lucide-react";
 import { dbService } from '@/services/dbService';
 import { Topic } from '@/data/studyData';
 import LoadingScreen from '@/components/LoadingScreen';
@@ -40,7 +40,6 @@ const PublicLibrary = () => {
   const filteredTopics = topics.filter(t => 
     t.name.toLowerCase().includes(search.toLowerCase()) || 
     t.authorName?.toLowerCase().includes(search.toLowerCase()) ||
-    t.authorSchool?.toLowerCase().includes(search.toLowerCase()) ||
     t.authorGrade?.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -68,7 +67,7 @@ const PublicLibrary = () => {
           <Input 
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Hledat téma, autora nebo školu..."
+            placeholder="Hledat téma, autora nebo úroveň..."
             className="h-14 pl-12 rounded-2xl border-2 border-border bg-card shadow-sm"
           />
         </div>
@@ -98,10 +97,6 @@ const PublicLibrary = () => {
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <GraduationCap className="w-4 h-4" />
                     <span className="text-xs font-bold">{topic.authorGrade}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <School className="w-4 h-4" />
-                    <span className="text-xs truncate">{topic.authorSchool}</span>
                   </div>
                 </div>
               </div>

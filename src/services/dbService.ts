@@ -20,12 +20,11 @@ export const dbService = {
     return data;
   },
 
-  async updateProfile(userId: string, name: string, grade: string, school: string) {
+  async updateProfile(userId: string, name: string, grade: string) {
     const { error } = await supabase.from('profiles').upsert({ 
       id: userId, 
       name, 
       grade, 
-      school,
       updated_at: new Date().toISOString() 
     });
     return { error };
@@ -69,7 +68,6 @@ export const dbService = {
         *,
         profiles (
           name,
-          school,
           grade
         )
       `)
@@ -87,7 +85,6 @@ export const dbService = {
       allowedModes: topic.allowed_modes,
       randomizeDirection: topic.randomize_direction,
       authorName: profileData?.name || 'Anonymní student',
-      authorSchool: profileData?.school || 'Neznámá škola',
       authorGrade: profileData?.grade || 'Neznámý ročník',
       items: items?.map(item => ({
         term: item.term,
@@ -106,7 +103,6 @@ export const dbService = {
         *,
         profiles (
           name,
-          school,
           grade
         )
       `)
@@ -131,7 +127,6 @@ export const dbService = {
         allowedModes: topic.allowed_modes,
         randomizeDirection: topic.randomize_direction,
         authorName: profileData?.name || 'Anonymní student',
-        authorSchool: profileData?.school || 'Neznámá škola',
         authorGrade: profileData?.grade || 'Neznámý ročník',
         items: items?.map(item => ({
           term: item.term,
@@ -153,9 +148,9 @@ export const dbService = {
       id: isExisting ? topic.id : undefined,
       user_id: userId,
       name: topic.name,
-      allowed_modes: topic.allowedModes,
-      randomize_direction: topic.randomizeDirection,
-      is_public: topic.isPublic || false
+      allowed_modes: topic.allowed_modes,
+      randomize_direction: topic.randomize_direction,
+      is_public: topic.is_public,
     }).select().single();
 
     if (tError) throw tError;
