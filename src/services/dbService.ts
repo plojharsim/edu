@@ -94,19 +94,21 @@ export const dbService = {
   },
 
   async saveTopic(userId: string, topic: Topic) {
-    const isNew = !topic.id.startsWith('topic_') && !topic.id.startsWith('ai_') && !topic.id.startsWith('imported_');
+    // Pokud ID začíná speciálním prefixem, považujeme ho za nové (necháme Supabase vygenerovat UUID)
+    const isExisting = !topic.id.startsWith('topic_') && !topic.id.startsWith('ai_') && !topic.id.startsWith('imported_');
     
     const { data: savedTopic, error: tError } = await supabase.from('topics').upsert({
-      id: isNew ? topic.id : undefined,
+      id: isExisting ? topic.id : undefined,
       user_id: userId,
       name: topic.name,
-      allowed_modes: topic.allowed_modes,
-      randomize_direction: topic.randomize_direction,
-      is_public: topic.isPublic || false
+      allowed_modes: topic.allowedModes, // OPRAVA: v TypeScriptu máme allowedModes (camelCase)
+      randomize_direction: topic.randomizeDirection, // OPRAVA: v TypeScriptu máme randomizeDirection (camelCase)
+      is_public: topic.isPublic || false // OPRAVA: v TypeScriptu máme isPublic (camelCase)
     }).select().single();
 
     if (tError) throw tError;
 
+    // Smažeme staré položky a vložíme nové (pro jednoduchost synchronizace)
     await supabase.from('study_items').delete().eq('topic_id', savedTopic.id);
 
     const itemsToInsert = topic.items.map(item => ({
@@ -119,7 +121,8 @@ export const dbService = {
     }));
 
     if (itemsToInsert.length > 0) {
-      await supabase.from('study_items').insert(itemsToInsert);
+      const { error: iError } = await supabase.from('study_items').insert(itemsToInsert);
+      if (iError) throw iError;
     }
 
     return savedTopic;
