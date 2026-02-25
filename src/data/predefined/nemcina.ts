@@ -9,7 +9,7 @@ export const nemcina: Category = {
     {
       id: 'german-klett-3-2',
       name: 'Klett Maximal interaktiv 2 - Lekce 3.2',
-      allowedModes: ['flashcards', 'abcd', 'writing', 'matching', 'sorting'],
+      allowedModes: ['flashcards', 'abcd', 'writing', 'matching'],
       randomizeDirection: true,
       targetGrades: ['9. třída ZŠ'],
       items: [
