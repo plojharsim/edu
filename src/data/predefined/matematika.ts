@@ -38,43 +38,6 @@ export const matematika: Category = {
       ]
     },
     {
-      id: 'math-geography',
-      name: 'Zeměpisné výpočty',
-      allowedModes: ['abcd', 'writing', 'matching'],
-      items: [
-        { 
-          term: 'Mapa má měřítko 1 : 50 000. Kolik kilometrů v reálu představuje 4 cm na mapě?', 
-          definition: '2', 
-          options: ['20', '0.2', '5'],
-          category: 'Měřítko'
-        },
-        { 
-          term: 'V Praze (UTC+1) je 12:00. Kolik hodin je v Londýně (UTC+0)?', 
-          definition: '11:00', 
-          options: ['13:00', '12:00', '10:00'],
-          category: 'Časová pásma'
-        },
-        { 
-          term: 'Město má rozlohu 50 km² a 10 000 obyvatel. Jaká je hustota zalidnění (ob./km²)?', 
-          definition: '200', 
-          options: ['500', '50', '20'],
-          category: 'Demografie'
-        },
-        { 
-          term: 'Na mapě s měřítkem 1 : 1 000 000 je vzdálenost 7,5 cm. Kolik je to v kilometrech?', 
-          definition: '75', 
-          options: ['750', '7.5', '7500'],
-          category: 'Měřítko'
-        },
-        { 
-          term: 'Letadlo letí z New Yorku (UTC-5) v 10:00 místního času. Let trvá 8 hodin. Kolik je v cíli v Praze (UTC+1)?', 
-          definition: '00:00', 
-          options: ['18:00', '22:00', '02:00'],
-          category: 'Časová pásma'
-        }
-      ]
-    },
-    {
       id: 'math-dynamic',
       name: 'Dynamické procvičování',
       isDynamic: true,
