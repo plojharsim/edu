@@ -41,6 +41,21 @@ export const dbService = {
     const { data: topics, error: tError } = await supabase.from('topics').select('*').eq('user_id', userId);
     if (tError) return [];
 
+    return this.mapTopicsWithItems(topics);
+  },
+
+  async getPublicTopics() {
+    const { data: topics, error } = await supabase
+      .from('topics')
+      .select('*')
+      .eq('is_public', true)
+      .order('created_at', { ascending: false });
+    
+    if (error) return [];
+    return this.mapTopicsWithItems(topics);
+  },
+
+  async mapTopicsWithItems(topics: any[]) {
     const topicsWithItems = await Promise.all(topics.map(async (topic) => {
       const { data: items } = await supabase.from('study_items').select('*').eq('topic_id', topic.id);
       return {
@@ -48,6 +63,8 @@ export const dbService = {
         name: topic.name,
         allowedModes: topic.allowed_modes,
         randomizeDirection: topic.randomize_direction,
+        isPublic: topic.is_public,
+        authorName: topic.author_name,
         items: items?.map(item => ({
           term: item.term,
           definition: item.definition,
@@ -57,26 +74,30 @@ export const dbService = {
         })) || []
       };
     }));
-
     return topicsWithItems;
   },
 
-  async saveTopic(userId: string, topic: Topic) {
+  async saveTopic(userId: string, topic: any) {
     const isNew = !topic.id.startsWith('topic_') && !topic.id.startsWith('ai_') && !topic.id.startsWith('imported_');
     
+    // Získat jméno autora pro uložení k tématu
+    const profile = await this.getProfile(userId);
+
     const { data: savedTopic, error: tError } = await supabase.from('topics').upsert({
       id: isNew ? topic.id : undefined,
       user_id: userId,
       name: topic.name,
       allowed_modes: topic.allowed_modes,
-      randomize_direction: topic.randomize_direction
+      randomize_direction: topic.randomize_direction,
+      is_public: topic.isPublic || false,
+      author_name: profile?.name || 'Anonymní'
     }).select().single();
 
     if (tError) throw tError;
 
     await supabase.from('study_items').delete().eq('topic_id', savedTopic.id);
 
-    const itemsToInsert = topic.items.map(item => ({
+    const itemsToInsert = topic.items.map((item: any) => ({
       topic_id: savedTopic.id,
       term: item.term,
       definition: item.definition,

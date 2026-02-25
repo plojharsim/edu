@@ -12,7 +12,7 @@ import {
   Plus, Trash2, ChevronLeft, Save, BookText, Layers, 
   CheckSquare, Keyboard, BookOpen, ArrowLeftRight, 
   Share2, Download, Code, Copy, Check, LayoutPanelTop,
-  Sparkles, Loader2, Image as ImageIcon, X, Upload
+  Sparkles, Loader2, Image as ImageIcon, X, Upload, Globe
 } from "lucide-react";
 import { Topic, StudyItem, StudyMode } from '@/data/studyData';
 import { showSuccess, showError } from '@/utils/toast';
@@ -36,7 +36,7 @@ import { Textarea } from "@/components/ui/textarea";
 const EditTopics = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [topics, setTopics] = useState<Topic[]>([]);
+  const [topics, setTopics] = useState<any[]>([]);
   const [activeTopicId, setActiveTopicId] = useState<string | null>(null);
   const [importCode, setImportCode] = useState("");
   const [copied, setCopied] = useState(false);
@@ -102,14 +102,15 @@ const EditTopics = () => {
     }
   };
 
-  const addTopic = (newTopicData?: Topic) => {
+  const addTopic = (newTopicData?: any) => {
     const id = newTopicData?.id || `topic_${Date.now()}`;
-    const newTopic: Topic = newTopicData || { 
+    const newTopic: any = newTopicData || { 
       id, 
       name: "Nové téma", 
       items: [],
       allowedModes: ['flashcards', 'abcd', 'writing', 'matching', 'sorting'],
-      randomizeDirection: false
+      randomizeDirection: false,
+      isPublic: false
     };
     setTopics([...topics, newTopic]);
     setActiveTopicId(id);
@@ -159,6 +160,12 @@ const EditTopics = () => {
   const toggleRandomDirection = (topicId: string) => {
     setTopics(topics.map(t => 
       t.id === topicId ? { ...t, randomizeDirection: !t.randomizeDirection } : t
+    ));
+  };
+
+  const togglePublic = (topicId: string) => {
+    setTopics(topics.map(t => 
+      t.id === topicId ? { ...t, isPublic: !t.isPublic } : t
     ));
   };
 
@@ -282,6 +289,7 @@ const EditTopics = () => {
               >
                 <BookText className={`mr-3 w-5 h-5 ${activeTopicId === topic.id ? 'text-white' : 'text-indigo-500/50'}`} />
                 <span className="truncate pr-6">{topic.name}</span>
+                {topic.isPublic && <Globe className="w-3 h-3 text-emerald-500 ml-auto mr-4" />}
               </Button>
               <button 
                 onClick={(e) => { e.stopPropagation(); deleteTopic(topic.id); }}
@@ -297,7 +305,7 @@ const EditTopics = () => {
           {activeTopic ? (
             <>
               <div className="bg-card p-4 sm:p-6 rounded-[2rem] shadow-sm mb-6 border border-border">
-                <div className="flex flex-col xs:flex-row justify-between items-start xs:items-center gap-3 mb-6">
+                <div className="flex flex-col xs:row justify-between items-start xs:items-center gap-3 mb-6">
                   <h2 className="font-bold text-muted-foreground uppercase text-[10px] sm:text-xs tracking-widest">Základní nastavení</h2>
                   <div className="flex gap-2 w-full xs:w-auto justify-start xs:justify-end">
                     <Dialog>
@@ -357,21 +365,40 @@ const EditTopics = () => {
                     </div>
                   </div>
 
-                  <div className="p-4 bg-indigo-500/5 rounded-2xl flex items-center justify-between border border-indigo-500/10">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-indigo-500/10 rounded-xl">
-                        <ArrowLeftRight className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="p-4 bg-indigo-500/5 rounded-2xl flex items-center justify-between border border-indigo-500/10">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-indigo-500/10 rounded-xl">
+                          <ArrowLeftRight className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                        </div>
+                        <div>
+                          <Label htmlFor="random-direction" className="font-bold text-foreground block text-sm sm:text-base">Náhodný směr</Label>
+                          <span className="text-[10px] sm:text-xs text-muted-foreground">Randomizuje otázku a odpověď.</span>
+                        </div>
                       </div>
-                      <div>
-                        <Label htmlFor="random-direction" className="font-bold text-foreground block text-sm sm:text-base">Náhodný směr</Label>
-                        <span className="text-[10px] sm:text-xs text-muted-foreground">Randomizuje otázku a odpověď.</span>
-                      </div>
+                      <Switch 
+                        id="random-direction"
+                        checked={activeTopic.randomizeDirection}
+                        onCheckedChange={() => toggleRandomDirection(activeTopic.id)}
+                      />
                     </div>
-                    <Switch 
-                      id="random-direction"
-                      checked={activeTopic.randomizeDirection}
-                      onCheckedChange={() => toggleRandomDirection(activeTopic.id)}
-                    />
+
+                    <div className="p-4 bg-emerald-500/5 rounded-2xl flex items-center justify-between border border-emerald-500/10">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-emerald-500/10 rounded-xl">
+                          <Globe className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                        </div>
+                        <div>
+                          <Label htmlFor="is-public" className="font-bold text-foreground block text-sm sm:text-base">Veřejná sada</Label>
+                          <span className="text-[10px] sm:text-xs text-muted-foreground">Publikovat do veřejné knihovny.</span>
+                        </div>
+                      </div>
+                      <Switch 
+                        id="is-public"
+                        checked={activeTopic.isPublic}
+                        onCheckedChange={() => togglePublic(activeTopic.id)}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -384,7 +411,7 @@ const EditTopics = () => {
               </div>
 
               <div className="space-y-4">
-                {activeTopic.items.map((item, idx) => (
+                {activeTopic.items.map((item: any, idx: number) => (
                   <Card key={`${activeTopic.id}-item-${idx}`} className="p-4 sm:p-6 rounded-[2rem] border border-border shadow-sm bg-card relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-1 sm:w-1.5 h-full bg-indigo-500" />
                     <div className="flex items-center justify-between mb-4 sm:mb-6">
@@ -481,7 +508,7 @@ const EditTopics = () => {
                         <div className="space-y-3 p-3 sm:p-4 bg-muted/30 rounded-2xl border border-border">
                           <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Špatné odpovědi</label>
                           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
-                            {item.options.map((opt, optIdx) => (
+                            {item.options.map((opt: string, optIdx: number) => (
                               <Input 
                                 key={optIdx}
                                 value={opt}

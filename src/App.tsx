@@ -16,6 +16,7 @@ import StudySession from "./pages/StudySession";
 import Onboarding from "./pages/Onboarding";
 import EditTopics from "./pages/EditTopics";
 import Leaderboard from "./pages/Leaderboard";
+import PublicLibrary from "./pages/PublicLibrary";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import UpdatePassword from "./pages/UpdatePassword";
@@ -124,6 +125,14 @@ const App = () => (
                   element={
                     <ProtectedRoute>
                       <Leaderboard />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/app/library" 
+                  element={
+                    <ProtectedRoute>
+                      <PublicLibrary />
                     </ProtectedRoute>
                   } 
                 />
