@@ -11,8 +11,8 @@ export const anglictina: Category = {
       name: 'GoGetter 4 – Unit 5',
       allowedModes: ['flashcards', 'abcd', 'writing', 'matching'],
       randomizeDirection: true,
+      targetGrades: ['9. třída ZŠ'],
       items: [
-        // ===== ŽÁNRY =====
         { term: 'classical', definition: 'vážná hudba', options: ['jazz', 'opera', 'folk'] },
         { term: 'folk', definition: 'folk', options: ['rocková hudba', 'popová hudba', 'latinskoamerická hudba'] },
         { term: 'heavy metal', definition: 'heavy metal', options: ['rocková hudba', 'punková hudba', 'techno hudba'] },
@@ -23,7 +23,6 @@ export const anglictina: Category = {
         { term: 'punk', definition: 'punková hudba', options: ['rocková hudba', 'techno hudba', 'popová hudba'] },
         { term: 'rock', definition: 'rocková hudba', options: ['punková hudba', 'folk', 'popová hudba'] },
         { term: 'techno', definition: 'techno hudba', options: ['punková hudba', 'rocková hudba', 'popová hudba'] },
-        // ===== NÁSTROJE =====
         { term: 'cello', definition: 'violoncello', options: ['housle', 'klavír', 'flétna'] },
         { term: 'drums', definition: 'bicí bubny', options: ['bicí souprava', 'klavír', 'kytara'] },
         { term: 'electric guitar', definition: 'elektrická kytara', options: ['housle', 'klavír', 'saxofón'] },
@@ -33,7 +32,6 @@ export const anglictina: Category = {
         { term: 'saxophone', definition: 'saxofón', options: ['trúbka', 'klarinet', 'housle'] },
         { term: 'trumpet', definition: 'trúbka', options: ['saxofón', 'klarinet', 'housle'] },
         { term: 'violin', definition: 'housle', options: ['violoncello', 'klavír', 'flétna'] },
-        // ===== HUDBA – ČINNOSTI =====
         { term: 'give a concert', definition: 'koncertovat', options: ['jít na turné', 'nahrát album', 'cvičit na hudebním nástroji'] },
         { term: 'go on tour', definition: 'jít na turné', options: ['koncertovat', 'přidat se ke kapele', 'nahrát album'] },
         { term: 'have an audition', definition: 'mít konkurz', options: ['koncertovat', 'přidat se ke kapele', 'nahrát album'] },
@@ -42,7 +40,6 @@ export const anglictina: Category = {
         { term: 'record an album', definition: 'nahrát album', options: ['koncertovat', 'jít na turné', 'mít konkurz'] },
         { term: 'sign an autograph', definition: 'dát autogram / podepsat se', options: ['napsat píseň', 'koncertovat', 'jít na turné'] },
         { term: 'write / compose a song', definition: 'napsat / složit píseň', options: ['nahrát album', 'koncertovat', 'cvičit na hudebním nástroji'] },
-        // ===== OBECNÉ / FRÁZE =====
         { term: 'abroad', definition: 'v zahraničí', options: ['doma', 'na dovolené', 've městě'] },
         { term: 'I suppose so.', definition: 'Myslím, že ano.', options: ['Možná', 'Nevím', 'Asi ne'] },
         { term: "That’s a relief.", definition: 'To je úleva.', options: ['To je hrůza', 'To je noční můra', 'To je skvělé'] },
@@ -58,7 +55,6 @@ export const anglictina: Category = {
         { term: 'take part', definition: 'zúčastnit se', options: ['vyhrát', 'odejít', 'sledovat'] },
         { term: 'winner', definition: 'vítěz', options: ['poražený', 'soutěžící', 'divák'] },
         { term: 'You rock!', definition: 'Jde ti to!', options: ['To je špatné', 'Zkus to znovu', 'To je nuda'] },
-        // ===== KRIMI =====
         { term: 'criminal', definition: 'zločinec', options: ['zloděj', 'svědek', 'detektiv'] },
         { term: 'detective', definition: 'detektiv', options: ['policista', 'svědek', 'zločinec'] },
         { term: 'fingerprint', definition: 'otlačok prsta', options: ['stopa', 'značka', 'důkaz'] },
@@ -74,7 +70,6 @@ export const anglictina: Category = {
         { term: 'master', definition: 'zkušený, mistr', options: ['začátečník', 'amatér', 'učeň'] },
         { term: 'prison', definition: 'vězení', options: ['soud', 'cela', 'policie'] },
         { term: 'steal', definition: 'ukradnout', options: ['vrátit', 'patřit', 'zanechat'] },
-        // ===== ZBYTEK (KULTURA, TV, FESTIVALY…) =====
         { term: 'Cinderella', definition: 'popelka', options: ['pohádka', 'princezna', 'příběh'] },
         { term: 'compose', definition: 'skládat', options: ['hrát', 'zpívat', 'poslouchat'] },
         { term: 'on stage', definition: 'na pódiu', options: ['v zákulisí', 'v publiku', 'doma'] },

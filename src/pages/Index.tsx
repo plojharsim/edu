@@ -71,12 +71,44 @@ const Index = () => {
     fetchData();
   }, [user, navigate]);
 
+  // Filtrování dat podle ročníku
+  const filteredStudyData = useMemo(() => {
+    const userGrade = profile.grade;
+    const isAdult = userGrade === 'Dospělý';
+
+    const filtered: Record<string, Category> = {};
+
+    Object.entries(studyData).forEach(([key, category]) => {
+      // Vlastní témata (z databáze) ukazujeme vždy
+      if (category.isCustom) {
+        filtered[key] = category;
+        return;
+      }
+
+      // Filtrování témat v kategorii
+      const relevantTopics = category.topics.filter(topic => {
+        if (isAdult) return true;
+        if (!topic.targetGrades) return true; // Pokud nemá cílové třídy, je pro všechny
+        return topic.targetGrades.includes(userGrade);
+      });
+
+      if (relevantTopics.length > 0) {
+        filtered[key] = {
+          ...category,
+          topics: relevantTopics
+        };
+      }
+    });
+
+    return filtered;
+  }, [studyData, profile.grade]);
+
   const customTopicsCount = useMemo(() => {
     return studyData['custom']?.topics.length || 0;
   }, [studyData]);
 
   const dailyChallenge = useMemo(() => {
-    const allTopics = Object.values(studyData).flatMap(cat => 
+    const allTopics = Object.values(filteredStudyData).flatMap(cat => 
       cat.topics.map(topic => ({ 
         categoryId: cat.id, 
         topicId: topic.id, 
@@ -98,7 +130,7 @@ const Index = () => {
       ...allTopics[topicIndex],
       mode: modes[modeIndex] as any
     };
-  }, [studyData]);
+  }, [filteredStudyData]);
 
   const getIcon = (iconName: string = 'BookText') => {
     const Icon = (LucideIcons as any)[iconName] || LucideIcons.BookText;
@@ -187,7 +219,7 @@ const Index = () => {
         <div>
           <h2 className="text-2xl font-black text-foreground mb-6 text-center md:text-left">Tvoje studijní sady</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center md:justify-items-stretch">
-            {Object.values(studyData).map((cat) => {
+            {Object.values(filteredStudyData).map((cat) => {
               const itemCount = cat.topics.reduce((acc, t) => acc + t.items.length, 0);
               const hasDynamic = cat.topics.some(t => t.isDynamic);
               const label = `${itemCount} položek${hasDynamic ? ' a generované' : ''}`;

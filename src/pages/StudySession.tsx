@@ -27,6 +27,7 @@ const StudySession = () => {
   
   const [view, setView] = useState<'topic-selection' | 'mode-selection' | 'config' | 'study' | 'results'>('topic-selection');
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
+  const [userGrade, setUserGrade] = useState('');
   
   const [sessionQueue, setSessionQueue] = useState<StudyItem[]>([]);
   const [masteredCount, setMasteredCount] = useState(0); 
@@ -93,6 +94,12 @@ const StudySession = () => {
       try {
         setLoading(true);
         
+        // Načíst profil pro filtrování
+        const profile = await dbService.getProfile(user.id);
+        if (profile) {
+          setUserGrade(profile.grade);
+        }
+
         // Pokud je categoryId 'public', načteme jen konkrétní téma
         if (categoryId === 'public' && topicId) {
           const topic = await dbService.getTopicById(topicId);
@@ -113,7 +120,8 @@ const StudySession = () => {
             data.custom = {
               id: 'custom',
               title: 'Vlastní',
-              topics: userTopics
+              topics: userTopics,
+              isCustom: true
             };
           }
           setStudyData(data);
@@ -257,7 +265,17 @@ const StudySession = () => {
   if (!category && view !== 'results') return null;
 
   if (view === 'topic-selection') {
-    const sortedTopics = [...(category.topics || [])].sort((a, b) => {
+    const isAdult = userGrade === 'Dospělý';
+    const topicsToFilter = category.topics || [];
+    
+    const filteredTopics = topicsToFilter.filter((topic: Topic) => {
+      if (isAdult) return true;
+      if (category.isCustom) return true;
+      if (!topic.targetGrades) return true;
+      return topic.targetGrades.includes(userGrade);
+    });
+
+    const sortedTopics = [...filteredTopics].sort((a, b) => {
       if (a.isDynamic && !b.isDynamic) return -1;
       if (!a.isDynamic && b.isDynamic) return 1;
       return 0;
@@ -277,7 +295,7 @@ const StudySession = () => {
           <p className="text-slate-500 dark:text-slate-400 font-medium">Vyber si téma, které chceš procvičit</p>
         </div>
         <div className="flex flex-wrap justify-center gap-4 w-full max-w-4xl">
-          {sortedTopics.map((topic: Topic) => (
+          {sortedTopics.length > 0 ? sortedTopics.map((topic: Topic) => (
             <Button 
               key={topic.id} 
               variant="outline" 
@@ -294,7 +312,11 @@ const StudySession = () => {
                 </span>
               </div>
             </Button>
-          ))}
+          )) : (
+            <div className="text-center p-12 bg-card rounded-[3rem] border-2 border-dashed border-border w-full">
+              <p className="text-muted-foreground font-bold">V této kategorii pro tvůj ročník nejsou žádná témata.</p>
+            </div>
+          )}
         </div>
       </div>
     );

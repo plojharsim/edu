@@ -20,8 +20,8 @@ export interface Topic {
   dynamicType?: 'math';
   isPublic?: boolean;
   authorName?: string;
-  authorSchool?: string;
   authorGrade?: string;
+  targetGrades?: string[]; // Nové pole pro filtrování podle ročníku
 }
 
 export interface Category {
