@@ -12,7 +12,7 @@ import {
   Plus, Trash2, ChevronLeft, Save, BookText, Layers, 
   CheckSquare, Keyboard, BookOpen, ArrowLeftRight, 
   Share2, Download, Code, Copy, Check, LayoutPanelTop,
-  Sparkles, Loader2, Image as ImageIcon, X, Upload
+  Sparkles, Loader2, Image as ImageIcon, X, Upload, Globe
 } from "lucide-react";
 import { Topic, StudyItem, StudyMode } from '@/data/studyData';
 import { showSuccess, showError } from '@/utils/toast';
@@ -61,6 +61,26 @@ const EditTopics = () => {
 
   const handleSaveAll = async () => {
     if (!user) return;
+
+    // Validace před uložením
+    for (const topic of topics) {
+      if (!topic.name.trim()) {
+        showError("Všechna témata musí mít vyplněný název.");
+        return;
+      }
+      if (topic.items.length === 0) {
+        showError(`Téma "${topic.name}" musí mít alespoň jednu položku.`);
+        return;
+      }
+      for (let i = 0; i < topic.items.length; i++) {
+        const item = topic.items[i];
+        if (!item.term.trim() || !item.definition.trim()) {
+          showError(`Položka č. ${i + 1} v tématu "${topic.name}" má prázdný termín nebo definici.`);
+          return;
+        }
+      }
+    }
+
     setIsSaving(true);
     try {
       await Promise.all(topics.map(t => dbService.saveTopic(user.id, t)));
@@ -109,7 +129,8 @@ const EditTopics = () => {
       name: "Nové téma", 
       items: [],
       allowedModes: ['flashcards', 'abcd', 'writing', 'matching', 'sorting'],
-      randomizeDirection: false
+      randomizeDirection: false,
+      isPublic: false
     };
     setTopics([...topics, newTopic]);
     setActiveTopicId(id);
@@ -159,6 +180,12 @@ const EditTopics = () => {
   const toggleRandomDirection = (topicId: string) => {
     setTopics(topics.map(t => 
       t.id === topicId ? { ...t, randomizeDirection: !t.randomizeDirection } : t
+    ));
+  };
+
+  const togglePublic = (topicId: string) => {
+    setTopics(topics.map(t => 
+      t.id === topicId ? { ...t, isPublic: !t.isPublic } : t
     ));
   };
 
@@ -282,6 +309,7 @@ const EditTopics = () => {
               >
                 <BookText className={`mr-3 w-5 h-5 ${activeTopicId === topic.id ? 'text-white' : 'text-indigo-500/50'}`} />
                 <span className="truncate pr-6">{topic.name}</span>
+                {topic.isPublic && <Globe className="absolute right-10 top-1/2 -translate-y-1/2 w-3 h-3 text-white/50" />}
               </Button>
               <button 
                 onClick={(e) => { e.stopPropagation(); deleteTopic(topic.id); }}
@@ -303,7 +331,7 @@ const EditTopics = () => {
                     <Dialog>
                       <DialogTrigger asChild>
                         <Button variant="ghost" size="sm" className="flex-1 xs:flex-none gap-2 rounded-xl text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/10 text-xs">
-                          <Share2 className="w-4 h-4" /> Sdílet
+                          <Share2 className="w-4 h-4" /> Kód
                         </Button>
                       </DialogTrigger>
                       <DialogContent className="rounded-[2rem] bg-card border-border max-w-md">
@@ -338,6 +366,42 @@ const EditTopics = () => {
                 />
 
                 <div className="space-y-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="p-4 bg-indigo-500/5 rounded-2xl flex items-center justify-between border border-indigo-500/10">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-indigo-500/10 rounded-xl">
+                          <ArrowLeftRight className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                        </div>
+                        <div>
+                          <Label htmlFor="random-direction" className="font-bold text-foreground block text-sm">Náhodný směr</Label>
+                          <span className="text-[10px] text-muted-foreground">Randomizuje otázky.</span>
+                        </div>
+                      </div>
+                      <Switch 
+                        id="random-direction"
+                        checked={activeTopic.randomizeDirection}
+                        onCheckedChange={() => toggleRandomDirection(activeTopic.id)}
+                      />
+                    </div>
+
+                    <div className="p-4 bg-emerald-500/5 rounded-2xl flex items-center justify-between border border-emerald-500/10">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-emerald-500/10 rounded-xl">
+                          <Globe className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                        </div>
+                        <div>
+                          <Label htmlFor="public-toggle" className="font-bold text-foreground block text-sm">Veřejná knihovna</Label>
+                          <span className="text-[10px] text-muted-foreground">Kdokoliv si ji může stáhnout.</span>
+                        </div>
+                      </div>
+                      <Switch 
+                        id="public-toggle"
+                        checked={activeTopic.isPublic}
+                        onCheckedChange={() => togglePublic(activeTopic.id)}
+                      />
+                    </div>
+                  </div>
+
                   <div>
                     <h3 className="text-sm font-bold text-foreground mb-4">Povolené studijní režimy</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
@@ -355,23 +419,6 @@ const EditTopics = () => {
                         </div>
                       ))}
                     </div>
-                  </div>
-
-                  <div className="p-4 bg-indigo-500/5 rounded-2xl flex items-center justify-between border border-indigo-500/10">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-indigo-500/10 rounded-xl">
-                        <ArrowLeftRight className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-                      </div>
-                      <div>
-                        <Label htmlFor="random-direction" className="font-bold text-foreground block text-sm sm:text-base">Náhodný směr</Label>
-                        <span className="text-[10px] sm:text-xs text-muted-foreground">Randomizuje otázku a odpověď.</span>
-                      </div>
-                    </div>
-                    <Switch 
-                      id="random-direction"
-                      checked={activeTopic.randomizeDirection}
-                      onCheckedChange={() => toggleRandomDirection(activeTopic.id)}
-                    />
                   </div>
                 </div>
               </div>

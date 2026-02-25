@@ -1,28 +1,49 @@
 # Edu | by plojharsim 🎓
 
-Moderní webová aplikace pro efektivní učení a procvičování učiva formou interaktivních her a testů. Aplikace je navržena pro studenty, kteří si chtějí vytvářet vlastní studijní materiály nebo používat ty předpřipravené.
+**Edu** je moderní, bleskově rychlá a vysoce interaktivní platforma pro studenty, která mění nudné biflování v zábavnou hru. Zapomeňte na papírové kartičky – s Edu máte celou svou knihovnu znalostí v kapse, synchronizovanou v cloudu a chytře řízenou algoritmem pro efektivní učení.
 
-## ✨ Funkce
-- **Více režimů studia**: Kartičky, Výběr z možností (ABCD), Psaní odpovědí a Přiřazování dvojic.
-- **Personalizace**: Onboarding proces pro přizpůsobení jména a ročníku.
-- **Statistiky**: Sledování denní série (streak) a průměrné úspěšnosti.
-- **Tmavý režim**: Plná podpora pro pohodlné učení v noci.
-- **Mobilní design**: Plně responzivní rozhraní optimalizované pro telefony.
+![Aplikace Preview](https://img.shields.io/badge/Status-Live-success?style=for-the-badge)
+![Verze](https://img.shields.io/badge/Version-1.0.0-blue?style=for-the-badge)
+![Technologie](https://img.shields.io/badge/Stack-React_|_TS_|_Supabase-6366f1?style=for-the-badge)
 
-## 🚀 Technologie
-- **Frontend**: React 18 + TypeScript
-- **Styling**: Tailwind CSS + Shadcn/UI
-- **Stav**: React Router, TanStack Query, Lucide Icons
-- **Data**: Supabase pro autentizaci a cloudové ukládání
+## ✨ Klíčové Vlastnosti
 
-## 🎯 Cíle projektu (Roadmap)
+*   **🧠 Adaptivní učení**: Náš algoritmus sleduje, které položky vám dělají problém, a automaticky je prioritizuje, dokud je neovládnete na 100 %.
+*   **🤖 AI Generátor (Gemini 3 Flash)**: Nechce se vám vypisovat slovíčka? Stačí zadat téma nebo **vyfotit své poznámky** a AI vám během vteřin vygeneruje kompletní studijní sadu včetně kategorií a chybných možností.
+*   **🎮 5 Interaktivních Režimů**:
+    *   **Kartičky (Flashcards)**: Klasické 3D otáčení pro rychlé zapamatování.
+    *   **Výběr (ABCD)**: Rychlý test s chytrými chybnými možnostmi.
+    *   **Psaní**: Precizní procvičování pravopisu a přesných definic.
+    *   **Dvojice (Matching)**: Dynamická hra na propojování souvislostí.
+    *   **Rozřazování (Sorting)**: Unikátní režim pro třídění termínů do kategorií.
+*   **📊 Gamifikace**: Sbírejte odznaky (badges), udržujte svou denní sérii (streak) a sledujte svůj průměrný pokrok v čase.
+*   **☁️ Cloud Sync**: Všechna vaše témata, statistiky a nastavení jsou bezpečně uložena v Supabase. Přihlaste se odkudkoliv a pokračujte tam, kde jste skončili.
+*   **🤝 Sdílení & Veřejná Knihovna**: Sdílejte své sady pomocí unikátních kódů nebo je publikujte do veřejné knihovny pro ostatní uživatele.
 
-### ✅ Hotovo
-- [x] **Editor témat**: Plnohodnotné rozhraní pro vytváření a úpravu vlastních studijních sad.
-- [x] **Sdílení vlastních témat**: Možnost exportovat téma do unikátního kódu a importovat sady od spolužáků.
-- [x] **Interaktivní režimy**: Implementace 4 základních způsobů procvičování.
-- [x] **Dark Mode**: Kompletní vizuální styly pro světlý i tmavý režim.
-- [x] **Cloud Sync**: Plná integrace se Supabase pro synchronizaci dat.
+## 🛠️ Technologie
+
+Aplikace je postavena na nejmodernějším webovém stacku pro zajištění rychlosti a bezpečnosti:
+
+*   **Frontend**: React 18, TypeScript, Vite
+*   **Styling**: Tailwind CSS + Shadcn/UI (vlastní design system)
+*   **Backend & Auth**: Supabase (PostgreSQL, Auth, Edge Functions)
+*   **AI**: Google Generative AI (Gemini 3 Flash)
+*   **Mobilní integrace**: Capacitor.js (připraveno pro iOS a Android)
+*   **Stav & Data**: TanStack Query, Lucide React
+
+## 📱 Mobilní Aplikace
+
+Aplikace je navržena jako **Mobile-First**. Obsahuje specifické CSS pro "Safe Areas" (pro telefony s výřezy) a je plně připravena na nativní nasazení pomocí Capacitoru, včetně splash screenu a ikon.
+
+## 🤝 Přispění a Kontakt
+
+Projekt je vytvořen s důrazem na čistý kód a udržitelnost. Pokud máte nápad na vylepšení nebo jste našli chybu:
+
+1.  Založte Issue na GitHubu.
+2.  Vytvořte Pull Request s vašimi změnami.
+
+**Autor**: [plojharsim](https://plojharsim.cz)
+**Web projektu**: [edu.plojharsim.cz](https://edu.plojharsim.cz)
 
 ---
-Vytvořeno s ❤️ pro studenty. Autor: [plojharsim](https://plojharsim.cz)
+*Vytvořeno s ❤️ pro všechny, kteří se chtějí učit chytřeji.*

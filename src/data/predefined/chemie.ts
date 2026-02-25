@@ -1,16 +1,17 @@
 import { Category } from "../studyData";
 
 export const chemie: Category = {
-  id: 'chemie',
+  id: 'chemistry',
   title: 'Chemie',
   iconName: 'FlaskConical',
   color: 'bg-purple-600',
   topics: [
     {
-      id: 'chemicke-prvky-zaklady',
+      id: 'chemical-elements-basics',
       name: 'Základní chemické prvky',
       allowedModes: ['flashcards', 'abcd', 'writing', 'matching', 'sorting'],
       randomizeDirection: true,
+      targetGrades: ['8. třída ZŠ', '9. třída ZŠ', '1. ročník SŠ', '2. ročník SŠ', '3. ročník SŠ', '4. ročník SŠ', 'Vysoká škola'],
       items: [
         { term: 'H', definition: 'Vodík', category: 'Nekovy', options: ['Helium', 'Hliník', 'Hořčík'] },
         { term: 'He', definition: 'Helium', category: 'Vzácné plyny', options: ['Vodík', 'Hafnium', 'Rtuť'] },

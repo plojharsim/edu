@@ -8,9 +8,9 @@ import { chemie } from "./chemie";
 // Chcete-li přidat novou sadu, vytvořte soubor ve složce predefined,
 // naimportujte ho sem a přidejte do objektu PREDEFINED_DATA.
 export const PREDEFINED_DATA: Record<string, Category> = {
-  anglictina,
-  nemcina,
-  zemepis,
-  matematika,
-  chemie
+  english: anglictina,
+  german: nemcina,
+  geography: zemepis,
+  math: matematika,
+  chemistry: chemie
 };
