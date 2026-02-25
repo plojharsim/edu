@@ -10,7 +10,7 @@ export const matematika: Category = {
       id: 'math-word-problems',
       name: 'Slovní úlohy',
       allowedModes: ['abcd', 'writing'],
-      targetGrades: ['4. třída ZŠ', '5. třída ZŠ', '6. třída ZŠ', '7. třída ZŠ', '8. třída ZŠ', '9. třída ZŠ'],
+      targetGrades: ['9. třída ZŠ'],
       items: [
         { 
           term: 'Petr má 15 jablek, Jana jich má o 7 více. Kolik jich mají dohromady?', 
