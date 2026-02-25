@@ -4,11 +4,10 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ChevronLeft, Globe, BookOpen, Download, User, School, Search, GraduationCap } from "lucide-react";
+import { ChevronLeft, Globe, BookOpen, PlayCircle, User, School, Search, GraduationCap } from "lucide-react";
 import { dbService } from '@/services/dbService';
 import { Topic } from '@/data/studyData';
 import LoadingScreen from '@/components/LoadingScreen';
-import { showSuccess, showError } from '@/utils/toast';
 import { useAuth } from '@/components/AuthProvider';
 import { Input } from "@/components/ui/input";
 
@@ -34,19 +33,8 @@ const PublicLibrary = () => {
     fetchPublic();
   }, []);
 
-  const handleImport = async (topic: Topic) => {
-    if (!user) return;
-    try {
-      const newTopic = {
-        ...topic,
-        id: `imported_${Date.now()}`,
-        isPublic: false 
-      };
-      await dbService.saveTopic(user.id, newTopic);
-      showSuccess(`Téma "${topic.name}" bylo přidáno do tvé knihovny!`);
-    } catch (e) {
-      showError("Nepodařilo se importovat téma.");
-    }
+  const handleOpen = (topic: Topic) => {
+    navigate(`/app/study/public/${topic.id}`);
   };
 
   const filteredTopics = topics.filter(t => 
@@ -119,10 +107,10 @@ const PublicLibrary = () => {
               </div>
 
               <Button 
-                onClick={() => handleImport(topic)}
+                onClick={() => handleOpen(topic)}
                 className="w-full h-12 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold gap-2"
               >
-                <Download className="w-4 h-4" /> Přidat do mé knihovny
+                <PlayCircle className="w-4 h-4" /> Otevřít a studovat
               </Button>
             </Card>
           ))

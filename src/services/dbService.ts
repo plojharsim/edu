@@ -62,6 +62,43 @@ export const dbService = {
     return topicsWithItems;
   },
 
+  async getTopicById(topicId: string) {
+    const { data: topic, error: tError } = await supabase
+      .from('topics')
+      .select(`
+        *,
+        profiles (
+          name,
+          school,
+          grade
+        )
+      `)
+      .eq('id', topicId)
+      .single();
+    
+    if (tError || !topic) return null;
+
+    const { data: items } = await supabase.from('study_items').select('*').eq('topic_id', topic.id);
+    const profileData = (topic as any).profiles;
+
+    return {
+      id: topic.id,
+      name: topic.name,
+      allowedModes: topic.allowed_modes,
+      randomizeDirection: topic.randomize_direction,
+      authorName: profileData?.name || 'Anonymní student',
+      authorSchool: profileData?.school || 'Neznámá škola',
+      authorGrade: profileData?.grade || 'Neznámý ročník',
+      items: items?.map(item => ({
+        term: item.term,
+        definition: item.definition,
+        options: item.options,
+        category: item.category,
+        imageUrl: item.image_url
+      })) || []
+    } as Topic;
+  },
+
   async getPublicTopics() {
     const { data: topics, error: tError } = await supabase
       .from('topics')
