@@ -48,6 +48,38 @@ export const dbService = {
         name: topic.name,
         allowedModes: topic.allowed_modes,
         randomizeDirection: topic.randomize_direction,
+        isPublic: topic.is_public,
+        items: items?.map(item => ({
+          term: item.term,
+          definition: item.definition,
+          options: item.options,
+          category: item.category,
+          imageUrl: item.image_url
+        })) || []
+      };
+    }));
+
+    return topicsWithItems;
+  },
+
+  async getPublicTopics() {
+    const { data: topics, error: tError } = await supabase
+      .from('topics')
+      .select('*, profiles(name, school)')
+      .eq('is_public', true)
+      .order('created_at', { ascending: false });
+    
+    if (tError) return [];
+
+    const topicsWithItems = await Promise.all(topics.map(async (topic) => {
+      const { data: items } = await supabase.from('study_items').select('*').eq('topic_id', topic.id);
+      return {
+        id: topic.id,
+        name: topic.name,
+        allowedModes: topic.allowed_modes,
+        randomizeDirection: topic.randomize_direction,
+        authorName: (topic as any).profiles?.name || 'Anonym',
+        authorSchool: (topic as any).profiles?.school || 'Neznámá škola',
         items: items?.map(item => ({
           term: item.term,
           definition: item.definition,
@@ -69,7 +101,8 @@ export const dbService = {
       user_id: userId,
       name: topic.name,
       allowed_modes: topic.allowed_modes,
-      randomize_direction: topic.randomize_direction
+      randomize_direction: topic.randomize_direction,
+      is_public: topic.isPublic || false
     }).select().single();
 
     if (tError) throw tError;

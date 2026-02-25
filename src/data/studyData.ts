@@ -18,6 +18,9 @@ export interface Topic {
   randomizeDirection?: boolean;
   isDynamic?: boolean;
   dynamicType?: 'math';
+  isPublic?: boolean;
+  authorName?: string;
+  authorSchool?: string;
 }
 
 export interface Category {
