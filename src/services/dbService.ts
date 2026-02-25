@@ -150,8 +150,8 @@ export const dbService = {
       id: isExisting ? topic.id : undefined,
       user_id: userId,
       name: topic.name,
-      allowed_modes: topic.allowed_modes,
-      randomize_direction: topic.randomize_direction,
+      allowed_modes: topic.allowedModes,
+      randomize_direction: topic.randomizeDirection,
       is_public: topic.isPublic,
     }).select().single();
 
