@@ -12,7 +12,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
-import { Sparkles, GraduationCap, User, Building2 } from "lucide-react";
+import { Sparkles, GraduationCap, User } from "lucide-react";
 import { showSuccess, showError } from "@/utils/toast";
 import { useAuth } from '@/components/AuthProvider';
 import { dbService } from '@/services/dbService';
@@ -23,21 +23,19 @@ const Onboarding = () => {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     name: '',
-    school: '',
     grade: ''
   });
 
   const handleNext = async () => {
     if (step === 1 && !formData.name) return;
-    if (step === 2 && !formData.school) return;
-    if (step === 3 && !formData.grade) return;
+    if (step === 2 && !formData.grade) return;
     
-    if (step < 3) {
+    if (step < 2) {
       setStep(step + 1);
     } else {
       if (!user) return;
       
-      const { error } = await dbService.updateProfile(user.id, formData.name, formData.grade, formData.school);
+      const { error } = await dbService.updateProfile(user.id, formData.name, formData.grade);
       
       if (error) {
         showError("Nepodařilo se uložit profil.");
@@ -48,15 +46,6 @@ const Onboarding = () => {
       navigate('/app');
     }
   };
-
-  const SCHOOL_OPTIONS = [
-    { value: "Základní škola", label: "Základní škola" },
-    { value: "Gymnázium", label: "Gymnázium" },
-    { value: "Střední odborná škola", label: "Střední odborná škola" },
-    { value: "Vysoká škola", label: "Vysoká škola" },
-    { value: "Jiná škola", label: "Jiná škola" },
-    { value: "Nechodím do školy", label: "Nechodím do školy" },
-  ];
 
   const GRADE_OPTIONS = [
     { value: "Předškolák", label: "Předškolák" },
@@ -79,7 +68,7 @@ const Onboarding = () => {
             </div>
           </div>
 
-          {step === 1 && (
+          {step === 1 ? (
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
               <div className="text-center">
                 <h1 className="text-3xl font-black text-foreground mb-2">Ahoj! Jak ti máme říkat?</h1>
@@ -96,36 +85,7 @@ const Onboarding = () => {
                 />
               </div>
             </div>
-          )}
-
-          {step === 2 && (
-            <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
-              <div className="text-center">
-                <h1 className="text-3xl font-black text-foreground mb-2">Kam chodíš do školy?</h1>
-                <p className="text-muted-foreground">Pomůže nám to lépe zacílit tvé studijní materiály.</p>
-              </div>
-              <div className="relative">
-                <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5 z-20 pointer-events-none" />
-                <Select 
-                  value={formData.school} 
-                  onValueChange={(val) => setFormData({ ...formData, school: val })}
-                >
-                  <SelectTrigger className="h-14 pl-12 text-lg rounded-2xl border-2 border-border focus:border-indigo-400 focus:ring-indigo-400 bg-background">
-                    <SelectValue placeholder="Vyber školu..." />
-                  </SelectTrigger>
-                  <SelectContent className="rounded-2xl border-border bg-card max-h-[300px]">
-                    {SCHOOL_OPTIONS.map((opt) => (
-                      <SelectItem key={opt.value} value={opt.value} className="rounded-xl">
-                        {opt.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          )}
-
-          {step === 3 && (
+          ) : (
             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
               <div className="text-center">
                 <h1 className="text-3xl font-black text-foreground mb-2">Co právě studuješ?</h1>
@@ -155,19 +115,14 @@ const Onboarding = () => {
           <div className="mt-10 flex flex-col gap-4">
             <Button 
               onClick={handleNext}
-              disabled={
-                (step === 1 && !formData.name) || 
-                (step === 2 && !formData.school) || 
-                (step === 3 && !formData.grade)
-              }
+              disabled={step === 1 ? !formData.name : !formData.grade}
               className="h-14 text-lg font-bold rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-200 dark:shadow-none"
             >
-              {step < 3 ? 'Pokračovat' : 'Začít se učit'}
+              {step === 1 ? 'Pokračovat' : 'Začít se učit'}
             </Button>
             <div className="flex justify-center gap-2">
               <div className={`w-2 h-2 rounded-full transition-colors ${step === 1 ? 'bg-indigo-600' : 'bg-muted'}`} />
               <div className={`w-2 h-2 rounded-full transition-colors ${step === 2 ? 'bg-indigo-600' : 'bg-muted'}`} />
-              <div className={`w-2 h-2 rounded-full transition-colors ${step === 3 ? 'bg-indigo-600' : 'bg-muted'}`} />
             </div>
           </div>
         </div>

@@ -26,21 +26,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Settings, LogOut, Sun, Moon, User, Trash2, Loader2, Save, GraduationCap, Building2 } from "lucide-react";
+import { Settings, LogOut, Sun, Moon, User, Trash2, Loader2, Save, GraduationCap } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useAuth } from '@/components/AuthProvider';
 import { useNavigate } from 'react-router-dom';
 import { dbService } from '@/services/dbService';
 import { showError, showSuccess } from '@/utils/toast';
-
-const SCHOOL_OPTIONS = [
-  { value: "Základní škola", label: "Základní škola" },
-  { value: "Gymnázium", label: "Gymnázium" },
-  { value: "Střední odborná škola", label: "Střední odborná škola" },
-  { value: "Vysoká škola", label: "Vysoká škola" },
-  { value: "Jiná škola", label: "Jiná škola" },
-  { value: "Nechodím do školy", label: "Nechodím do školy" },
-];
 
 const GRADE_OPTIONS = [
   { value: "Předškolák", label: "Předškolák" },
@@ -58,7 +49,6 @@ const SettingsDialog = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [name, setName] = useState('');
-  const [school, setSchool] = useState('');
   const [grade, setGrade] = useState('');
 
   useEffect(() => {
@@ -66,7 +56,6 @@ const SettingsDialog = () => {
       dbService.getProfile(user.id).then(profile => {
         if (profile) {
           setName(profile.name || '');
-          setSchool(profile.school || '');
           setGrade(profile.grade || '');
         }
       });
@@ -77,9 +66,10 @@ const SettingsDialog = () => {
     if (!user || !name || !grade) return;
     setIsSaving(true);
     try {
-      const { error } = await dbService.updateProfile(user.id, name, grade, school);
+      const { error } = await dbService.updateProfile(user.id, name, grade);
       if (error) throw error;
       showSuccess("Profil byl úspěšně aktualizován!");
+      // Volitelně vynutit obnovení stránky pro projev změn na nástěnce
       window.location.reload();
     } catch (e: any) {
       showError("Chyba při ukládání: " + e.message);
@@ -150,20 +140,6 @@ const SettingsDialog = () => {
                 placeholder="Jak ti máme říkat?"
                 className="rounded-xl border-border bg-background"
               />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="settings-school" className="text-xs font-bold ml-1">Škola</Label>
-              <Select value={school} onValueChange={setSchool}>
-                <SelectTrigger id="settings-school" className="rounded-xl border-border bg-background">
-                  <SelectValue placeholder="Vyber školu..." />
-                </SelectTrigger>
-                <SelectContent className="rounded-xl border-border">
-                  {SCHOOL_OPTIONS.map(opt => (
-                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
 
             <div className="space-y-2">
