@@ -4,6 +4,10 @@ import { nemcina } from "./nemcina";
 import { zemepis } from "./zemepis";
 import { matematika } from "./matematika";
 import { chemie } from "./chemie";
+import { dejepis } from "./dejepis";
+import { biologie } from "./biologie";
+import { fyzika } from "./fyzika";
+import { ceskyJazyk } from "./cesky-jazyk";
 
 // Chcete-li přidat novou sadu, vytvořte soubor ve složce predefined,
 // naimportujte ho sem a přidejte do objektu PREDEFINED_DATA.
@@ -12,5 +16,9 @@ export const PREDEFINED_DATA: Record<string, Category> = {
   german: nemcina,
   geography: zemepis,
   math: matematika,
-  chemistry: chemie
+  chemistry: chemie,
+  history: dejepis,
+  biology: biologie,
+  physics: fyzika,
+  czech: ceskyJazyk
 };
