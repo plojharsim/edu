@@ -69,7 +69,10 @@ export const dbService = {
       .eq('is_public', true)
       .order('created_at', { ascending: false });
     
-    if (tError) return [];
+    if (tError) {
+      console.error("Public topics fetch error:", tError);
+      return [];
+    }
 
     const topicsWithItems = await Promise.all(topics.map(async (topic) => {
       const { data: items } = await supabase.from('study_items').select('*').eq('topic_id', topic.id);
@@ -101,14 +104,14 @@ export const dbService = {
       id: isExisting ? topic.id : undefined,
       user_id: userId,
       name: topic.name,
-      allowed_modes: topic.allowedModes, // OPRAVA: v TypeScriptu máme allowedModes (camelCase)
-      randomize_direction: topic.randomizeDirection, // OPRAVA: v TypeScriptu máme randomizeDirection (camelCase)
-      is_public: topic.isPublic || false // OPRAVA: v TypeScriptu máme isPublic (camelCase)
+      allowed_modes: topic.allowedModes,
+      randomize_direction: topic.randomizeDirection,
+      is_public: topic.isPublic || false
     }).select().single();
 
     if (tError) throw tError;
 
-    // Smažeme staré položky a vložíme nové (pro jednoduchost synchronizace)
+    // Smažeme staré položky a vložíme nové
     await supabase.from('study_items').delete().eq('topic_id', savedTopic.id);
 
     const itemsToInsert = topic.items.map(item => ({
