@@ -61,6 +61,26 @@ const EditTopics = () => {
 
   const handleSaveAll = async () => {
     if (!user) return;
+
+    // Validace před uložením
+    for (const topic of topics) {
+      if (!topic.name.trim()) {
+        showError("Všechna témata musí mít vyplněný název.");
+        return;
+      }
+      if (topic.items.length === 0) {
+        showError(`Téma "${topic.name}" musí mít alespoň jednu položku.`);
+        return;
+      }
+      for (let i = 0; i < topic.items.length; i++) {
+        const item = topic.items[i];
+        if (!item.term.trim() || !item.definition.trim()) {
+          showError(`Položka č. ${i + 1} v tématu "${topic.name}" má prázdný termín nebo definici.`);
+          return;
+        }
+      }
+    }
+
     setIsSaving(true);
     try {
       await Promise.all(topics.map(t => dbService.saveTopic(user.id, t)));
