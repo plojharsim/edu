@@ -21,12 +21,7 @@ export const dbService = {
   },
 
   async updateProfile(userId: string, name: string, grade: string) {
-    const { error } = await supabase.from('profiles').upsert({ 
-      id: userId, 
-      name, 
-      grade, 
-      updated_at: new Date().toISOString() 
-    });
+    const { error } = await supabase.from('profiles').upsert({ id: userId, name, grade, updated_at: new Date().toISOString() });
     return { error };
   },
 
@@ -47,89 +42,6 @@ export const dbService = {
         name: topic.name,
         allowedModes: topic.allowed_modes,
         randomizeDirection: topic.randomize_direction,
-        isPublic: topic.is_public,
-        items: items?.map(item => ({
-          term: item.term,
-          definition: item.definition,
-          options: item.options,
-          category: item.category,
-          imageUrl: item.image_url
-        })) || []
-      };
-    }));
-
-    return topicsWithItems;
-  },
-
-  async getTopicById(topicId: string) {
-    const { data: topic, error: tError } = await supabase
-      .from('topics')
-      .select(`
-        *,
-        profiles (
-          name,
-          grade
-        )
-      `)
-      .eq('id', topicId)
-      .single();
-    
-    if (tError || !topic) return null;
-
-    const { data: items } = await supabase.from('study_items').select('*').eq('topic_id', topic.id);
-    const profileData = (topic as any).profiles;
-
-    return {
-      id: topic.id,
-      name: topic.name,
-      allowedModes: topic.allowed_modes,
-      randomizeDirection: topic.randomize_direction,
-      isPublic: topic.is_public,
-      authorName: profileData?.name || 'Anonymní student',
-      authorGrade: profileData?.grade || 'Neznámý ročník',
-      items: items?.map(item => ({
-        term: item.term,
-        definition: item.definition,
-        options: item.options,
-        category: item.category,
-        imageUrl: item.image_url
-      })) || []
-    } as Topic;
-  },
-
-  async getPublicTopics() {
-    const { data: topics, error: tError } = await supabase
-      .from('topics')
-      .select(`
-        *,
-        profiles (
-          name,
-          grade
-        )
-      `)
-      .eq('is_public', true)
-      .order('created_at', { ascending: false });
-    
-    if (tError) {
-      console.error("Public topics fetch error:", tError);
-      return [];
-    }
-
-    if (!topics) return [];
-
-    const topicsWithItems = await Promise.all(topics.map(async (topic) => {
-      const { data: items } = await supabase.from('study_items').select('*').eq('topic_id', topic.id);
-      
-      const profileData = (topic as any).profiles;
-      
-      return {
-        id: topic.id,
-        name: topic.name,
-        allowedModes: topic.allowed_modes,
-        randomizeDirection: topic.randomize_direction,
-        isPublic: topic.is_public,
-        authorName: profileData?.name || 'Anonymní student',
-        authorGrade: profileData?.grade || 'Neznámý ročník',
         items: items?.map(item => ({
           term: item.term,
           definition: item.definition,
@@ -144,15 +56,14 @@ export const dbService = {
   },
 
   async saveTopic(userId: string, topic: Topic) {
-    const isExisting = !topic.id.startsWith('topic_') && !topic.id.startsWith('ai_') && !topic.id.startsWith('imported_');
+    const isNew = !topic.id.startsWith('topic_') && !topic.id.startsWith('ai_') && !topic.id.startsWith('imported_');
     
     const { data: savedTopic, error: tError } = await supabase.from('topics').upsert({
-      id: isExisting ? topic.id : undefined,
+      id: isNew ? topic.id : undefined,
       user_id: userId,
       name: topic.name,
       allowed_modes: topic.allowedModes,
-      randomize_direction: topic.randomizeDirection,
-      is_public: topic.isPublic,
+      randomize_direction: topic.randomizeDirection
     }).select().single();
 
     if (tError) throw tError;
@@ -169,8 +80,7 @@ export const dbService = {
     }));
 
     if (itemsToInsert.length > 0) {
-      const { error: iError } = await supabase.from('study_items').insert(itemsToInsert);
-      if (iError) throw iError;
+      await supabase.from('study_items').insert(itemsToInsert);
     }
 
     return savedTopic;
@@ -212,30 +122,14 @@ export const dbService = {
   async updateStats(userId: string, score: number, performanceUpdate?: any) {
     const { data: existing } = await supabase.from('study_stats').select('*').eq('user_id', userId).maybeSingle();
     
-    const now = new Date();
-    const today = now.getFullYear() + '-' + 
-                  String(now.getMonth() + 1).padStart(2, '0') + '-' + 
-                  String(now.getDate()).padStart(2, '0');
-
+    const today = new Date().toISOString().split('T')[0];
     let streak = existing?.streak || 0;
-    const lastDate = existing?.last_date;
-
-    if (!lastDate) {
-      streak = 1;
-    } else if (lastDate === today) {
-      streak = existing.streak;
-    } else {
-      const lastDateObj = new Date(lastDate);
-      const todayObj = new Date(today);
-      lastDateObj.setHours(0, 0, 0, 0);
-      todayObj.setHours(0, 0, 0, 0);
-      const diffTime = todayObj.getTime() - lastDateObj.getTime();
-      const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-      if (diffDays === 1) {
-        streak += 1;
-      } else {
-        streak = 1;
-      }
+    
+    if (existing?.last_date !== today) {
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = yesterday.toISOString().split('T')[0];
+      streak = (existing?.last_date === yesterdayStr) ? streak + 1 : 1;
     }
 
     const sessions = (existing?.sessions || 0) + 1;

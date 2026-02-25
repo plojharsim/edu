@@ -1,17 +1,16 @@
 import { Category } from "../studyData";
 
 export const zemepis: Category = {
-  id: 'geography',
+  id: 'zemepis',
   title: 'Zeměpis',
   iconName: 'Globe',
   color: 'bg-emerald-600',
   topics: [
     {
-      id: 'europe-capitals',
+      id: 'evropa-mesta',
       name: 'Hlavní města Evropy',
       allowedModes: ['flashcards', 'abcd', 'writing', 'matching', 'sorting'],
       randomizeDirection: true,
-      targetGrades: ['3. třída ZŠ', '4. třída ZŠ', '5. třída ZŠ', '6. třída ZŠ', '7. třída ZŠ', '8. třída ZŠ'],
       items: [
         { term: 'Praha', definition: 'Česko', category: 'Střední Evropa', options: ['Brno', 'Bratislava', 'Vídeň'] },
         { term: 'Bratislava', definition: 'Slovensko', category: 'Střední Evropa', options: ['Košice', 'Praha', 'Budapešť'] },

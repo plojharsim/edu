@@ -27,7 +27,6 @@ const StudySession = () => {
   
   const [view, setView] = useState<'topic-selection' | 'mode-selection' | 'config' | 'study' | 'results'>('topic-selection');
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
-  const [userGrade, setUserGrade] = useState('');
   
   const [sessionQueue, setSessionQueue] = useState<StudyItem[]>([]);
   const [masteredCount, setMasteredCount] = useState(0); 
@@ -53,9 +52,13 @@ const StudySession = () => {
       return;
     }
 
+    // Nejprve získáme položky (případně prioritizované algoritmem)
     let items = learningAlgorithm.prioritizeItems(topic.items, performanceData);
+    
+    // Vždy náhodně promícháme pořadí (Shuffle)
     items = [...items].sort(() => Math.random() - 0.5);
 
+    // Aplikujeme případnou randomizaci směru (termín vs definice)
     items = items.map(item => {
       const canRandomize = topic.randomizeDirection && selectedMode !== 'abcd' && selectedMode !== 'sorting' && Math.random() > 0.5;
       if (canRandomize) {
@@ -93,39 +96,16 @@ const StudySession = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        
-        // Načíst profil pro filtrování
-        const profile = await dbService.getProfile(user.id);
-        if (profile) {
-          setUserGrade(profile.grade);
+        const userTopics = await dbService.getUserTopics(user.id);
+        const data = { ...PREDEFINED_DATA };
+        if (userTopics.length > 0) {
+          data.custom = {
+            id: 'custom',
+            title: 'Vlastní',
+            topics: userTopics
+          };
         }
-
-        // Pokud je categoryId 'public', načteme jen konkrétní téma
-        if (categoryId === 'public' && topicId) {
-          const topic = await dbService.getTopicById(topicId);
-          if (topic) {
-            setSelectedTopic(topic);
-            const forcedMode = searchParams.get('mode') as any;
-            if (forcedMode && ['flashcards', 'abcd', 'writing', 'matching', 'sorting'].includes(forcedMode)) {
-              handleModeSelect(forcedMode, topic);
-            } else {
-              setView('mode-selection');
-            }
-          }
-        } else {
-          // Standardní načítání kategorií
-          const userTopics = await dbService.getUserTopics(user.id);
-          const data = { ...PREDEFINED_DATA };
-          if (userTopics.length > 0) {
-            data.custom = {
-              id: 'custom',
-              title: 'Vlastní',
-              topics: userTopics,
-              isCustom: true
-            };
-          }
-          setStudyData(data);
-        }
+        setStudyData(data);
 
         const stats = await dbService.getStats(user.id);
         if (stats?.performance_data) {
@@ -136,7 +116,9 @@ const StudySession = () => {
       }
     };
     fetchData();
-  }, [user, categoryId, topicId]);
+  }, [user]);
+
+  const category = studyData[categoryId || ''];
 
   useEffect(() => {
     let interval: any;
@@ -148,24 +130,20 @@ const StudySession = () => {
     return () => clearInterval(interval);
   }, [view]);
 
-  // Vedlejší efekt pro navigaci z kategorií
   useEffect(() => {
-    if (topicId && categoryId !== 'public') {
-      const category = studyData[categoryId || ''];
-      if (category) {
-        const topic = category.topics.find((t: any) => t.id === topicId);
-        if (topic) {
-          setSelectedTopic(topic);
-          const forcedMode = searchParams.get('mode') as any;
-          if (forcedMode && ['flashcards', 'abcd', 'writing', 'matching', 'sorting'].includes(forcedMode)) {
-            handleModeSelect(forcedMode, topic);
-          } else {
-            setView('mode-selection');
-          }
+    if (topicId && category) {
+      const topic = category.topics.find((t: any) => t.id === topicId);
+      if (topic) {
+        setSelectedTopic(topic);
+        const forcedMode = searchParams.get('mode') as any;
+        if (forcedMode && ['flashcards', 'abcd', 'writing', 'matching', 'sorting'].includes(forcedMode)) {
+          handleModeSelect(forcedMode, topic);
+        } else {
+          setView('mode-selection');
         }
       }
     }
-  }, [topicId, categoryId, studyData]);
+  }, [topicId, category, searchParams]);
 
   const finalizeSession = async (score: number, finalPerformance: ItemPerformance) => {
     if (!user) return;
@@ -260,22 +238,10 @@ const StudySession = () => {
   };
 
   if (loading) return <LoadingScreen message="Připravuji tvou lekci..." />;
-  
-  const category = categoryId === 'public' ? { title: 'Veřejná knihovna' } : studyData[categoryId || ''];
   if (!category && view !== 'results') return null;
 
   if (view === 'topic-selection') {
-    const isAdult = userGrade === 'Dospělý';
-    const topicsToFilter = category.topics || [];
-    
-    const filteredTopics = topicsToFilter.filter((topic: Topic) => {
-      if (isAdult) return true;
-      if (category.isCustom) return true;
-      if (!topic.targetGrades) return true;
-      return topic.targetGrades.includes(userGrade);
-    });
-
-    const sortedTopics = [...filteredTopics].sort((a, b) => {
+    const sortedTopics = [...(category.topics || [])].sort((a, b) => {
       if (a.isDynamic && !b.isDynamic) return -1;
       if (!a.isDynamic && b.isDynamic) return 1;
       return 0;
@@ -286,16 +252,16 @@ const StudySession = () => {
         <Button 
           variant="ghost" 
           onClick={() => navigate('/app')} 
-          className="absolute top-[calc(2rem+env(safe-area-inset-top,0px))] left-8 rounded-2xl h-12 w-12 bg-card shadow-sm border border-border flex-shrink-0"
+          className="absolute top-[calc(2rem+env(safe-area-inset-top,0px))] left-8 rounded-2xl hover:bg-card dark:hover:bg-slate-800"
         >
-          <ChevronLeft className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+          <ChevronLeft className="mr-2 w-5 h-5" /> Zpět na přehled
         </Button>
         <div className="text-center mb-12">
           <h1 className="text-4xl font-black text-slate-800 dark:text-slate-100 mb-2 truncate max-w-xl mx-auto">{category.title}</h1>
           <p className="text-slate-500 dark:text-slate-400 font-medium">Vyber si téma, které chceš procvičit</p>
         </div>
         <div className="flex flex-wrap justify-center gap-4 w-full max-w-4xl">
-          {sortedTopics.length > 0 ? sortedTopics.map((topic: Topic) => (
+          {sortedTopics.map((topic: Topic) => (
             <Button 
               key={topic.id} 
               variant="outline" 
@@ -312,11 +278,7 @@ const StudySession = () => {
                 </span>
               </div>
             </Button>
-          )) : (
-            <div className="text-center p-12 bg-card rounded-[3rem] border-2 border-dashed border-border w-full">
-              <p className="text-muted-foreground font-bold">V této kategorii pro tvůj ročník nejsou žádná témata.</p>
-            </div>
-          )}
+          ))}
         </div>
       </div>
     );
@@ -327,10 +289,10 @@ const StudySession = () => {
       <div className="min-h-screen bg-background p-6 pt-safe flex flex-col items-center justify-center transition-colors duration-300">
         <Button 
           variant="ghost" 
-          onClick={() => categoryId === 'public' ? navigate('/app/library') : setView('topic-selection')} 
-          className="absolute top-[calc(2rem+env(safe-area-inset-top,0px))] left-8 rounded-2xl h-12 w-12 bg-card shadow-sm border border-border flex-shrink-0"
+          onClick={() => setView('topic-selection')} 
+          className="absolute top-[calc(2rem+env(safe-area-inset-top,0px))] left-8 rounded-2xl hover:bg-card dark:hover:bg-slate-800"
         >
-          <ChevronLeft className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+          <ChevronLeft className="mr-2 w-5 h-5" /> Změnit téma
         </Button>
         <div className="text-center mb-12 px-4 max-w-2xl w-full">
           <span className="text-indigo-600 dark:text-indigo-400 font-bold uppercase tracking-widest text-xs mb-2 block truncate">{selectedTopic?.name}</span>

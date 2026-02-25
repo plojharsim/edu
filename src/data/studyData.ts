@@ -18,10 +18,6 @@ export interface Topic {
   randomizeDirection?: boolean;
   isDynamic?: boolean;
   dynamicType?: 'math';
-  isPublic?: boolean;
-  authorName?: string;
-  authorGrade?: string;
-  targetGrades?: string[]; // Nové pole pro filtrování podle ročníku
 }
 
 export interface Category {

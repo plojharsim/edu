@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { 
   Dialog, DialogContent, DialogDescription, 
@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Wand2, Sparkles, Key, Loader2, Save, ImagePlus, X, FileImage } from "lucide-react";
+import { Wand2, Sparkles, Key, Loader2, Save } from "lucide-react";
 import { showSuccess, showError } from "@/utils/toast";
 import { Topic } from "@/data/studyData";
 import { useAuth } from '@/components/AuthProvider';
@@ -27,8 +27,6 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
   const [apiKey, setApiKey] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showKeyInput, setShowKeyInput] = useState(false);
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!user || !isOpen) return;
@@ -44,29 +42,6 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
     };
     fetchKey();
   }, [user, isOpen]);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const files = Array.from(e.target.files);
-      setSelectedFiles(prev => [...prev, ...files]);
-    }
-  };
-
-  const removeFile = (index: number) => {
-    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
-  };
-
-  // Helper pro převod souboru na formát, který chápe Gemini
-  async function fileToGenerativePart(file: File) {
-    const base64EncodedDataPromise = new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve((reader.result as string).split(',')[1]);
-      reader.readAsDataURL(file);
-    });
-    return {
-      inlineData: { data: await base64EncodedDataPromise as string, mimeType: file.type },
-    };
-  }
 
   const handleAction = async () => {
     if (!user) return;
@@ -84,10 +59,7 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
       return;
     }
 
-    if (!prompt.trim() && selectedFiles.length === 0) {
-      showError("Zadej textové zadání nebo nahraj fotky poznámek.");
-      return;
-    }
+    if (!prompt.trim()) return;
 
     setIsLoading(true);
 
@@ -95,10 +67,8 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
       const genAI = new GoogleGenerativeAI(apiKey);
       const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
 
-      const systemPrompt = `Jsi asistent pro tvorbu studijních materiálů. Tvým úkolem je vytvořit seznam termínů a definic pro studijní aplikaci. 
-      Uživatel ti může poslat textové zadání nebo fotky svých poznámek (OCR). 
-      Analyzuj veškerý obsah a vytvoř studijní sadu.
-      Odpověz VŽDY A POUZE ve formátu JSON bez jakéhokoliv dalšího textu, který odpovídá této struktuře:
+      const systemPrompt = `Jsi asistent pro tvorbu studijních materiálů. Tvým úkolem je vytvořit seznam termínů a definic pro studijní aplikaci na základě uživatelského zadání. 
+      Odpověz VŽDY A POUZE ve formátu JSON, který odpovídá této struktuře:
       {
         "name": "Název tématu (krátký a výstižný)",
         "items": [
@@ -110,20 +80,10 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
           }
         ]
       }
-      Vytvoř alespoň 8 až 15 položek. Pokud jsou poznámky v jiném jazyce, přizpůsob termíny a definice tak, aby dávaly smysl pro studium.
-      Textové zadání od uživatele: "${prompt || "Vytvoř studijní sadu z přiložených fotek."}"`;
+      Vytvoř alespoň 8 až 12 položek. Pokud uživatel zadá jazyk (např. angličtina), termín bude v češtině a definice v cílovém jazyce (nebo naopak, aby to dávalo smysl).
+      Uživatel chce téma: "${prompt}"`;
 
-      const parts: any[] = [systemPrompt];
-      
-      // Přidáme obrázky do promptu, pokud existují
-      if (selectedFiles.length > 0) {
-        const imageParts = await Promise.all(
-          selectedFiles.map(file => fileToGenerativePart(file))
-        );
-        parts.push(...imageParts);
-      }
-
-      const result = await model.generateContent(parts);
+      const result = await model.generateContent(systemPrompt);
       const response = await result.response;
       const text = response.text();
       
@@ -139,13 +99,12 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
       };
 
       onTopicGenerated(newTopic);
-      showSuccess("AI úspěšně analyzovala tvoje poznámky a vytvořila téma!");
+      showSuccess("AI úspěšně vygenerovala nové téma!");
       onOpenChange(false);
       setPrompt("");
-      setSelectedFiles([]);
     } catch (error) {
       console.error("AI Generation Error:", error);
-      showError("Nepodařilo se vygenerovat téma. Zkontroluj API klíč nebo kvalitu fotek.");
+      showError("Nepodařilo se vygenerovat téma. Zkontroluj API klíč nebo zadání.");
     } finally {
       setIsLoading(false);
     }
@@ -153,7 +112,7 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="rounded-[2.5rem] bg-card border-border max-w-lg p-8 overflow-y-auto max-h-[90vh]">
+      <DialogContent className="rounded-[2.5rem] bg-card border-border max-w-lg p-8">
         <DialogHeader>
           <div className="flex justify-center mb-4">
             <div className="p-4 bg-indigo-600 rounded-3xl shadow-lg shadow-indigo-200 dark:shadow-none">
@@ -164,7 +123,7 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
           <DialogDescription className="text-center text-muted-foreground">
             {showKeyInput 
               ? "Pro používání AI je potřeba vložit tvůj osobní API klíč." 
-              : "Nahraj fotky poznámek nebo napiš téma a nechej AI kouzlit."}
+              : "Napiš, co se chceš naučit, a AI ti vytvoří studijní sadu během pár vteřin."}
           </DialogDescription>
         </DialogHeader>
 
@@ -190,52 +149,12 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
           ) : (
             <div className="space-y-4">
               <Textarea 
-                placeholder="Upřesni zadání nebo nechej prázdné a nahraj jen fotky..."
+                placeholder="Např.: Slovíčka na téma jídlo v angličtině, Hlavní města Asie, Bitvy 2. světové války..."
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
-                className="min-h-[100px] rounded-2xl border-2 border-border bg-background text-base p-4 resize-none focus:border-indigo-500"
+                className="min-h-[120px] rounded-2xl border-2 border-border bg-background text-lg p-4 resize-none focus:border-indigo-500"
                 autoFocus
               />
-
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Fotky poznámek</label>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="rounded-xl gap-2 border-dashed border-2 hover:bg-indigo-50 dark:hover:bg-indigo-950/20"
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    <ImagePlus className="w-4 h-4" /> Přidat fotky
-                  </Button>
-                  <input 
-                    type="file" 
-                    multiple 
-                    accept="image/*" 
-                    className="hidden" 
-                    ref={fileInputRef} 
-                    onChange={handleFileChange}
-                  />
-                </div>
-
-                {selectedFiles.length > 0 && (
-                  <div className="grid grid-cols-2 gap-2">
-                    {selectedFiles.map((file, idx) => (
-                      <div key={idx} className="relative group p-2 bg-muted/50 rounded-xl border border-border flex items-center gap-2">
-                        <FileImage className="w-4 h-4 text-indigo-500 shrink-0" />
-                        <span className="text-[10px] font-medium truncate flex-1">{file.name}</span>
-                        <button 
-                          onClick={() => removeFile(idx)}
-                          className="p-1 rounded-full bg-red-100 dark:bg-red-900/30 text-red-500 hover:bg-red-200 transition-colors"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
               <div className="flex items-center justify-end">
                 <Button 
                   variant="ghost" 
@@ -253,7 +172,7 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
         <DialogFooter className="sm:justify-center">
           <Button 
             onClick={handleAction} 
-            disabled={isLoading || (showKeyInput && !apiKey) || (!showKeyInput && !prompt && selectedFiles.length === 0)}
+            disabled={isLoading || (showKeyInput && !apiKey) || (!showKeyInput && !prompt)}
             className="w-full h-14 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-lg gap-2 shadow-lg shadow-indigo-200 dark:shadow-none"
           >
             {isLoading ? (

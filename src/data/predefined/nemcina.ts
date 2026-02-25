@@ -1,17 +1,16 @@
 import { Category } from "../studyData";
 
 export const nemcina: Category = {
-  id: 'german',
+  id: 'nemcina',
   title: 'Němčina',
   iconName: 'Languages',
   color: 'bg-amber-600',
   topics: [
     {
-      id: 'german-klett-3-2',
+      id: 'klett-maximal-2-lekce-3-2',
       name: 'Klett Maximal interaktiv 2 - Lekce 3.2',
       allowedModes: ['flashcards', 'abcd', 'writing', 'matching', 'sorting'],
       randomizeDirection: true,
-      targetGrades: ['9. třída ZŠ'],
       items: [
         { term: 'Bad', definition: 'koupelna', category: 'das', options: ['kuchyně', 'zahrada', 'ložnice'] },
         { term: 'euer / eure', definition: 'váš / vaše', category: '—', options: ['náš / naše', 'můj / moje', 'jejich'] },

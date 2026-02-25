@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as LucideIcons from 'lucide-react';
-import { Sparkles, TrendingUp, Edit3, Heart, Home, Trophy, Globe } from 'lucide-react';
+import { Sparkles, TrendingUp, Edit3, Heart, Home, Trophy } from 'lucide-react';
 import CategoryCard from '@/components/Dashboard/CategoryCard';
 import BadgesSection from '@/components/Dashboard/BadgesSection';
 import { Button } from "@/components/ui/button";
@@ -71,44 +71,12 @@ const Index = () => {
     fetchData();
   }, [user, navigate]);
 
-  // Filtrování dat podle ročníku
-  const filteredStudyData = useMemo(() => {
-    const userGrade = profile.grade;
-    const isAdult = userGrade === 'Dospělý';
-
-    const filtered: Record<string, Category> = {};
-
-    Object.entries(studyData).forEach(([key, category]) => {
-      // Vlastní témata (z databáze) ukazujeme vždy
-      if (category.isCustom) {
-        filtered[key] = category;
-        return;
-      }
-
-      // Filtrování témat v kategorii
-      const relevantTopics = category.topics.filter(topic => {
-        if (isAdult) return true;
-        if (!topic.targetGrades) return true; // Pokud nemá cílové třídy, je pro všechny
-        return topic.targetGrades.includes(userGrade);
-      });
-
-      if (relevantTopics.length > 0) {
-        filtered[key] = {
-          ...category,
-          topics: relevantTopics
-        };
-      }
-    });
-
-    return filtered;
-  }, [studyData, profile.grade]);
-
   const customTopicsCount = useMemo(() => {
     return studyData['custom']?.topics.length || 0;
   }, [studyData]);
 
   const dailyChallenge = useMemo(() => {
-    const allTopics = Object.values(filteredStudyData).flatMap(cat => 
+    const allTopics = Object.values(studyData).flatMap(cat => 
       cat.topics.map(topic => ({ 
         categoryId: cat.id, 
         topicId: topic.id, 
@@ -130,7 +98,7 @@ const Index = () => {
       ...allTopics[topicIndex],
       mode: modes[modeIndex] as any
     };
-  }, [filteredStudyData]);
+  }, [studyData]);
 
   const getIcon = (iconName: string = 'BookText') => {
     const Icon = (LucideIcons as any)[iconName] || LucideIcons.BookText;
@@ -183,16 +151,6 @@ const Index = () => {
             <Button 
               variant="ghost" 
               size="icon" 
-              onClick={() => navigate('/app/library')}
-              className="group rounded-2xl h-12 w-12 bg-card shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-all border border-border"
-              title="Veřejná knihovna"
-            >
-              <LucideIcons.Globe className="w-6 h-6 text-slate-500 dark:text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors" />
-            </Button>
-
-            <Button 
-              variant="ghost" 
-              size="icon" 
               onClick={() => navigate('/app/leaderboard')}
               className="group rounded-2xl h-12 w-12 bg-card shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-all border border-border"
               title="Žebříček"
@@ -219,7 +177,7 @@ const Index = () => {
         <div>
           <h2 className="text-2xl font-black text-foreground mb-6 text-center md:text-left">Tvoje studijní sady</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center md:justify-items-stretch">
-            {Object.values(filteredStudyData).map((cat) => {
+            {Object.values(studyData).map((cat) => {
               const itemCount = cat.topics.reduce((acc, t) => acc + t.items.length, 0);
               const hasDynamic = cat.topics.some(t => t.isDynamic);
               const label = `${itemCount} položek${hasDynamic ? ' a generované' : ''}`;
