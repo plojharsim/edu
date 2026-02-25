@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { 
   Sparkles, BookOpen, Layers, CheckSquare, 
   Keyboard, Zap, Trophy, Heart, ArrowRight,
-  Github, Globe, Camera, Cloud, Smartphone
+  Github, Globe
 } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from '@/components/AuthProvider';
@@ -61,7 +61,7 @@ const Landing = () => {
         <div className="max-w-5xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/30 mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <Zap className="w-4 h-4 text-indigo-600" />
-            <span className="text-xs font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">Efektivní učení s AI</span>
+            <span className="text-xs font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">Efektivní učení nové generace</span>
           </div>
           
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-foreground mb-8 tracking-tight leading-[0.9] animate-in fade-in slide-in-from-bottom-6 duration-1000">
@@ -70,7 +70,8 @@ const Landing = () => {
           </h1>
           
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-12 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200">
-            Moderní platforma pro studenty. Vyfoť své poznámky, nechej AI vytvořit studijní sadu a ovládni látku hravou formou s cloudovou synchronizací.
+            Moderní platforma pro studenty. Vytvářej si vlastní studijní sady, 
+            využívej AI pro generování obsahu a procvičuj hravou formou.
           </p>
           
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-300">
@@ -96,40 +97,36 @@ const Landing = () => {
       {/* Features Grid */}
       <section className="py-20 px-6 bg-slate-50/50 dark:bg-slate-900/20">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-black mb-4">Vše, co potřebuješ k úspěchu</h2>
-            <p className="text-muted-foreground">Pět unikátních studijních režimů a chytré technologie.</p>
-          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <FeatureCard 
-              icon={Camera}
-              title="AI z fotek"
-              description="Vyfoť poznámky v sešitě a AI je okamžitě převede na otázky."
-              color="bg-indigo-500"
-            />
-            <FeatureCard 
               icon={Layers}
-              title="3D Kartičky"
-              description="Klasická metoda prověřená časem v moderním interaktivním kabátě."
+              title="Kartičky"
+              description="Klasická metoda prověřená časem v moderním 3D kabátě."
               color="bg-blue-500"
             />
             <FeatureCard 
-              icon={Cloud}
-              title="Cloud Sync"
-              description="Tvůj pokrok a sady jsou v bezpečí a dostupné ze všech zařízení."
+              icon={CheckSquare}
+              title="ABCD Výběr"
+              description="Rychlé testování znalostí s okamžitou zpětnou vazbou."
               color="bg-emerald-500"
             />
             <FeatureCard 
-              icon={Smartphone}
-              title="Mobile First"
-              description="Navrženo pro telefony. Uč se v autobuse, v čekárně nebo o přestávce."
+              icon={Keyboard}
+              title="Psaní"
+              description="Nauč se přesné znění a pravopis bez kompromisů."
+              color="bg-amber-500"
+            />
+            <FeatureCard 
+              icon={BookOpen}
+              title="Přiřazování"
+              description="Propojuj souvislosti v dynamické interaktivní hře."
               color="bg-rose-500"
             />
           </div>
         </div>
       </section>
 
-      {/* Gamification section */}
+      {/* Stats/Badges Highlight */}
       <section className="py-20 px-6 overflow-hidden">
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-16">
           <div className="flex-1 space-y-8">
