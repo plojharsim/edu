@@ -4,18 +4,13 @@ import { nemcina } from "./nemcina";
 import { zemepis } from "./zemepis";
 import { matematika } from "./matematika";
 import { chemie } from "./chemie";
-import { dejepis } from "./dejepis";
-import { fyzika } from "./fyzika";
-import { prirodopis } from "./prirodopis";
 
-// Registrace všech dostupných předmětů
+// Chcete-li přidat novou sadu, vytvořte soubor ve složce predefined,
+// naimportujte ho sem a přidejte do objektu PREDEFINED_DATA.
 export const PREDEFINED_DATA: Record<string, Category> = {
-  matematika,
-  dejepis,
-  prirodopis,
-  zemepis,
-  fyzika,
-  chemie,
   anglictina,
-  nemcina
+  nemcina,
+  zemepis,
+  matematika,
+  chemie
 };
