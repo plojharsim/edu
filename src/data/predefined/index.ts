@@ -1,14 +1,51 @@
 import { Category } from "../studyData";
-import { anglictina } from "./anglictina";
-import { nemcina } from "./nemcina";
-import { matematika } from "./matematika";
-import { fyzika } from "./fyzika";
 
-// Chcete-li přidat novou sadu, vytvořte soubor ve složce predefined,
-// naimportujte ho sem a přidejte do objektu PREDEFINED_DATA.
-export const PREDEFINED_DATA: Record<string, Category> = {
-  english: anglictina,
-  german: nemcina,
-  math: matematika,
-  physics: fyzika
+export const matematika: Category = {
+  id: 'math',
+  title: 'Matematika',
+  iconName: 'Calculator',
+  color: 'bg-rose-600',
+  topics: [
+    {
+      id: 'math-word-problems',
+      name: 'Slovní úlohy',
+      allowedModes: ['abcd', 'writing'],
+      targetGrades: ['9. třída ZŠ'],
+      items: [
+        { 
+          term: 'Petr má 15 jablek, Jana jich má o 7 více. Kolik jich mají dohromady?', 
+          definition: '37', 
+          options: ['22', '30', '40'],
+          category: 'Sčítání'
+        },
+        { 
+          term: 'Vlak jede rychlostí 80 km/h. Jakou vzdálenost ujede za 2,5 hodiny?', 
+          definition: '200', 
+          options: ['160', '240', '180'],
+          category: 'Pohyb'
+        },
+        { 
+          term: 'Tričko stálo 400 Kč, nyní je ve slevě 25 %. Kolik stojí po slevě?', 
+          definition: '300', 
+          options: ['350', '375', '100'],
+          category: 'Procenta'
+        },
+        { 
+          term: 'Bazén se naplní 3 kohoutky za 8 hodin. Za jak dlouho ho naplní 4 kohoutky?', 
+          definition: '6', 
+          options: ['10', '11', '5'],
+          category: 'Nepřímá úměra'
+        }
+      ]
+    },
+    {
+      id: 'math-dynamic',
+      name: 'Dynamické procvičování',
+      isDynamic: true,
+      dynamicType: 'math',
+      allowedModes: ['abcd', 'writing', 'matching'],
+      targetGrades: ['4. třída ZŠ', '5. třída ZŠ', '6. třída ZŠ', '7. třída ZŠ', '8. třída ZŠ', '9. třída ZŠ'],
+      items: [] 
+    }
+  ]
 };
