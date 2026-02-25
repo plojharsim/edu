@@ -128,7 +128,7 @@ const EditTopics = () => {
       id, 
       name: "Nové téma", 
       items: [],
-      allowedModes: ['flashcards', 'abcd', 'writing', 'matching', 'sorting'],
+      allowedModes: ['flashcards', 'abcd', 'writing', 'matching'],
       randomizeDirection: false,
       isPublic: false
     };
@@ -166,7 +166,7 @@ const EditTopics = () => {
   const toggleMode = (topicId: string, mode: StudyMode) => {
     const newTopics = topics.map(t => {
       if (t.id === topicId) {
-        const modes = t.allowedModes || ['flashcards', 'abcd', 'writing', 'matching', 'sorting'];
+        const modes = t.allowedModes || ['flashcards', 'abcd', 'writing', 'matching'];
         const newModes = modes.includes(mode) 
           ? modes.filter(m => m !== mode)
           : [...modes, mode];
@@ -218,7 +218,7 @@ const EditTopics = () => {
 
   const deleteItem = (topicId: string, itemIdx: number) => {
     const newTopics = [...topics];
-    const topic = newTopics.find(t => t.id === topicId);
+    const topic = newTopics.find(t => topicId === topicId);
     if (topic) {
       topic.items.splice(itemIdx, 1);
       setTopics(newTopics);
@@ -227,14 +227,12 @@ const EditTopics = () => {
 
   const activeTopic = topics.find(t => t.id === activeTopicId);
   const isAbcdModeEnabled = activeTopic?.allowedModes?.includes('abcd') ?? true;
-  const isSortingModeEnabled = activeTopic?.allowedModes?.includes('sorting') ?? true;
 
   const MODES: { id: StudyMode, label: string, icon: any }[] = [
     { id: 'flashcards', label: 'Kartičky', icon: Layers },
     { id: 'abcd', label: 'Výběr (ABCD)', icon: CheckSquare },
     { id: 'writing', label: 'Psaní', icon: Keyboard },
     { id: 'matching', label: 'Přiřazování', icon: BookOpen },
-    { id: 'sorting', label: 'Rozřazování', icon: LayoutPanelTop },
   ];
 
   if (loading) return <LoadingScreen message="Otevírám tvoji knihovnu..." />;
@@ -404,12 +402,12 @@ const EditTopics = () => {
 
                   <div>
                     <h3 className="text-sm font-bold text-foreground mb-4">Povolené studijní režimy</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                       {MODES.map(mode => (
                         <div key={mode.id} className="flex items-center space-x-3 p-3 sm:p-4 bg-background rounded-2xl border border-border">
                           <Checkbox 
                             id={`mode-${mode.id}`}
-                            checked={(activeTopic.allowedModes || ['flashcards', 'abcd', 'writing', 'matching', 'sorting']).includes(mode.id)}
+                            checked={(activeTopic.allowedModes || ['flashcards', 'abcd', 'writing', 'matching']).includes(mode.id)}
                             onCheckedChange={() => toggleMode(activeTopic.id, mode.id)}
                           />
                           <Label htmlFor={`mode-${mode.id}`} className="flex items-center gap-2 cursor-pointer font-medium text-foreground text-sm">
@@ -512,17 +510,15 @@ const EditTopics = () => {
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {isSortingModeEnabled && (
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-bold uppercase text-indigo-500/60 tracking-widest">Kategorie (pro rozřazování)</label>
-                          <Input 
-                            value={item.category || ""}
-                            onChange={(e) => updateItem(activeTopic.id, idx, 'category', e.target.value)}
-                            placeholder="Např. Zvířata"
-                            className="h-10 sm:h-12 rounded-xl border-indigo-100 dark:border-indigo-900/30 bg-background text-foreground text-sm"
-                          />
-                        </div>
-                      )}
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold uppercase text-indigo-500/60 tracking-widest">Kategorie (pro rozřazování)</label>
+                        <Input 
+                          value={item.category || ""}
+                          onChange={(e) => updateItem(activeTopic.id, idx, 'category', e.target.value)}
+                          placeholder="Např. Zvířata (aktivuje režim Rozřazování)"
+                          className="h-10 sm:h-12 rounded-xl border-indigo-100 dark:border-indigo-900/30 bg-background text-foreground text-sm"
+                        />
+                      </div>
                       
                       {isAbcdModeEnabled && (
                         <div className="space-y-3 p-3 sm:p-4 bg-muted/30 rounded-2xl border border-border">

@@ -252,13 +252,12 @@ const StudySession = () => {
   const isModeAllowed = (m: StudyMode) => {
     if (!selectedTopic) return false;
     
-    // Logika pro režim Rozřazování (sorting): musí existovat alespoň jedna položka s kategorií
+    // Režim Rozřazování (sorting) se povoluje automaticky, pokud existují kategorie
     if (m === 'sorting') {
-      const hasCategories = selectedTopic.items.some(item => item.category && item.category.trim() !== "");
-      if (!hasCategories) return false;
+      return selectedTopic.items.some(item => item.category && item.category.trim() !== "");
     }
 
-    const allowed = selectedTopic.allowedModes || ['flashcards', 'abcd', 'writing', 'matching', 'sorting'];
+    const allowed = selectedTopic.allowedModes || ['flashcards', 'abcd', 'writing', 'matching'];
     return allowed.includes(m);
   };
 
