@@ -21,6 +21,7 @@ export interface Topic {
   isPublic?: boolean;
   authorName?: string;
   authorSchool?: string;
+  authorGrade?: string;
 }
 
 export interface Category {

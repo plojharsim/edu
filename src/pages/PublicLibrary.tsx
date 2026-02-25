@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ChevronLeft, Globe, BookOpen, Download, User, School, Search } from "lucide-react";
+import { ChevronLeft, Globe, BookOpen, Download, User, School, Search, GraduationCap } from "lucide-react";
 import { dbService } from '@/services/dbService';
 import { Topic } from '@/data/studyData';
 import LoadingScreen from '@/components/LoadingScreen';
@@ -40,7 +40,7 @@ const PublicLibrary = () => {
       const newTopic = {
         ...topic,
         id: `imported_${Date.now()}`,
-        isPublic: false // Importované téma je u mě soukromé
+        isPublic: false 
       };
       await dbService.saveTopic(user.id, newTopic);
       showSuccess(`Téma "${topic.name}" bylo přidáno do tvé knihovny!`);
@@ -52,7 +52,8 @@ const PublicLibrary = () => {
   const filteredTopics = topics.filter(t => 
     t.name.toLowerCase().includes(search.toLowerCase()) || 
     t.authorName?.toLowerCase().includes(search.toLowerCase()) ||
-    t.authorSchool?.toLowerCase().includes(search.toLowerCase())
+    t.authorSchool?.toLowerCase().includes(search.toLowerCase()) ||
+    t.authorGrade?.toLowerCase().includes(search.toLowerCase())
   );
 
   if (loading) return <LoadingScreen message="Otevírám veřejnou knihovnu..." />;
@@ -105,6 +106,10 @@ const PublicLibrary = () => {
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <User className="w-4 h-4" />
                     <span className="text-sm font-bold">{topic.authorName}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <GraduationCap className="w-4 h-4" />
+                    <span className="text-xs font-bold">{topic.authorGrade}</span>
                   </div>
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <School className="w-4 h-4" />

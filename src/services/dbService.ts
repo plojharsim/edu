@@ -63,14 +63,14 @@ export const dbService = {
   },
 
   async getPublicTopics() {
-    // Dotaz s explicitním načtením profilu autora
     const { data: topics, error: tError } = await supabase
       .from('topics')
       .select(`
         *,
         profiles (
           name,
-          school
+          school,
+          grade
         )
       `)
       .eq('is_public', true)
@@ -95,6 +95,7 @@ export const dbService = {
         randomizeDirection: topic.randomize_direction,
         authorName: profileData?.name || 'Anonymní student',
         authorSchool: profileData?.school || 'Neznámá škola',
+        authorGrade: profileData?.grade || 'Neznámý ročník',
         items: items?.map(item => ({
           term: item.term,
           definition: item.definition,
