@@ -32,7 +32,6 @@ import { useAuth } from '@/components/AuthProvider';
 import { useNavigate } from 'react-router-dom';
 import { dbService } from '@/services/dbService';
 import { showError, showSuccess } from '@/utils/toast';
-import { APP_VERSION } from '@/utils/version';
 
 const GRADE_OPTIONS = [
   { value: "Předškolák", label: "Předškolák" },
@@ -230,10 +229,6 @@ const SettingsDialog = () => {
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
-          </div>
-
-          <div className="text-center pt-4 opacity-30">
-            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Verze {APP_VERSION}</p>
           </div>
         </div>
       </DialogContent>
