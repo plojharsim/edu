@@ -3,18 +3,17 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { CheckCircle2, XCircle, ArrowRight, Trophy } from "lucide-react";
+import { CheckCircle2, XCircle, ArrowRight } from "lucide-react";
 
 interface MultipleChoiceProps {
   question: string;
   imageUrl?: string;
   options: string[];
   correctAnswer: string;
-  isLast?: boolean;
   onAnswer: (isCorrect: boolean) => void;
 }
 
-const MultipleChoice = ({ question, imageUrl, options, correctAnswer, isLast, onAnswer }: MultipleChoiceProps) => {
+const MultipleChoice = ({ question, imageUrl, options, correctAnswer, onAnswer }: MultipleChoiceProps) => {
   const [selected, setSelected] = useState<string | null>(null);
   const [isConfirmed, setIsConfirmed] = useState(false);
 
@@ -78,18 +77,9 @@ const MultipleChoice = ({ question, imageUrl, options, correctAnswer, isLast, on
         <div className="flex justify-center animate-in fade-in slide-in-from-bottom-4 duration-300">
           <Button 
             onClick={handleNext}
-            className={cn(
-              "h-14 px-10 rounded-2xl font-black text-lg gap-2 shadow-xl min-w-[200px] transition-all",
-              isLast 
-                ? "bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-200 dark:shadow-none" 
-                : "bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-200 dark:shadow-none"
-            )}
+            className="h-14 px-10 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-lg gap-2 shadow-xl shadow-indigo-200 dark:shadow-none min-w-[200px]"
           >
-            {isLast ? (
-              <>Zobrazit výsledky <Trophy className="w-5 h-5" /></>
-            ) : (
-              <>Další otázka <ArrowRight className="w-5 h-5" /></>
-            )}
+            Další otázka <ArrowRight className="w-5 h-5" />
           </Button>
         </div>
       )}
