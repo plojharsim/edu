@@ -25,7 +25,6 @@ const TranslationInput = ({ term, imageUrl, correctTranslation, onAnswer }: Tran
       showError(`Chyba. Správná odpověď byla: ${correctTranslation}`);
     }
 
-    // Okamžitě přejdeme na další otázku
     onAnswer(isCorrect);
     setValue("");
   };
@@ -41,7 +40,9 @@ const TranslationInput = ({ term, imageUrl, correctTranslation, onAnswer }: Tran
           </div>
         )}
 
-        <h3 className="text-3xl font-black text-slate-800 dark:text-slate-100 leading-tight">{term}</h3>
+        <h3 className="text-2xl sm:text-3xl font-black text-slate-800 dark:text-slate-100 leading-tight w-full break-words px-2">
+          {term}
+        </h3>
       </div>
       
       <form onSubmit={handleSubmit} className="space-y-4">
