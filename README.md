@@ -3,7 +3,7 @@
 **Edu** je moderní, bleskově rychlá a vysoce interaktivní platforma pro studenty, která mění nudné biflování v zábavnou hru. Zapomeňte na papírové kartičky – s Edu máte celou svou knihovnu znalostí v kapse, synchronizovanou v cloudu a chytře řízenou algoritmem pro efektivní učení.
 
 ![Aplikace Preview](https://img.shields.io/badge/Status-Live-success?style=for-the-badge)
-![Verze](https://img.shields.io/badge/Version-1.0.0-blue?style=for-the-badge)
+![Verze](https://img.shields.io/badge/Version-1.1-blue?style=for-the-badge)
 ![Technologie](https://img.shields.io/badge/Stack-React_|_TS_|_Supabase-6366f1?style=for-the-badge)
 
 ## ✨ Klíčové Vlastnosti
