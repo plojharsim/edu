@@ -6,9 +6,11 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
- * Strips HTML tags from a string to prevent XSS attacks.
+ * Prepares input for processing by trimming whitespace.
+ * We rely on React's built-in escaping for XSS protection 
+ * rather than fragile regex-based stripping.
  */
 export function sanitizeInput(input: string): string {
   if (!input) return "";
-  return input.replace(/<[^>]*>/g, '').trim();
+  return input.trim();
 }
