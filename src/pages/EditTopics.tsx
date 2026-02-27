@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { Topic, StudyItem, StudyMode } from '@/data/studyData';
 import { showSuccess, showError } from '@/utils/toast';
-import { encodeTopic, decodeTopic, formatForDeveloper } from '@/lib/sharing';
+import { encodeTopic, decodeTopic } from '@/lib/sharing';
 import AITopicGenerator from '@/components/AITopicGenerator';
 import { useAuth } from '@/components/AuthProvider';
 import { dbService } from '@/services/dbService';
@@ -32,6 +32,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { sanitizeInput } from '@/lib/utils';
 
 const EditTopics = () => {
   const navigate = useNavigate();
@@ -68,7 +69,8 @@ const EditTopics = () => {
   const handleSaveAll = async () => {
     if (!user) return;
 
-    // Validace před uložením
+    // Validation & Sanitization before saving
+    const validatedTopics: Topic[] = [];
     for (const topic of topics) {
       if (!topic.name.trim()) {
         showError("Všechna témata musí mít vyplněný název.");
@@ -78,18 +80,25 @@ const EditTopics = () => {
         showError(`Téma "${topic.name}" musí mít alespoň jednu položku.`);
         return;
       }
-      for (let i = 0; i < topic.items.length; i++) {
-        const item = topic.items[i];
-        if (!item.term.trim() || !item.definition.trim()) {
-          showError(`Položka č. ${i + 1} v tématu "${topic.name}" má prázdný termín nebo definici.`);
-          return;
-        }
-      }
+
+      const sanitizedTopic: Topic = {
+        ...topic,
+        name: sanitizeInput(topic.name),
+        items: topic.items.map(item => ({
+          ...item,
+          term: sanitizeInput(item.term),
+          definition: sanitizeInput(item.definition),
+          options: item.options.map(sanitizeInput),
+          category: item.category ? sanitizeInput(item.category) : undefined
+        }))
+      };
+      
+      validatedTopics.push(sanitizedTopic);
     }
 
     setIsSaving(true);
     try {
-      await Promise.all(topics.map(t => dbService.saveTopic(user.id, t)));
+      await Promise.all(validatedTopics.map(t => dbService.saveTopic(user.id, t)));
       showSuccess("Všechna témata byla synchronizována s databází!");
       navigate('/app');
     } catch (e) {
@@ -224,7 +233,7 @@ const EditTopics = () => {
 
   const deleteItem = (topicId: string, itemIdx: number) => {
     const newTopics = [...topics];
-    const topic = newTopics.find(t => topicId === topicId);
+    const topic = newTopics.find(t => t.id === topicId);
     if (topic) {
       topic.items.splice(itemIdx, 1);
       setTopics(newTopics);

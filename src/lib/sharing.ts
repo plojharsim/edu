@@ -1,4 +1,17 @@
 import { Topic } from "@/data/studyData";
+import { z } from "zod";
+import { sanitizeInput } from "./utils";
+
+// Schema for validating imported topic data
+const TopicSchema = z.object({
+  name: z.string().min(1),
+  items: z.array(z.object({
+    term: z.string(),
+    definition: z.string(),
+    options: z.array(z.string()).optional(),
+    category: z.string().optional()
+  }))
+});
 
 /**
  * Encodes a topic object into a base64 string for easy sharing.
@@ -14,29 +27,31 @@ export const encodeTopic = (topic: Topic): string => {
 };
 
 /**
- * Decodes a base64 string back into a topic object with validation.
+ * Decodes a base64 string back into a topic object with validation and sanitization.
  */
 export const decodeTopic = (code: string): Topic | null => {
   try {
     const json = decodeURIComponent(escape(atob(code)));
     const parsed = JSON.parse(json);
+    
+    // Validate the structure using Zod
+    const validated = TopicSchema.parse(parsed);
 
-    // Basic validation of the structure
-    if (
-      typeof parsed === 'object' &&
-      parsed !== null &&
-      typeof parsed.name === 'string' &&
-      Array.isArray(parsed.items)
-    ) {
-      // Ensure the topic has a fresh ID to avoid collisions
-      return {
-        ...parsed,
-        id: `imported_${Date.now()}`
-      };
-    }
-    return null;
+    // Return sanitized topic
+    return {
+      id: `imported_${Date.now()}`,
+      name: sanitizeInput(validated.name),
+      items: validated.items.map(item => ({
+        term: sanitizeInput(item.term),
+        definition: sanitizeInput(item.definition),
+        options: item.options?.map(sanitizeInput) || ["", "", ""],
+        category: item.category ? sanitizeInput(item.category) : undefined
+      })),
+      allowedModes: ['flashcards', 'abcd', 'writing', 'matching', 'sorting'],
+      randomizeDirection: true
+    };
   } catch (e) {
-    console.error("Failed to decode topic", e);
+    console.error("Failed to decode topic or validation failed", e);
     return null;
   }
 };

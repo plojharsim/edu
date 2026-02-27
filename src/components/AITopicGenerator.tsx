@@ -14,6 +14,19 @@ import { showSuccess, showError } from "@/utils/toast";
 import { Topic } from "@/data/studyData";
 import { useAuth } from '@/components/AuthProvider';
 import { dbService } from '@/services/dbService';
+import { z } from 'zod';
+import { sanitizeInput } from '@/lib/utils';
+
+// Schema to ensure AI response matches the expected structure
+const GeneratedTopicSchema = z.object({
+  name: z.string().min(1),
+  items: z.array(z.object({
+    term: z.string().min(1),
+    definition: z.string().min(1),
+    options: z.array(z.string()).optional(),
+    category: z.string().optional()
+  })).min(1)
+});
 
 interface AITopicGeneratorProps {
   isOpen: boolean;
@@ -56,7 +69,6 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
     setSelectedFiles(prev => prev.filter((_, i) => i !== index));
   };
 
-  // Helper pro převod souboru na formát, který chápe Gemini
   async function fileToGenerativePart(file: File) {
     const base64EncodedDataPromise = new Promise((resolve) => {
       const reader = new FileReader();
@@ -93,29 +105,25 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
 
     try {
       const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
       const systemPrompt = `Jsi asistent pro tvorbu studijních materiálů. Tvým úkolem je vytvořit seznam termínů a definic pro studijní aplikaci. 
-      Uživatel ti může poslat textové zadání nebo fotky svých poznámek (OCR). 
       Analyzuj veškerý obsah a vytvoř studijní sadu.
       Odpověz VŽDY A POUZE ve formátu JSON bez jakéhokoliv dalšího textu, který odpovídá této struktuře:
       {
-        "name": "Název tématu (krátký a výstižný)",
+        "name": "Název tématu",
         "items": [
           { 
-            "term": "otázka nebo termín", 
-            "definition": "správná odpověď nebo definice", 
-            "options": ["uvěřitelná chyba 1", "uvěřitelná chyba 2", "uvěřitelná chyba 3"],
-            "category": "název kategorie pro rozřazování (např. Planety, Historie, Slovesa)"
+            "term": "otázka", 
+            "definition": "odpověď", 
+            "options": ["chyba 1", "chyba 2", "chyba 3"],
+            "category": "kategorie"
           }
         ]
-      }
-      Vytvoř alespoň 8 až 15 položek. Pokud jsou poznámky v jiném jazyce, přizpůsob termíny a definice tak, aby dávaly smysl pro studium.
-      Textové zadání od uživatele: "${prompt || "Vytvoř studijní sadu z přiložených fotek."}"`;
+      }`;
 
-      const parts: any[] = [systemPrompt];
+      const parts: any[] = [systemPrompt + `\n\nTextové zadání: "${prompt || "Vytvoř studijní sadu."}"`];
       
-      // Přidáme obrázky do promptu, pokud existují
       if (selectedFiles.length > 0) {
         const imageParts = await Promise.all(
           selectedFiles.map(file => fileToGenerativePart(file))
@@ -128,24 +136,33 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
       const text = response.text();
       
       const jsonStr = text.replace(/```json|```/gi, "").trim();
-      const data = JSON.parse(jsonStr);
+      const rawData = JSON.parse(jsonStr);
+      
+      // Validate AI response structure
+      const validatedData = GeneratedTopicSchema.parse(rawData);
 
+      // Sanitize all strings before creating the topic
       const newTopic: Topic = {
         id: `ai_${Date.now()}`,
-        name: data.name || "AI Generované téma",
-        items: data.items || [],
+        name: sanitizeInput(validatedData.name) || "AI Generované téma",
+        items: validatedData.items.map(item => ({
+          term: sanitizeInput(item.term),
+          definition: sanitizeInput(item.definition),
+          options: item.options?.map(sanitizeInput) || [],
+          category: item.category ? sanitizeInput(item.category) : undefined
+        })),
         allowedModes: ['flashcards', 'abcd', 'writing', 'matching', 'sorting'],
         randomizeDirection: true
       };
 
       onTopicGenerated(newTopic);
-      showSuccess("AI úspěšně analyzovala tvoje poznámky a vytvořila téma!");
+      showSuccess("AI úspěšně vytvořila téma!");
       onOpenChange(false);
       setPrompt("");
       setSelectedFiles([]);
     } catch (error) {
       console.error("AI Generation Error:", error);
-      showError("Nepodařilo se vygenerovat téma. Zkontroluj API klíč nebo kvalitu fotek.");
+      showError("Nepodařilo se vygenerovat téma. Zkontroluj API klíč nebo validitu dat.");
     } finally {
       setIsLoading(false);
     }
