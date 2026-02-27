@@ -34,8 +34,9 @@ const StudySession = () => {
   const [performanceData, setPerformanceData] = useState<ItemPerformance>({});
   
   const [mode, setMode] = useState<StudyMode | null>(null);
-  const [correctCount, setCorrectCount] = useState(0);
-  const [incorrectCount, setIncorrectCount] = useState(0);
+  // Sledujeme IDs položek, které uživatel alespoň jednou v této lekci pokazil
+  const [failedItemIds, setFailedItemIds] = useState<Set<string>>(new Set());
+  
   const [mistakes, setMistakes] = useState<StudyItem[]>([]);
   const [isCardFlipped, setIsCardFlipped] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -70,10 +71,9 @@ const StudySession = () => {
     
     setSessionQueue(items);
     setMasteredCount(0);
+    setFailedItemIds(new Set());
     setMode(selectedMode);
     setView('study');
-    setCorrectCount(0);
-    setIncorrectCount(0);
     setMistakes([]);
     setIsCardFlipped(false);
     setIsTransitioning(false);
@@ -171,19 +171,24 @@ const StudySession = () => {
   const handleNext = (isCorrect: boolean = true) => {
     if (isTransitioning) return;
     
-    const item = sessionQueue[0];
+    const item = currentItem;
+    if (!item) return;
+
     const itemId = `${item.term}_${item.definition}`;
     
     const updatedPerformance = learningAlgorithm.calculateNewPerformance(performanceData, itemId, isCorrect);
     setPerformanceData(updatedPerformance);
 
     if (isCorrect) {
-      setCorrectCount(prev => prev + 1);
       setMasteredCount(prev => prev + 1);
       
       const nextQueue = sessionQueue.slice(1);
       if (nextQueue.length === 0) {
-        const finalScore = ((correctCount + 1) / (correctCount + 1 + incorrectCount)) * 100;
+        const total = selectedTopic!.items.length;
+        const incorrect = failedItemIds.size;
+        const correct = total - incorrect;
+        const finalScore = (correct / total) * 100;
+        
         finalizeSession(finalScore, updatedPerformance);
         setView('results');
       } else {
@@ -200,7 +205,9 @@ const StudySession = () => {
         }
       }
     } else {
-      setIncorrectCount(prev => prev + 1);
+      // Pokud byla odpověď špatně, přidáme do seznamu selhání
+      setFailedItemIds(prev => new Set(prev).add(itemId));
+
       if (!mistakes.some(m => m.term === item.term)) {
         setMistakes(prev => [...prev, item]);
       }
@@ -223,16 +230,18 @@ const StudySession = () => {
     }
   };
 
-  const handleCompletion = (incorrect: number) => {
-    setIncorrectCount(incorrect);
-    const totalItems = mode === 'sorting' 
-      ? sessionQueue.filter(i => i.category && i.category.trim() !== "").length 
-      : sessionQueue.length;
+  const handleCompletion = (incorrectUnique: number) => {
+    const total = mode === 'sorting' 
+      ? selectedTopic!.items.filter(i => i.category && i.category.trim() !== "").length 
+      : selectedTopic!.items.length;
     
-    const correct = totalItems - incorrect;
-    setCorrectCount(correct);
-    setMistakes([]);
-    finalizeSession((correct / totalItems) * 100, performanceData);
+    const correct = total - incorrectUnique;
+    const finalScore = (correct / total) * 100;
+
+    finalizeSession(finalScore, performanceData);
+    
+    // Pro zobrazení ve StudyResults musíme "nasimulovat" stavy, aby to odpovídalo unikátním počtům
+    // V komponentě StudyResults se tyto hodnoty jen zobrazí
     setView('results');
   };
 
@@ -265,6 +274,26 @@ const StudySession = () => {
   
   const category = categoryId === 'public' ? { title: 'Veřejná knihovna' } : studyData[categoryId || ''];
   if (!category && view !== 'results') return null;
+
+  if (view === 'results') {
+    const total = selectedTopic!.items.length;
+    // Počítáme unikátní chyby (ty položky, které byly aspoň jednou špatně)
+    const incorrect = mode === 'matching' || mode === 'sorting' ? mistakes.length : failedItemIds.size;
+    const correct = total - incorrect;
+
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-6 pt-safe transition-colors duration-300">
+        <StudyResults 
+          total={total}
+          correct={correct}
+          incorrect={incorrect}
+          mistakes={mistakes}
+          onRetry={() => setView('mode-selection')}
+          onHome={() => navigate('/app')}
+        />
+      </div>
+    );
+  }
 
   if (view === 'topic-selection') {
     const isAdult = userGrade === 'Dospělý';
@@ -382,21 +411,6 @@ const StudySession = () => {
     );
   }
 
-  if (view === 'results') {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-6 pt-safe transition-colors duration-300">
-        <StudyResults 
-          total={selectedTopic!.items.length}
-          correct={correctCount}
-          incorrect={incorrectCount}
-          mistakes={mistakes}
-          onRetry={() => setView('mode-selection')}
-          onHome={() => navigate('/app')}
-        />
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-background pt-safe pb-12 md:py-12 flex flex-col items-center transition-colors duration-300">
       <StudyHeader 
@@ -448,10 +462,23 @@ const StudySession = () => {
           <TranslationInput term={currentItem.term} imageUrl={currentItem.imageUrl} correctTranslation={currentItem.definition} onAnswer={(correct) => handleNext(correct)} />
         )}
         {mode === 'matching' && (
-          <MatchingGame items={selectedTopic!.items} onComplete={(inc) => handleCompletion(inc)} />
+          <MatchingGame 
+            items={selectedTopic!.items} 
+            onComplete={(incIndicesCount) => {
+              // Pro Matching hru počítáme unikátní indexy, které byly aspoň jednou špatně
+              handleCompletion(incIndicesCount);
+            }} 
+          />
         )}
         {mode === 'sorting' && (
-          <SortingGame items={selectedTopic!.items} onComplete={(inc) => handleCompletion(inc)} />
+          <SortingGame 
+            items={selectedTopic!.items} 
+            onComplete={(incAttempts) => {
+              // U sortingu zatím bereme celkový počet chyb jako unikátní pro jednoduchost, 
+              // nebo můžeme upravit sorting aby vracel unikátní IDs chyb.
+              handleCompletion(incAttempts);
+            }} 
+          />
         )}
       </div>
     </div>
