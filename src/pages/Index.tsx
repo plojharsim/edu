@@ -21,6 +21,12 @@ const Index = () => {
   const [studyData, setStudyData] = useState<Record<string, Category>>(PREDEFINED_DATA);
   const [loading, setLoading] = useState(true);
 
+  const getItemsLabel = (count: number) => {
+    if (count === 1) return "položka";
+    if (count >= 2 && count <= 4) return "položky";
+    return "položek";
+  };
+
   useEffect(() => {
     if (!user) return;
 
@@ -111,7 +117,7 @@ const Index = () => {
     // Odfiltrujeme dynamická témata (např. matematika), která nemají pevný seznam položek
     const allTopics = Object.values(filteredStudyData).flatMap(cat => 
       cat.topics
-        .filter(topic => !topic.isDynamic) // Klíčová změna: filtrace dynamických témat
+        .filter(topic => !topic.isDynamic)
         .map(topic => ({ 
           categoryId: cat.id, 
           topicId: topic.id, 
@@ -225,7 +231,7 @@ const Index = () => {
             {Object.values(filteredStudyData).map((cat) => {
               const itemCount = cat.topics.reduce((acc, t) => acc + t.items.length, 0);
               const hasDynamic = cat.topics.some(t => t.isDynamic);
-              const label = `${itemCount} položek${hasDynamic ? ' a generované' : ''}`;
+              const label = `${itemCount} ${getItemsLabel(itemCount)}${hasDynamic ? ' a generované' : ''}`;
 
               return (
                 <div key={cat.id} className="w-full max-w-sm md:max-w-none">

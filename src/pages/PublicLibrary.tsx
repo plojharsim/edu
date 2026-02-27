@@ -18,6 +18,12 @@ const PublicLibrary = () => {
   const [topics, setTopics] = useState<Topic[]>([]);
   const [search, setSearch] = useState("");
 
+  const getItemsLabel = (count: number) => {
+    if (count === 1) return "položka";
+    if (count >= 2 && count <= 4) return "položky";
+    return "položek";
+  };
+
   useEffect(() => {
     const fetchPublic = async () => {
       try {
@@ -83,7 +89,7 @@ const PublicLibrary = () => {
                     <BookOpen className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
                   </div>
                   <span className="text-[10px] font-black uppercase text-indigo-500 bg-indigo-50 dark:bg-indigo-950/30 px-3 py-1 rounded-full">
-                    {topic.items.length} položek
+                    {topic.items.length} {getItemsLabel(topic.items.length)}
                   </span>
                 </div>
                 

@@ -45,6 +45,12 @@ const EditTopics = () => {
   const [isUploading, setIsUploading] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const getItemsLabel = (count: number) => {
+    if (count === 1) return "položka";
+    if (count >= 2 && count <= 4) return "položky";
+    return "položek";
+  };
+
   useEffect(() => {
     if (!user) return;
     const fetchTopics = async () => {
@@ -422,7 +428,7 @@ const EditTopics = () => {
               </div>
 
               <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-4 mb-4 pt-4 border-t border-border">
-                <h2 className="font-bold text-muted-foreground uppercase text-[10px] sm:text-xs tracking-widest">Karty v tématu ({activeTopic.items.length})</h2>
+                <h2 className="font-bold text-muted-foreground uppercase text-[10px] sm:text-xs tracking-widest">Karty v tématu ({activeTopic.items.length} {getItemsLabel(activeTopic.items.length)})</h2>
                 <Button onClick={() => addItem(activeTopic.id)} className="w-full xs:w-auto rounded-xl bg-indigo-600 text-white font-bold gap-2">
                   <Plus className="w-4 h-4" /> Přidat kartu
                 </Button>
