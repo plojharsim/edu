@@ -9,18 +9,19 @@ import { CheckCircle2, LayoutGrid } from "lucide-react";
 
 interface SortingGameProps {
   items: StudyItem[];
-  onComplete: (incorrectCount: number) => void;
+  onComplete: (failedItems: StudyItem[]) => void;
 }
 
 interface ItemState {
   id: string;
+  originalItem: StudyItem;
   content: string;
   correctCategory: string;
   status: 'pending' | 'correct' | 'wrong';
 }
 
 const SortingGame = ({ items, onComplete }: SortingGameProps) => {
-  // Filtrace položek, které mají definovanou kategorii (jinak by hra nedávala smysl)
+  // Filtrace položek, které mají definovanou kategorii
   const sortableItems = useMemo(() => 
     items.filter(i => i.category && i.category.trim() !== ""), 
   [items]);
@@ -32,6 +33,7 @@ const SortingGame = ({ items, onComplete }: SortingGameProps) => {
   const [gameState, setGameState] = useState<ItemState[]>(() => 
     sortableItems.map((item, idx) => ({
       id: `sort-item-${idx}`,
+      originalItem: item,
       content: item.term,
       correctCategory: item.category!,
       status: 'pending'
@@ -39,7 +41,7 @@ const SortingGame = ({ items, onComplete }: SortingGameProps) => {
   );
 
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
-  const [incorrectAttempts, setIncorrectAttempts] = useState(0);
+  const [failedItemIds, setFailedItemIds] = useState<Set<string>>(new Set());
 
   const activeItems = gameState.filter(i => i.status !== 'correct');
   
@@ -47,7 +49,6 @@ const SortingGame = ({ items, onComplete }: SortingGameProps) => {
     ? gameState.find(i => i.id === selectedItemId)
     : activeItems[0];
 
-  // Seznam položek ve frontě (všechny zbývající kromě té aktuálně vybrané)
   const queueItems = useMemo(() => 
     activeItems.filter(i => i.id !== currentItem?.id),
   [activeItems, currentItem]);
@@ -62,16 +63,21 @@ const SortingGame = ({ items, onComplete }: SortingGameProps) => {
       setSelectedItemId(null);
       showSuccess(`Správně! ${currentItem.content} patří do: ${category}`);
     } else {
-      setIncorrectAttempts(prev => prev + 1);
+      // Zaznamenáme chybu pro danou položku
+      setFailedItemIds(prev => new Set(prev).add(currentItem.id));
       showError(`Chyba. ${currentItem.content} tam nepatří.`);
     }
   };
 
   useEffect(() => {
     if (gameState.length > 0 && gameState.every(i => i.status === 'correct')) {
-      setTimeout(() => onComplete(incorrectAttempts), 800);
+      const failedItemsList = gameState
+        .filter(item => failedItemIds.has(item.id))
+        .map(item => item.originalItem);
+      
+      setTimeout(() => onComplete(failedItemsList), 800);
     }
-  }, [gameState, incorrectAttempts, onComplete]);
+  }, [gameState, failedItemIds, onComplete]);
 
   if (sortableItems.length === 0) {
     return (
@@ -83,7 +89,6 @@ const SortingGame = ({ items, onComplete }: SortingGameProps) => {
 
   return (
     <div className="w-full max-w-4xl mx-auto p-4 space-y-12">
-      {/* KATEGORIE NAHOŘE */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {categories.map((cat) => (
           <Button
@@ -98,7 +103,6 @@ const SortingGame = ({ items, onComplete }: SortingGameProps) => {
         ))}
       </div>
 
-      {/* AKTUÁLNÍ POLOŽKA / ZBÝVAJÍCÍ POLOŽKY DOLE */}
       <div className="flex flex-col items-center gap-8">
         <div className="text-center">
           <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Kam patří tento termín?</p>

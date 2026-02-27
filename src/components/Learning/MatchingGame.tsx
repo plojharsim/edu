@@ -8,11 +8,11 @@ import { showSuccess } from "@/utils/toast";
 
 interface MatchingGameProps {
   items: StudyItem[];
-  onComplete: (incorrectCount: number) => void;
+  onComplete: (failedItems: StudyItem[]) => void;
 }
 
 interface CardItem {
-  id: string; // Internal React key
+  id: string; 
   content: string;
   originalIndex: number;
   type: 'term' | 'definition';
@@ -60,16 +60,17 @@ const MatchingGame = ({ items, onComplete }: MatchingGameProps) => {
       setSelected(null);
       
       if (newMatched.length === items.length) {
+        const failedItems = items.filter((_, idx) => incorrectIndices.has(idx));
         setTimeout(() => {
           showSuccess("Všechny dvojice nalezeny!");
-          onComplete(incorrectIndices.size);
+          onComplete(failedItems);
         }, 500);
       }
     } else {
       // Wrong match
       setWrongPair([selected.id, card.id]);
       
-      // Mark this index as incorrect at least once
+      // Označíme indexy jako chybné
       setIncorrectIndices(prev => new Set(prev).add(card.originalIndex).add(selected.originalIndex));
 
       setTimeout(() => {

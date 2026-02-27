@@ -34,7 +34,6 @@ const StudySession = () => {
   const [performanceData, setPerformanceData] = useState<ItemPerformance>({});
   
   const [mode, setMode] = useState<StudyMode | null>(null);
-  // Sledujeme IDs položek, které uživatel alespoň jednou v této lekci pokazil
   const [failedItemIds, setFailedItemIds] = useState<Set<string>>(new Set());
   
   const [mistakes, setMistakes] = useState<StudyItem[]>([]);
@@ -211,7 +210,6 @@ const StudySession = () => {
         }
       }
     } else {
-      // Pokud byla odpověď špatně, přidáme do seznamu selhání
       setFailedItemIds(prev => new Set(prev).add(itemId));
 
       if (!mistakes.some(m => m.term === item.term)) {
@@ -236,18 +234,17 @@ const StudySession = () => {
     }
   };
 
-  const handleCompletion = (incorrectUnique: number) => {
+  const handleCompletion = (failedItems: StudyItem[]) => {
+    setMistakes(failedItems);
+    
     const total = mode === 'sorting' 
       ? selectedTopic!.items.filter(i => i.category && i.category.trim() !== "").length 
       : selectedTopic!.items.length;
     
-    const correct = total - incorrectUnique;
+    const correct = total - failedItems.length;
     const finalScore = (correct / total) * 100;
 
     finalizeSession(finalScore, performanceData);
-    
-    // Pro zobrazení ve StudyResults musíme "nasimulovat" stavy, aby to odpovídalo unikátním počtům
-    // V komponentě StudyResults se tyto hodnoty jen zobrazí
     setView('results');
   };
 
@@ -267,7 +264,6 @@ const StudySession = () => {
   const isModeAllowed = (m: StudyMode) => {
     if (!selectedTopic) return false;
     
-    // Režim Rozřazování (sorting) se povoluje automaticky, pokud existují kategorie
     if (m === 'sorting') {
       return selectedTopic.items.some(item => item.category && item.category.trim() !== "");
     }
@@ -282,10 +278,12 @@ const StudySession = () => {
   if (!category && view !== 'results') return null;
 
   if (view === 'results') {
-    const total = selectedTopic!.items.length;
-    // Počítáme unikátní chyby (ty položky, které byly aspoň jednou špatně)
+    const total = mode === 'sorting' 
+      ? selectedTopic!.items.filter(i => i.category && i.category.trim() !== "").length 
+      : selectedTopic!.items.length;
+      
     const incorrect = mode === 'matching' || mode === 'sorting' ? mistakes.length : failedItemIds.size;
-    const correct = total - incorrect;
+    const correct = Math.max(0, total - incorrect);
 
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-6 pt-safe transition-colors duration-300">
@@ -473,20 +471,13 @@ const StudySession = () => {
         {mode === 'matching' && (
           <MatchingGame 
             items={selectedTopic!.items} 
-            onComplete={(incIndicesCount) => {
-              // Pro Matching hru počítáme unikátní indexy, které byly aspoň jednou špatně
-              handleCompletion(incIndicesCount);
-            }} 
+            onComplete={(failedItems) => handleCompletion(failedItems)} 
           />
         )}
         {mode === 'sorting' && (
           <SortingGame 
             items={selectedTopic!.items} 
-            onComplete={(incAttempts) => {
-              // U sortingu zatím bereme celkový počet chyb jako unikátní pro jednoduchost, 
-              // nebo můžeme upravit sorting aby vracel unikátní IDs chyb.
-              handleCompletion(incAttempts);
-            }} 
+            onComplete={(failedItems) => handleCompletion(failedItems)} 
           />
         )}
       </div>
