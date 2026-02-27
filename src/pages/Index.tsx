@@ -35,7 +35,7 @@ const Index = () => {
       try {
         setLoading(true);
         // 1. Načíst profil
-        const userProfile = await dbService.getProfile(user.id);
+        const userProfile = await dbService.getProfile();
         if (userProfile) {
           setProfile({ name: userProfile.name || 'Studente', grade: userProfile.grade || '' });
         } else {
@@ -44,7 +44,7 @@ const Index = () => {
         }
 
         // 2. Načíst statistiky
-        const userStats = await dbService.getStats(user.id);
+        const userStats = await dbService.getStats();
         if (userStats) {
           setStats({
             streak: userStats.streak || 0,
@@ -55,7 +55,7 @@ const Index = () => {
         }
 
         // 3. Načíst témata
-        const userTopics = await dbService.getUserTopics(user.id);
+        const userTopics = await dbService.getUserTopics();
         const data = { ...PREDEFINED_DATA };
         if (userTopics.length > 0) {
           data['custom'] = {
@@ -78,7 +78,6 @@ const Index = () => {
     fetchData();
   }, [user, navigate]);
 
-  // Filtrování dat podle ročníku
   const filteredStudyData = useMemo(() => {
     const userGrade = profile.grade;
     const isAdult = userGrade === 'Dospělý';
@@ -86,16 +85,14 @@ const Index = () => {
     const filtered: Record<string, Category> = {};
 
     Object.entries(studyData).forEach(([key, category]) => {
-      // Vlastní témata (z databáze) ukazujeme vždy
       if (category.isCustom) {
         filtered[key] = category;
         return;
       }
 
-      // Filtrování témat v kategorii
       const relevantTopics = category.topics.filter(topic => {
         if (isAdult) return true;
-        if (!topic.targetGrades) return true; // Pokud nemá cílové třídy, je pro všechny
+        if (!topic.targetGrades) return true;
         return topic.targetGrades.includes(userGrade);
       });
 
@@ -115,7 +112,6 @@ const Index = () => {
   }, [studyData]);
 
   const dailyChallenge = useMemo(() => {
-    // Odfiltrujeme dynamická témata (např. matematika), která nemají pevný seznam položek
     const allTopics = Object.values(filteredStudyData).flatMap(cat => 
       cat.topics
         .filter(topic => !topic.isDynamic)

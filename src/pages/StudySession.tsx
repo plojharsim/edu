@@ -99,7 +99,7 @@ const StudySession = () => {
       try {
         setLoading(true);
         
-        const profile = await dbService.getProfile(user.id);
+        const profile = await dbService.getProfile();
         if (profile) {
           setUserGrade(profile.grade);
         }
@@ -116,7 +116,7 @@ const StudySession = () => {
             }
           }
         } else {
-          const userTopics = await dbService.getUserTopics(user.id);
+          const userTopics = await dbService.getUserTopics();
           const data = { ...PREDEFINED_DATA };
           if (userTopics.length > 0) {
             data.custom = {
@@ -129,7 +129,7 @@ const StudySession = () => {
           setStudyData(data);
         }
 
-        const stats = await dbService.getStats(user.id);
+        const stats = await dbService.getStats();
         if (stats?.performance_data) {
           setPerformanceData(stats.performance_data);
         }
@@ -170,7 +170,7 @@ const StudySession = () => {
 
   const finalizeSession = async (score: number, finalPerformance: ItemPerformance) => {
     if (!user) return;
-    await dbService.updateStats(user.id, score, finalPerformance);
+    await dbService.updateStats(score, finalPerformance);
   };
 
   const handleNext = (isCorrect: boolean = true) => {

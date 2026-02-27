@@ -54,7 +54,7 @@ const SettingsDialog = () => {
 
   useEffect(() => {
     if (user) {
-      dbService.getProfile(user.id).then(profile => {
+      dbService.getProfile().then(profile => {
         if (profile) {
           setName(profile.name || '');
           setGrade(profile.grade || '');
@@ -67,7 +67,7 @@ const SettingsDialog = () => {
     if (!user || !name || !grade) return;
     setIsSaving(true);
     try {
-      const { error } = await dbService.updateProfile(user.id, name, grade);
+      const { error } = await dbService.updateProfile(name, grade);
       if (error) throw error;
       showSuccess("Profil byl úspěšně aktualizován!");
       window.location.reload();

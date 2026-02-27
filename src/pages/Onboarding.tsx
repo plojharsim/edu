@@ -36,7 +36,6 @@ const Onboarding = () => {
       if (!user) return;
       
       const { error } = await dbService.updateProfile(
-        user.id, 
         formData.name, 
         formData.grade
       );
@@ -62,7 +61,6 @@ const Onboarding = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 pt-6 md:pt-6">
       <Card className="w-full max-w-lg p-10 rounded-[3rem] border-border shadow-2xl bg-card relative overflow-hidden">
-        {/* Decorative background element */}
         <div className="absolute -top-20 -right-20 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl opacity-50" />
         
         <div className="relative z-10">

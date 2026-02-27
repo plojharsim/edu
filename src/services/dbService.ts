@@ -21,25 +21,38 @@ export const dbService = {
     return data.value;
   },
 
-  // Profil
-  async getProfile(userId: string) {
-    // This query is safe because the RLS policy "profiles_select_own" allows users to see their own record.
-    const { data: profile } = await supabase.from('profiles').select('*').eq('id', userId).single();
-    if (!profile) return null;
-
-    const { data: secret } = await supabase
-      .from('user_secrets')
-      .select('gemini_key')
-      .eq('user_id', userId)
-      .maybeSingle();
-
-    return { 
-      ...profile, 
-      ai_key: secret?.gemini_key 
-    };
+  // Helper to get authenticated user ID securely
+  async getAuthenticatedUserId() {
+    const { data: { user }, error } = await supabase.auth.getUser();
+    if (error || !user) throw new Error("Neautorizovaný přístup");
+    return user.id;
   },
 
-  async updateProfile(userId: string, name: string, grade: string) {
+  // Profil
+  async getProfile() {
+    try {
+      const userId = await this.getAuthenticatedUserId();
+      
+      const { data: profile } = await supabase.from('profiles').select('*').eq('id', userId).single();
+      if (!profile) return null;
+
+      const { data: secret } = await supabase
+        .from('user_secrets')
+        .select('gemini_key')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      return { 
+        ...profile, 
+        ai_key: secret?.gemini_key 
+      };
+    } catch (e) {
+      return null;
+    }
+  },
+
+  async updateProfile(name: string, grade: string) {
+    const userId = await this.getAuthenticatedUserId();
     const { error } = await supabase.from('profiles').upsert({ 
       id: userId, 
       name, 
@@ -49,7 +62,8 @@ export const dbService = {
     return { error };
   },
 
-  async updateAIKey(userId: string, key: string) {
+  async updateAIKey(key: string) {
+    const userId = await this.getAuthenticatedUserId();
     const { error } = await supabase.from('user_secrets').upsert({ 
       user_id: userId, 
       gemini_key: key 
@@ -58,7 +72,8 @@ export const dbService = {
   },
 
   // Témata a položky
-  async getUserTopics(userId: string) {
+  async getUserTopics() {
+    const userId = await this.getAuthenticatedUserId();
     const { data: topics, error: tError } = await supabase.from('topics').select('*').eq('user_id', userId);
     if (tError) return [];
 
@@ -84,7 +99,6 @@ export const dbService = {
   },
 
   async getTopicById(topicId: string) {
-    // Use the secure RPC to fetch topic and author metadata (hides sensitive profile fields)
     const { data: topic, error: tError } = await supabase
       .rpc('get_topic_with_author_v2', { topic_id_param: topicId })
       .maybeSingle();
@@ -112,13 +126,11 @@ export const dbService = {
   },
 
   async getPublicTopics() {
-    // Return cached data if valid
     const now = Date.now();
     if (cache.publicTopics.data && (now - cache.publicTopics.timestamp < cache.CACHE_DURATION)) {
       return cache.publicTopics.data;
     }
 
-    // Use the secure RPC to fetch public topics (hides sensitive profile fields like school)
     const { data: topics, error: tError } = await supabase.rpc('get_public_topics_with_authors');
     
     if (tError) {
@@ -149,14 +161,14 @@ export const dbService = {
       };
     }));
 
-    // Update cache
     cache.publicTopics.data = topicsWithItems;
     cache.publicTopics.timestamp = now;
 
     return topicsWithItems;
   },
 
-  async saveTopic(userId: string, topic: Topic) {
+  async saveTopic(topic: Topic) {
+    const userId = await this.getAuthenticatedUserId();
     const isExisting = !topic.id.startsWith('topic_') && !topic.id.startsWith('ai_') && !topic.id.startsWith('imported_');
     
     const { data: savedTopic, error: tError } = await supabase.from('topics').upsert({
@@ -186,7 +198,6 @@ export const dbService = {
       if (iError) throw iError;
     }
 
-    // Invalidate cache
     cache.publicTopics.data = null;
 
     return savedTopic;
@@ -198,7 +209,8 @@ export const dbService = {
   },
 
   // Statistiky
-  async getStats(userId: string) {
+  async getStats() {
+    const userId = await this.getAuthenticatedUserId();
     const { data } = await supabase.from('study_stats').select('*').eq('user_id', userId).single();
     return data;
   },
@@ -222,7 +234,8 @@ export const dbService = {
     return data;
   },
 
-  async updateStats(userId: string, score: number, performanceUpdate?: any) {
+  async updateStats(score: number, performanceUpdate?: any) {
+    const userId = await this.getAuthenticatedUserId();
     const { data: existing } = await supabase.from('study_stats').select('*').eq('user_id', userId).maybeSingle();
     
     const now = new Date();
@@ -271,7 +284,7 @@ export const dbService = {
     const { error } = await supabase.from('study_stats').upsert(updateData, { onConflict: 'user_id' });
     if (error) console.error("Update stats error:", error);
     
-    cache.leaderboard.data = null; // Invalidate leaderboard cache
+    cache.leaderboard.data = null;
     return { error };
   },
 

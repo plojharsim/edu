@@ -17,7 +17,6 @@ import { dbService } from '@/services/dbService';
 import { z } from 'zod';
 import { sanitizeInput } from '@/lib/utils';
 
-// Schema to ensure AI response matches the expected structure
 const GeneratedTopicSchema = z.object({
   name: z.string().min(1),
   items: z.array(z.object({
@@ -47,7 +46,7 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
     if (!user || !isOpen) return;
     
     const fetchKey = async () => {
-      const profile = await dbService.getProfile(user.id);
+      const profile = await dbService.getProfile();
       if (profile?.ai_key) {
         setApiKey(profile.ai_key);
         setShowKeyInput(false);
@@ -89,7 +88,7 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
         return;
       }
       setIsLoading(true);
-      await dbService.updateAIKey(user.id, apiKey);
+      await dbService.updateAIKey(apiKey);
       setShowKeyInput(false);
       setIsLoading(false);
       showSuccess("API klíč uložen do profilu.");
@@ -138,10 +137,8 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
       const jsonStr = text.replace(/```json|```/gi, "").trim();
       const rawData = JSON.parse(jsonStr);
       
-      // Validate AI response structure
       const validatedData = GeneratedTopicSchema.parse(rawData);
 
-      // Sanitize all strings before creating the topic
       const newTopic: Topic = {
         id: `ai_${Date.now()}`,
         name: sanitizeInput(validatedData.name) || "AI Generované téma",

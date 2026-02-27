@@ -57,7 +57,7 @@ const EditTopics = () => {
     const fetchTopics = async () => {
       try {
         setLoading(true);
-        const data = await dbService.getUserTopics(user.id);
+        const data = await dbService.getUserTopics();
         setTopics(data);
       } finally {
         setLoading(false);
@@ -69,7 +69,6 @@ const EditTopics = () => {
   const handleSaveAll = async () => {
     if (!user) return;
 
-    // Validation & Sanitization before saving
     const validatedTopics: Topic[] = [];
     for (const topic of topics) {
       if (!topic.name.trim()) {
@@ -98,7 +97,7 @@ const EditTopics = () => {
 
     setIsSaving(true);
     try {
-      await Promise.all(validatedTopics.map(t => dbService.saveTopic(user.id, t)));
+      await Promise.all(validatedTopics.map(t => dbService.saveTopic(t)));
       showSuccess("Všechna témata byla synchronizována s databází!");
       navigate('/app');
     } catch (e) {
@@ -367,7 +366,7 @@ const EditTopics = () => {
                   </div>
                 </div>
                 
-                <Input 
+                <input 
                   value={activeTopic.name}
                   onChange={(e) => {
                     const newTopics = [...topics];
@@ -375,7 +374,7 @@ const EditTopics = () => {
                     if (t) t.name = e.target.value;
                     setTopics(newTopics);
                   }}
-                  className="mb-8 h-14 text-lg sm:text-xl font-bold border-2 border-border bg-background text-foreground"
+                  className="w-full mb-8 h-14 text-lg sm:text-xl font-bold border-2 border-border bg-background text-foreground rounded-xl px-4 focus:outline-none focus:border-indigo-500"
                   placeholder="Název tématu"
                 />
 
