@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { 
   Sparkles, BookOpen, Layers, CheckSquare, 
@@ -177,9 +177,14 @@ const Landing = () => {
       {/* Footer */}
       <footer className="py-20 px-6 border-t border-border">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-6 h-6 text-indigo-600" />
-            <span className="text-xl font-black tracking-tighter">Edu | by plojharsim</span>
+          <div className="flex flex-col items-center md:items-start gap-4">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-6 h-6 text-indigo-600" />
+              <span className="text-xl font-black tracking-tighter">Edu | by plojharsim</span>
+            </div>
+            <Link to="/terms" className="text-xs font-bold text-muted-foreground hover:text-indigo-600 uppercase tracking-widest transition-colors">
+              Podmínky služby
+            </Link>
           </div>
           
           <p className="text-muted-foreground text-sm font-medium flex items-center gap-1">

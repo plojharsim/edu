@@ -23,6 +23,7 @@ import UpdatePassword from "./pages/UpdatePassword";
 import UpdateRequired from "./pages/UpdateRequired";
 import NotFound from "./pages/NotFound";
 import LoadingScreen from "./components/LoadingScreen";
+import TermsOfService from "./pages/TermsOfService";
 
 const queryClient = new QueryClient();
 
@@ -95,6 +96,7 @@ const App = () => (
                 />
                 
                 <Route path="/login" element={<Login />} />
+                <Route path="/terms" element={<TermsOfService />} />
                 <Route 
                   path="/update-password" 
                   element={

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { supabase } from '@/integrations/supabase/client';
@@ -118,10 +118,13 @@ const Login = () => {
           }}
         />
 
-        <div className="mt-8 pt-6 border-t border-border flex justify-center">
+        <div className="mt-8 pt-6 border-t border-border flex flex-col items-center gap-3">
           <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">
             Učení nebylo nikdy jednodušší
           </p>
+          <Link to="/terms" className="text-[10px] font-black text-indigo-600 hover:underline uppercase tracking-widest">
+            Podmínky služby
+          </Link>
         </div>
       </Card>
     </div>
