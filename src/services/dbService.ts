@@ -16,8 +16,20 @@ export const dbService = {
 
   // Profil
   async getProfile(userId: string) {
-    const { data } = await supabase.from('profiles').select('*').eq('id', userId).single();
-    return data;
+    const { data: profile } = await supabase.from('profiles').select('*').eq('id', userId).single();
+    if (!profile) return null;
+
+    // Citlivý AI klíč načítáme z nové oddělené tabulky s přísným RLS
+    const { data: secret } = await supabase
+      .from('user_secrets')
+      .select('gemini_key')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    return { 
+      ...profile, 
+      ai_key: secret?.gemini_key 
+    };
   },
 
   async updateProfile(userId: string, name: string, grade: string) {
@@ -31,7 +43,11 @@ export const dbService = {
   },
 
   async updateAIKey(userId: string, key: string) {
-    const { error } = await supabase.from('profiles').update({ ai_key: key }).eq('id', userId);
+    // Ukládáme klíč do bezpečné tabulky user_secrets namísto veřejného profilu
+    const { error } = await supabase.from('user_secrets').upsert({ 
+      user_id: userId, 
+      gemini_key: key 
+    }, { onConflict: 'user_id' });
     return { error };
   },
 
@@ -151,7 +167,7 @@ export const dbService = {
       user_id: userId,
       name: topic.name,
       allowed_modes: topic.allowedModes,
-      randomize_direction: topic.randomizeDirection,
+      randomize_direction: topic.randomize_direction,
       is_public: topic.isPublic,
     }).select().single();
 
