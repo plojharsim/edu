@@ -411,6 +411,8 @@ const StudySession = () => {
     );
   }
 
+  const isLastItem = sessionQueue.length === 1;
+
   return (
     <div className="min-h-screen bg-background pt-safe pb-12 md:py-12 flex flex-col items-center transition-colors duration-300">
       <StudyHeader 
@@ -455,7 +457,8 @@ const StudySession = () => {
             imageUrl={currentItem.imageUrl}
             options={shuffledOptions} 
             correctAnswer={currentItem.definition} 
-            onAnswer={(correct) => handleNext(correct)} 
+            onAnswer={(correct) => handleNext(correct)}
+            isLast={isLastItem}
           />
         )}
         {mode === 'writing' && currentItem && (

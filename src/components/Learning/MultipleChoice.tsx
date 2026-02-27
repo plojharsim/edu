@@ -11,9 +11,10 @@ interface MultipleChoiceProps {
   options: string[];
   correctAnswer: string;
   onAnswer: (isCorrect: boolean) => void;
+  isLast?: boolean;
 }
 
-const MultipleChoice = ({ question, imageUrl, options, correctAnswer, onAnswer }: MultipleChoiceProps) => {
+const MultipleChoice = ({ question, imageUrl, options, correctAnswer, onAnswer, isLast }: MultipleChoiceProps) => {
   const [selected, setSelected] = useState<string | null>(null);
   const [isConfirmed, setIsConfirmed] = useState(false);
 
@@ -31,6 +32,8 @@ const MultipleChoice = ({ question, imageUrl, options, correctAnswer, onAnswer }
     }
   };
 
+  const isCorrect = selected === correctAnswer;
+
   return (
     <div className="w-full max-w-xl mx-auto space-y-8 p-4">
       <div className="bg-card p-6 sm:p-8 rounded-[2rem] shadow-sm border-2 border-slate-50 dark:border-slate-800 flex flex-col items-center w-full">
@@ -46,7 +49,7 @@ const MultipleChoice = ({ question, imageUrl, options, correctAnswer, onAnswer }
 
       <div className="grid grid-cols-1 gap-4 w-full">
         {options.map((option, idx) => {
-          const isCorrect = option === correctAnswer;
+          const isCurrentOptionCorrect = option === correctAnswer;
           const isSelected = selected === option;
           
           return (
@@ -57,17 +60,17 @@ const MultipleChoice = ({ question, imageUrl, options, correctAnswer, onAnswer }
               className={cn(
                 "h-auto min-h-[4rem] py-4 px-6 text-base sm:text-lg font-medium rounded-2xl border-2 transition-all duration-300 flex items-center justify-between gap-4 bg-card w-full text-left whitespace-normal",
                 !isConfirmed && "hover:border-indigo-400 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950/20",
-                isConfirmed && isCorrect && "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-500 text-emerald-700 dark:text-emerald-400",
-                isConfirmed && isSelected && !isCorrect && "bg-red-50 dark:bg-red-950/30 border-red-500 text-red-700 dark:text-red-400",
-                isConfirmed && !isSelected && !isCorrect && "opacity-50"
+                isConfirmed && isCurrentOptionCorrect && "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-500 text-emerald-700 dark:text-emerald-400",
+                isConfirmed && isSelected && !isCurrentOptionCorrect && "bg-red-50 dark:bg-red-950/30 border-red-500 text-red-700 dark:text-red-400",
+                isConfirmed && !isSelected && !isCurrentOptionCorrect && "opacity-50"
               )}
               disabled={isConfirmed}
             >
               <div className="flex-1 min-w-0 break-words">
                 {option}
               </div>
-              {isConfirmed && isCorrect && <CheckCircle2 className="w-6 h-6 text-emerald-500 shrink-0" />}
-              {isConfirmed && isSelected && !isCorrect && <XCircle className="w-6 h-6 text-red-500 shrink-0" />}
+              {isConfirmed && isCurrentOptionCorrect && <CheckCircle2 className="w-6 h-6 text-emerald-500 shrink-0" />}
+              {isConfirmed && isSelected && !isCurrentOptionCorrect && <XCircle className="w-6 h-6 text-red-500 shrink-0" />}
             </Button>
           );
         })}
@@ -79,7 +82,7 @@ const MultipleChoice = ({ question, imageUrl, options, correctAnswer, onAnswer }
             onClick={handleNext}
             className="h-14 px-10 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-lg gap-2 shadow-xl shadow-indigo-200 dark:shadow-none min-w-[200px]"
           >
-            Další otázka <ArrowRight className="w-5 h-5" />
+            {isLast && isCorrect ? "Zobrazit výsledky" : "Další otázka"} <ArrowRight className="w-5 h-5" />
           </Button>
         </div>
       )}
