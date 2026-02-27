@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { StudyItem } from "@/data/studyData";
 import { showSuccess } from "@/utils/toast";
+import { HelpCircle } from "lucide-react";
 
 interface MatchingGameProps {
   items: StudyItem[];
@@ -19,10 +20,10 @@ interface CardItem {
 }
 
 const MatchingGame = ({ items, onComplete }: MatchingGameProps) => {
-  const [selected, setSelected] = useState<CardItem | null>(null);
+  const [flipped, setFlipped] = useState<CardItem[]>([]);
   const [matchedIndices, setMatchedIndices] = useState<number[]>([]);
-  const [wrongPair, setWrongPair] = useState<[string, string] | null>(null);
   const [incorrectIndices, setIncorrectIndices] = useState<Set<number>>(new Set());
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const cards = useMemo(() => {
     const terms = items.map((item, idx) => ({
@@ -41,70 +42,86 @@ const MatchingGame = ({ items, onComplete }: MatchingGameProps) => {
   }, [items]);
 
   const handleCardClick = (card: CardItem) => {
-    if (matchedIndices.includes(card.originalIndex) || wrongPair) return;
+    // Ignorovat, pokud už je karta otočená, spárovaná nebo probíhá animace
+    if (
+      isProcessing || 
+      matchedIndices.includes(card.originalIndex) || 
+      flipped.some(f => f.id === card.id)
+    ) return;
 
-    if (!selected) {
-      setSelected(card);
-      return;
-    }
+    const newFlipped = [...flipped, card];
+    setFlipped(newFlipped);
 
-    if (selected.id === card.id) {
-      setSelected(null);
-      return;
-    }
+    if (newFlipped.length === 2) {
+      setIsProcessing(true);
+      const [first, second] = newFlipped;
 
-    if (selected.originalIndex === card.originalIndex && selected.type !== card.type) {
-      // Match!
-      const newMatched = [...matchedIndices, card.originalIndex];
-      setMatchedIndices(newMatched);
-      setSelected(null);
-      
-      if (newMatched.length === items.length) {
-        const failedItems = items.filter((_, idx) => incorrectIndices.has(idx));
+      if (first.originalIndex === second.originalIndex) {
+        // Shoda!
         setTimeout(() => {
-          showSuccess("Všechny dvojice nalezeny!");
-          onComplete(failedItems);
-        }, 500);
+          setMatchedIndices(prev => [...prev, first.originalIndex]);
+          setFlipped([]);
+          setIsProcessing(false);
+        }, 600);
+      } else {
+        // Chyba
+        setIncorrectIndices(prev => new Set(prev).add(first.originalIndex).add(second.originalIndex));
+        setTimeout(() => {
+          setFlipped([]);
+          setIsProcessing(false);
+        }, 1200);
       }
-    } else {
-      // Wrong match
-      setWrongPair([selected.id, card.id]);
-      
-      // Označíme indexy jako chybné
-      setIncorrectIndices(prev => new Set(prev).add(card.originalIndex).add(selected.originalIndex));
-
-      setTimeout(() => {
-        setWrongPair(null);
-        setSelected(null);
-      }, 800);
     }
   };
 
+  useEffect(() => {
+    if (matchedIndices.length === items.length && items.length > 0) {
+      const failedItems = items.filter((_, idx) => incorrectIndices.has(idx));
+      setTimeout(() => {
+        showSuccess("Pexeso dokončeno!");
+        onComplete(failedItems);
+      }, 800);
+    }
+  }, [matchedIndices, items, incorrectIndices, onComplete]);
+
   return (
     <div className="w-full max-w-4xl mx-auto p-4">
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
         {cards.map((card) => {
           const isMatched = matchedIndices.includes(card.originalIndex);
-          const isSelected = selected?.id === card.id;
-          const isWrong = wrongPair?.includes(card.id);
-
+          const isFlipped = flipped.some(f => f.id === card.id);
+          
           return (
-            <Button
-              key={card.id}
-              variant="outline"
+            <div 
+              key={card.id} 
+              className="perspective-1000 aspect-square w-full"
               onClick={() => handleCardClick(card)}
-              className={cn(
-                "h-24 sm:h-32 rounded-2xl border-2 transition-all duration-300 text-sm sm:text-base font-bold p-4 whitespace-normal break-words",
-                isMatched && "opacity-0 pointer-events-none scale-90",
-                isSelected && "border-indigo-500 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-400 shadow-md",
-                isWrong && "border-red-500 bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-400 animate-shake",
-                !isSelected && !isWrong && !isMatched && "hover:border-indigo-300 hover:bg-indigo-50/50 dark:hover:bg-indigo-950/10"
-              )}
             >
-              {card.content}
-            </Button>
+              <div className={cn(
+                "relative w-full h-full transition-all duration-500 preserve-3d cursor-pointer",
+                (isFlipped || isMatched) ? "rotate-y-180" : "",
+                isMatched && "opacity-0 scale-90 pointer-events-none"
+              )}>
+                {/* Zadní strana karty (face down) */}
+                <div className="absolute inset-0 backface-hidden bg-indigo-600 rounded-2xl flex items-center justify-center shadow-md border-2 border-indigo-500">
+                  <HelpCircle className="w-8 h-8 text-indigo-300 opacity-50" />
+                </div>
+
+                {/* Přední strana karty (face up) */}
+                <div className="absolute inset-0 backface-hidden rotate-y-180 bg-card border-2 border-indigo-100 dark:border-indigo-900/30 rounded-2xl flex items-center justify-center p-2 text-center shadow-sm overflow-hidden">
+                  <span className="text-[10px] sm:text-xs font-bold text-slate-800 dark:text-slate-100 break-words leading-tight">
+                    {card.content}
+                  </span>
+                </div>
+              </div>
+            </div>
           );
         })}
+      </div>
+      <div className="mt-8 text-center">
+        <p className="text-xs font-black text-muted-foreground uppercase tracking-widest">
+          Najdi všechny páry ({matchedIndices.length} / {items.length})
+        </p>
       </div>
     </div>
   );

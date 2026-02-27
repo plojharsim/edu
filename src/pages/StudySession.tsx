@@ -393,7 +393,7 @@ const StudySession = () => {
           {isModeAllowed('matching') && (
             <Button variant="outline" className="h-28 sm:h-32 w-[calc(50%-0.5rem)] sm:w-[calc(50%-1rem)] md:w-[calc(33.33%-1rem)] rounded-[2rem] border-2 border-rose-100 dark:border-rose-900/30 bg-card flex flex-col gap-2 hover:border-rose-500 dark:hover:border-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all" onClick={() => handleModeSelect('matching')}>
               <BookOpen className="w-7 h-7 sm:w-8 sm:h-8 text-rose-600 dark:text-rose-400" />
-              <span className="font-bold text-base sm:text-lg">Dvojice</span>
+              <span className="font-bold text-base sm:text-lg">Pexeso</span>
             </Button>
           )}
           {isModeAllowed('sorting') && (
