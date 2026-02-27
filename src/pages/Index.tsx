@@ -108,13 +108,16 @@ const Index = () => {
   }, [studyData]);
 
   const dailyChallenge = useMemo(() => {
+    // Odfiltrujeme dynamická témata (např. matematika), která nemají pevný seznam položek
     const allTopics = Object.values(filteredStudyData).flatMap(cat => 
-      cat.topics.map(topic => ({ 
-        categoryId: cat.id, 
-        topicId: topic.id, 
-        topicName: topic.name,
-        categoryName: cat.title 
-      }))
+      cat.topics
+        .filter(topic => !topic.isDynamic) // Klíčová změna: filtrace dynamických témat
+        .map(topic => ({ 
+          categoryId: cat.id, 
+          topicId: topic.id, 
+          topicName: topic.name,
+          categoryName: cat.title 
+        }))
     );
 
     if (allTopics.length === 0) return null;
