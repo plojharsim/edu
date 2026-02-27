@@ -409,16 +409,16 @@ const EditTopics = () => {
 
                   <div>
                     <h3 className="text-sm font-bold text-foreground mb-4">Povolené studijní režimy</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
                       {MODES.map(mode => (
-                        <div key={mode.id} className="flex items-center space-x-3 p-3 sm:p-4 bg-background rounded-2xl border border-border">
+                        <div key={mode.id} className="flex items-center space-x-2 p-2 sm:p-4 bg-background rounded-2xl border border-border">
                           <Checkbox 
                             id={`mode-${mode.id}`}
                             checked={(activeTopic.allowedModes || ['flashcards', 'abcd', 'writing', 'matching', 'sorting']).includes(mode.id)}
                             onCheckedChange={() => toggleMode(activeTopic.id, mode.id)}
                           />
-                          <Label htmlFor={`mode-${mode.id}`} className="flex items-center gap-2 cursor-pointer font-medium text-foreground text-[10px] sm:text-xs">
-                            <mode.icon className="w-4 h-4 text-indigo-500 shrink-0" />
+                          <Label htmlFor={`mode-${mode.id}`} className="flex items-center gap-1.5 cursor-pointer font-bold text-foreground text-[8px] xs:text-[9px] sm:text-xs leading-tight">
+                            <mode.icon className="w-3 h-3 sm:w-4 sm:h-4 text-indigo-500 shrink-0" />
                             {mode.label}
                           </Label>
                         </div>
