@@ -34,7 +34,7 @@ const Login = () => {
               <Sparkles className="w-6 h-6 text-white" />
             </div>
             <div className="p-3 bg-indigo-100 dark:bg-indigo-900/30 rounded-2xl">
-              <LogIcons.GraduationCap className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+              <GraduationCap className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
             </div>
           </div>
           <h1 className="text-3xl font-black text-foreground tracking-tight text-center">Vítej v Edu | by plojharsim</h1>

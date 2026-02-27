@@ -15,13 +15,18 @@ interface ItemState {
   status: 'pending' | 'correct' | 'wrong';
 }
 
+interface SortingGameProps {
+  items: StudyItem[];
+  onComplete: (failedItems: StudyItem[]) => void;
+}
+
 const SortingGame = ({ items, onComplete }: SortingGameProps) => {
   // Filtrace položek, které mají definovanou kategorii
   const sortableItems = useMemo(() => 
     items.filter(i => i.category && i.category.trim() !== ""), 
   [items]);
 
-  const categories = useMemo(() => 
+  const categories = useMemo<string[]>(() => 
     Array.from(new Set(sortableItems.map(i => i.category!))).sort(),
   [sortableItems]);
 
