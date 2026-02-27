@@ -36,15 +36,17 @@ export const dbService = {
       const { data: profile } = await supabase.from('profiles').select('*').eq('id', userId).single();
       if (!profile) return null;
 
+      // SECURITY FIX: We no longer fetch the Gemini key into the frontend.
+      // We only check if it exists.
       const { data: secret } = await supabase
         .from('user_secrets')
-        .select('gemini_key')
+        .select('user_id')
         .eq('user_id', userId)
         .maybeSingle();
 
       return { 
         ...profile, 
-        ai_key: secret?.gemini_key 
+        has_ai_key: !!secret 
       };
     } catch (e) {
       return null;
@@ -295,6 +297,23 @@ export const dbService = {
     
     if (error) throw error;
     if (data?.error) throw new Error(data.error);
+    
+    return data;
+  },
+
+  // SECURITY FIX: New method to call the Edge Function securely
+  async generateAITopic(prompt: string, images: { mimeType: string, data: string }[]) {
+    const { data, error } = await supabase.functions.invoke('generate-topic', {
+      method: 'POST',
+      body: { prompt, images }
+    });
+    
+    if (error) throw error;
+    if (data?.error) {
+      const err = new Error(data.message || 'Generation failed');
+      (err as any).code = data.error;
+      throw err;
+    }
     
     return data;
   }

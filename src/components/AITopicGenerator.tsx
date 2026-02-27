@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { 
   Dialog, DialogContent, DialogDescription, 
   DialogHeader, DialogTitle, DialogFooter 
@@ -45,16 +44,15 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
   useEffect(() => {
     if (!user || !isOpen) return;
     
-    const fetchKey = async () => {
+    const fetchProfileStatus = async () => {
       const profile = await dbService.getProfile();
-      if (profile?.ai_key) {
-        setApiKey(profile.ai_key);
+      if (profile?.has_ai_key) {
         setShowKeyInput(false);
       } else {
         setShowKeyInput(true);
       }
     };
-    fetchKey();
+    fetchProfileStatus();
   }, [user, isOpen]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -68,15 +66,15 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
     setSelectedFiles(prev => prev.filter((_, i) => i !== index));
   };
 
-  async function fileToGenerativePart(file: File) {
-    const base64EncodedDataPromise = new Promise((resolve) => {
+  async function fileToBase64(file: File): Promise<{ mimeType: string, data: string }> {
+    return new Promise((resolve) => {
       const reader = new FileReader();
-      reader.onloadend = () => resolve((reader.result as string).split(',')[1]);
+      reader.onloadend = () => {
+        const base64 = (reader.result as string).split(',')[1];
+        resolve({ mimeType: file.type, data: base64 });
+      };
       reader.readAsDataURL(file);
     });
-    return {
-      inlineData: { data: await base64EncodedDataPromise as string, mimeType: file.type },
-    };
   }
 
   const handleAction = async () => {
@@ -103,40 +101,13 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
     setIsLoading(true);
 
     try {
-      const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      // SECURITY FIX: Instead of calling Gemini directly from the browser,
+      // we now call our secure Supabase Edge Function.
+      const imageParts = await Promise.all(
+        selectedFiles.map(file => fileToBase64(file))
+      );
 
-      const systemPrompt = `Jsi asistent pro tvorbu studijních materiálů. Tvým úkolem je vytvořit seznam termínů a definic pro studijní aplikaci. 
-      Analyzuj veškerý obsah a vytvoř studijní sadu.
-      Odpověz VŽDY A POUZE ve formátu JSON bez jakéhokoliv dalšího textu, který odpovídá této struktuře:
-      {
-        "name": "Název tématu",
-        "items": [
-          { 
-            "term": "otázka", 
-            "definition": "odpověď", 
-            "options": ["chyba 1", "chyba 2", "chyba 3"],
-            "category": "kategorie"
-          }
-        ]
-      }`;
-
-      const parts: any[] = [systemPrompt + `\n\nTextové zadání: "${prompt || "Vytvoř studijní sadu."}"`];
-      
-      if (selectedFiles.length > 0) {
-        const imageParts = await Promise.all(
-          selectedFiles.map(file => fileToGenerativePart(file))
-        );
-        parts.push(...imageParts);
-      }
-
-      const result = await model.generateContent(parts);
-      const response = await result.response;
-      const text = response.text();
-      
-      const jsonStr = text.replace(/```json|```/gi, "").trim();
-      const rawData = JSON.parse(jsonStr);
-      
+      const rawData = await dbService.generateAITopic(prompt, imageParts);
       const validatedData = GeneratedTopicSchema.parse(rawData);
 
       const newTopic: Topic = {
@@ -157,9 +128,12 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
       onOpenChange(false);
       setPrompt("");
       setSelectedFiles([]);
-    } catch (error) {
+    } catch (error: any) {
       console.error("AI Generation Error:", error);
-      showError("Nepodařilo se vygenerovat téma. Zkontroluj API klíč nebo validitu dat.");
+      if (error.code === 'NO_API_KEY') {
+        setShowKeyInput(true);
+      }
+      showError(error.message || "Nepodařilo se vygenerovat téma.");
     } finally {
       setIsLoading(false);
     }
