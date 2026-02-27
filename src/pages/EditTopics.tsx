@@ -409,17 +409,18 @@ const EditTopics = () => {
 
                   <div>
                     <h3 className="text-sm font-bold text-foreground mb-4">Povolené studijní režimy</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
+                    <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3">
                       {MODES.map(mode => (
-                        <div key={mode.id} className="flex items-center space-x-3 p-3 sm:p-4 bg-background rounded-2xl border border-border">
+                        <div key={mode.id} className="flex items-center space-x-2 p-2 sm:p-3 bg-background rounded-2xl border border-border min-w-0">
                           <Checkbox 
                             id={`mode-${mode.id}`}
                             checked={(activeTopic.allowedModes || ['flashcards', 'abcd', 'writing', 'matching', 'sorting']).includes(mode.id)}
                             onCheckedChange={() => toggleMode(activeTopic.id, mode.id)}
+                            className="shrink-0"
                           />
-                          <Label htmlFor={`mode-${mode.id}`} className="flex items-center gap-2 cursor-pointer font-medium text-foreground text-[10px] sm:text-xs">
-                            <mode.icon className="w-4 h-4 text-indigo-500 shrink-0" />
-                            {mode.label}
+                          <Label htmlFor={`mode-${mode.id}`} className="flex items-center gap-1.5 cursor-pointer font-medium text-foreground text-[10px] sm:text-[11px] leading-tight min-w-0">
+                            <mode.icon className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+                            <span className="truncate">{mode.label}</span>
                           </Label>
                         </div>
                       ))}
