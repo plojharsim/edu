@@ -455,6 +455,7 @@ const StudySession = () => {
             imageUrl={currentItem.imageUrl}
             options={shuffledOptions} 
             correctAnswer={currentItem.definition} 
+            isLast={sessionQueue.length === 1}
             onAnswer={(correct) => handleNext(correct)} 
           />
         )}
