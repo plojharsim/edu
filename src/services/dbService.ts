@@ -1,6 +1,13 @@
 import { supabase } from '@/integrations/supabase/client';
 import { Topic, StudyItem } from '@/data/studyData';
 
+// Simple in-memory cache to prevent excessive DB calls
+const cache = {
+  publicTopics: { data: null as Topic[] | null, timestamp: 0 },
+  leaderboard: { data: null as any[] | null, timestamp: 0 },
+  CACHE_DURATION: 30000, // 30 seconds
+};
+
 export const dbService = {
   // Verze aplikace
   async getRequiredVersion() {
@@ -19,7 +26,6 @@ export const dbService = {
     const { data: profile } = await supabase.from('profiles').select('*').eq('id', userId).single();
     if (!profile) return null;
 
-    // Citlivý AI klíč načítáme z nové oddělené tabulky s přísným RLS
     const { data: secret } = await supabase
       .from('user_secrets')
       .select('gemini_key')
@@ -43,7 +49,6 @@ export const dbService = {
   },
 
   async updateAIKey(userId: string, key: string) {
-    // Ukládáme klíč do bezpečné tabulky user_secrets namísto veřejného profilu
     const { error } = await supabase.from('user_secrets').upsert({ 
       user_id: userId, 
       gemini_key: key 
@@ -114,6 +119,12 @@ export const dbService = {
   },
 
   async getPublicTopics() {
+    // Return cached data if valid
+    const now = Date.now();
+    if (cache.publicTopics.data && (now - cache.publicTopics.timestamp < cache.CACHE_DURATION)) {
+      return cache.publicTopics.data;
+    }
+
     const { data: topics, error: tError } = await supabase
       .from('topics')
       .select(`
@@ -135,7 +146,6 @@ export const dbService = {
 
     const topicsWithItems = await Promise.all(topics.map(async (topic) => {
       const { data: items } = await supabase.from('study_items').select('*').eq('topic_id', topic.id);
-      
       const profileData = (topic as any).profiles;
       
       return {
@@ -155,6 +165,10 @@ export const dbService = {
         })) || []
       };
     }));
+
+    // Update cache
+    cache.publicTopics.data = topicsWithItems;
+    cache.publicTopics.timestamp = now;
 
     return topicsWithItems;
   },
@@ -189,11 +203,15 @@ export const dbService = {
       if (iError) throw iError;
     }
 
+    // Invalidate cache
+    cache.publicTopics.data = null;
+
     return savedTopic;
   },
 
   async deleteTopic(topicId: string) {
     await supabase.from('topics').delete().eq('id', topicId);
+    cache.publicTopics.data = null;
   },
 
   // Statistiky
@@ -203,12 +221,21 @@ export const dbService = {
   },
 
   async getLeaderboard() {
+    const now = Date.now();
+    if (cache.leaderboard.data && (now - cache.leaderboard.timestamp < cache.CACHE_DURATION)) {
+      return cache.leaderboard.data;
+    }
+
     const { data, error } = await supabase.rpc('get_leaderboard');
     
     if (error) {
       console.error("Leaderboard fetch error:", error);
       return [];
     }
+
+    cache.leaderboard.data = data;
+    cache.leaderboard.timestamp = now;
+
     return data;
   },
 
@@ -260,6 +287,8 @@ export const dbService = {
 
     const { error } = await supabase.from('study_stats').upsert(updateData, { onConflict: 'user_id' });
     if (error) console.error("Update stats error:", error);
+    
+    cache.leaderboard.data = null; // Invalidate leaderboard cache
     return { error };
   },
 
