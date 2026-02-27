@@ -166,7 +166,7 @@ export const dbService = {
       id: isExisting ? topic.id : undefined,
       user_id: userId,
       name: topic.name,
-      allowed_modes: topic.allowedModes,
+      allowed_modes: topic.allowed_modes,
       randomize_direction: topic.randomize_direction,
       is_public: topic.isPublic,
     }).select().single();
@@ -203,20 +203,7 @@ export const dbService = {
   },
 
   async getLeaderboard() {
-    const { data, error } = await supabase
-      .from('study_stats')
-      .select(`
-        average,
-        sessions,
-        streak,
-        profiles!inner (
-          name,
-          grade
-        )
-      `)
-      .gt('sessions', 0)
-      .order('average', { ascending: false })
-      .limit(10);
+    const { data, error } = await supabase.rpc('get_leaderboard');
     
     if (error) {
       console.error("Leaderboard fetch error:", error);
