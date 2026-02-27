@@ -23,6 +23,7 @@ export const dbService = {
 
   // Profil
   async getProfile(userId: string) {
+    // This query is safe because the RLS policy "profiles_select_own" allows users to see their own record.
     const { data: profile } = await supabase.from('profiles').select('*').eq('id', userId).single();
     if (!profile) return null;
 
@@ -83,22 +84,14 @@ export const dbService = {
   },
 
   async getTopicById(topicId: string) {
+    // Use the secure RPC to fetch topic and author metadata (hides sensitive profile fields)
     const { data: topic, error: tError } = await supabase
-      .from('topics')
-      .select(`
-        *,
-        profiles (
-          name,
-          grade
-        )
-      `)
-      .eq('id', topicId)
-      .single();
+      .rpc('get_topic_with_author_v2', { topic_id_param: topicId })
+      .maybeSingle();
     
     if (tError || !topic) return null;
 
     const { data: items } = await supabase.from('study_items').select('*').eq('topic_id', topic.id);
-    const profileData = (topic as any).profiles;
 
     return {
       id: topic.id,
@@ -106,8 +99,8 @@ export const dbService = {
       allowedModes: topic.allowed_modes,
       randomizeDirection: topic.randomize_direction,
       isPublic: topic.is_public,
-      authorName: profileData?.name || 'Anonymní student',
-      authorGrade: profileData?.grade || 'Neznámý ročník',
+      authorName: (topic as any).author_name || 'Anonymní student',
+      authorGrade: (topic as any).author_grade || 'Neznámý ročník',
       items: items?.map(item => ({
         term: item.term,
         definition: item.definition,
@@ -125,17 +118,8 @@ export const dbService = {
       return cache.publicTopics.data;
     }
 
-    const { data: topics, error: tError } = await supabase
-      .from('topics')
-      .select(`
-        *,
-        profiles (
-          name,
-          grade
-        )
-      `)
-      .eq('is_public', true)
-      .order('created_at', { ascending: false });
+    // Use the secure RPC to fetch public topics (hides sensitive profile fields like school)
+    const { data: topics, error: tError } = await supabase.rpc('get_public_topics_with_authors');
     
     if (tError) {
       console.error("Public topics fetch error:", tError);
@@ -144,9 +128,8 @@ export const dbService = {
 
     if (!topics) return [];
 
-    const topicsWithItems = await Promise.all(topics.map(async (topic) => {
+    const topicsWithItems = await Promise.all(topics.map(async (topic: any) => {
       const { data: items } = await supabase.from('study_items').select('*').eq('topic_id', topic.id);
-      const profileData = (topic as any).profiles;
       
       return {
         id: topic.id,
@@ -154,8 +137,8 @@ export const dbService = {
         allowedModes: topic.allowed_modes,
         randomizeDirection: topic.randomize_direction,
         isPublic: topic.is_public,
-        authorName: profileData?.name || 'Anonymní student',
-        authorGrade: profileData?.grade || 'Neznámý ročník',
+        authorName: topic.author_name || 'Anonymní student',
+        authorGrade: topic.author_grade || 'Neznámý ročník',
         items: items?.map(item => ({
           term: item.term,
           definition: item.definition,
