@@ -21,7 +21,7 @@ const TermsOfService = () => {
         </Button>
         <div className="flex flex-col">
           <h1 className="text-3xl font-black text-foreground">Podmínky služby</h1>
-          <p className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Platné od 1. března 2024</p>
+          <p className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Platné od 27. února 2026</p>
         </div>
       </header>
 
@@ -63,19 +63,10 @@ const TermsOfService = () => {
               <h2 className="text-2xl font-black">4. Dostupnost služby</h2>
             </div>
             <p className="text-muted-foreground leading-relaxed">
-              Snažíme se o maximální dostupnost aplikace, nicméně neručíme za případné výpadky způsobené údržbou nebo třetími stranami. Služba je poskytována "tak, jak je" bez dalších záruk.
+              Snažíme se o maximální dostupnost aplikace, nicméně neručíme za případné výpadky způsobené údržbou nebo třetími stranami. Služba je poskytována "tak, jak je" bez další záruky.
             </p>
           </section>
         </Card>
-
-        <div className="text-center">
-          <Button 
-            onClick={() => navigate('/app')}
-            className="h-14 px-10 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-lg shadow-xl shadow-indigo-200 dark:shadow-none"
-          >
-            Rozumím a chci se učit
-          </Button>
-        </div>
       </main>
     </div>
   );
