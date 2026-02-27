@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { CheckCircle2, XCircle } from "lucide-react";
+import { CheckCircle2, XCircle, ArrowRight } from "lucide-react";
 
 interface MultipleChoiceProps {
   question: string;
@@ -15,17 +15,20 @@ interface MultipleChoiceProps {
 
 const MultipleChoice = ({ question, imageUrl, options, correctAnswer, onAnswer }: MultipleChoiceProps) => {
   const [selected, setSelected] = useState<string | null>(null);
-  const [isLocked, setIsLocked] = useState(false);
+  const [isConfirmed, setIsConfirmed] = useState(false);
 
   const handleSelect = (option: string) => {
-    if (isLocked) return;
+    if (isConfirmed) return;
     setSelected(option);
-    setIsLocked(true);
-    setTimeout(() => {
-      onAnswer(option === correctAnswer);
+    setIsConfirmed(true);
+  };
+
+  const handleNext = () => {
+    if (selected) {
+      onAnswer(selected === correctAnswer);
       setSelected(null);
-      setIsLocked(false);
-    }, 1200);
+      setIsConfirmed(false);
+    }
   };
 
   return (
@@ -53,22 +56,33 @@ const MultipleChoice = ({ question, imageUrl, options, correctAnswer, onAnswer }
               onClick={() => handleSelect(option)}
               className={cn(
                 "h-auto min-h-[4rem] py-4 px-6 text-base sm:text-lg font-medium rounded-2xl border-2 transition-all duration-300 flex items-center justify-between gap-4 bg-card w-full text-left whitespace-normal",
-                !selected && "hover:border-indigo-400 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950/20",
-                isSelected && isCorrect && "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-500 text-emerald-700 dark:text-emerald-400",
-                isSelected && !isCorrect && "bg-red-50 dark:bg-red-950/30 border-red-500 text-red-700 dark:text-red-400",
-                selected && isCorrect && !isSelected && "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-500 text-emerald-700 dark:text-emerald-400 opacity-50"
+                !isConfirmed && "hover:border-indigo-400 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950/20",
+                isConfirmed && isCorrect && "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-500 text-emerald-700 dark:text-emerald-400",
+                isConfirmed && isSelected && !isCorrect && "bg-red-50 dark:bg-red-950/30 border-red-500 text-red-700 dark:text-red-400",
+                isConfirmed && !isSelected && !isCorrect && "opacity-50"
               )}
-              disabled={isLocked}
+              disabled={isConfirmed}
             >
               <div className="flex-1 min-w-0 break-words">
                 {option}
               </div>
-              {isSelected && isCorrect && <CheckCircle2 className="w-6 h-6 text-emerald-500 shrink-0" />}
-              {isSelected && !isCorrect && <XCircle className="w-6 h-6 text-red-500 shrink-0" />}
+              {isConfirmed && isCorrect && <CheckCircle2 className="w-6 h-6 text-emerald-500 shrink-0" />}
+              {isConfirmed && isSelected && !isCorrect && <XCircle className="w-6 h-6 text-red-500 shrink-0" />}
             </Button>
           );
         })}
       </div>
+
+      {isConfirmed && (
+        <div className="flex justify-center animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <Button 
+            onClick={handleNext}
+            className="h-14 px-10 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-lg gap-2 shadow-xl shadow-indigo-200 dark:shadow-none min-w-[200px]"
+          >
+            Další otázka <ArrowRight className="w-5 h-5" />
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
