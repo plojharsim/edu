@@ -36,7 +36,7 @@ const MultipleChoice = ({ question, imageUrl, options, correctAnswer, onAnswer }
             <img src={imageUrl} alt={question} className="max-w-full max-h-full object-contain p-2" />
           </div>
         )}
-        <h3 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-slate-100 text-center break-words w-full">{question}</h3>
+        <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-100 text-center">{question}</h3>
       </div>
 
       <div className="grid grid-cols-1 gap-4">
@@ -50,7 +50,7 @@ const MultipleChoice = ({ question, imageUrl, options, correctAnswer, onAnswer }
               variant="outline"
               onClick={() => handleSelect(option)}
               className={cn(
-                "h-auto py-5 px-6 text-base sm:text-lg font-medium rounded-2xl border-2 transition-all duration-300 flex justify-between items-center bg-card text-left whitespace-normal break-words gap-4",
+                "h-auto py-6 px-8 text-lg font-medium rounded-2xl border-2 transition-all duration-300 flex justify-between items-center bg-card",
                 !selected && "hover:border-indigo-400 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950/20",
                 isSelected && isCorrect && "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-500 text-emerald-700 dark:text-emerald-400",
                 isSelected && !isCorrect && "bg-red-50 dark:bg-red-950/30 border-red-500 text-red-700 dark:text-red-400",
@@ -58,11 +58,9 @@ const MultipleChoice = ({ question, imageUrl, options, correctAnswer, onAnswer }
               )}
               disabled={isLocked}
             >
-              <span className="flex-1">{option}</span>
-              <div className="shrink-0">
-                {isSelected && isCorrect && <CheckCircle2 className="w-6 h-6 text-emerald-500" />}
-                {isSelected && !isCorrect && <XCircle className="w-6 h-6 text-red-500" />}
-              </div>
+              <span>{option}</span>
+              {isSelected && isCorrect && <CheckCircle2 className="w-6 h-6 text-emerald-500" />}
+              {isSelected && !isCorrect && <XCircle className="w-6 h-6 text-red-500" />}
             </Button>
           );
         })}
