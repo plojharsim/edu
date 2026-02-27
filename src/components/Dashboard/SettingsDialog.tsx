@@ -26,13 +26,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Settings, LogOut, Sun, Moon, User, Trash2, Loader2, Save, GraduationCap, Info } from "lucide-react";
+import { Settings, LogOut, Sun, Moon, User, Trash2, Loader2, Save, GraduationCap } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useAuth } from '@/components/AuthProvider';
 import { useNavigate } from 'react-router-dom';
 import { dbService } from '@/services/dbService';
 import { showError, showSuccess } from '@/utils/toast';
-import { APP_VERSION } from '@/utils/version';
 
 const GRADE_OPTIONS = [
   { value: "Předškolák", label: "Předškolák" },
@@ -182,19 +181,13 @@ const SettingsDialog = () => {
             </Button>
           </div>
 
-          <div className="p-4 bg-muted/30 rounded-2xl border border-border flex items-center justify-between">
-             <div className="flex items-center gap-3">
-               <div className="p-2 bg-background rounded-xl border border-border">
-                  <GraduationCap className="w-5 h-5 text-indigo-500" />
-               </div>
-               <div className="flex flex-col overflow-hidden">
-                 <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Účet</span>
-                 <span className="text-sm font-bold text-foreground truncate">{user?.email}</span>
-               </div>
+          <div className="p-4 bg-muted/30 rounded-2xl border border-border flex items-center gap-3">
+             <div className="p-2 bg-background rounded-xl border border-border">
+                <GraduationCap className="w-5 h-5 text-indigo-500" />
              </div>
-             <div className="flex items-center gap-1.5 px-3 py-1 bg-indigo-500/10 rounded-full shrink-0">
-               <Info className="w-3 h-3 text-indigo-600" />
-               <span className="text-[10px] font-black text-indigo-600 uppercase">v{APP_VERSION}</span>
+             <div className="flex flex-col overflow-hidden">
+               <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Účet</span>
+               <span className="text-sm font-bold text-foreground truncate">{user?.email}</span>
              </div>
           </div>
           

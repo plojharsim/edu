@@ -10,7 +10,6 @@ import {
 } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from '@/components/AuthProvider';
-import { APP_VERSION } from '@/utils/version';
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -183,14 +182,9 @@ const Landing = () => {
               <Sparkles className="w-6 h-6 text-indigo-600" />
               <span className="text-xl font-black tracking-tighter">Edu | by plojharsim</span>
             </div>
-            <div className="flex gap-4">
-              <Link to="/terms" className="text-xs font-bold text-muted-foreground hover:text-indigo-600 uppercase tracking-widest transition-colors">
-                Podmínky služby
-              </Link>
-              <span className="text-[10px] font-black text-indigo-500/50 uppercase tracking-widest">
-                verze {APP_VERSION}
-              </span>
-            </div>
+            <Link to="/terms" className="text-xs font-bold text-muted-foreground hover:text-indigo-600 uppercase tracking-widest transition-colors">
+              Podmínky služby
+            </Link>
           </div>
           
           <p className="text-muted-foreground text-sm font-medium flex items-center gap-1">
