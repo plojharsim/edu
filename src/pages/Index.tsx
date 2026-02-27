@@ -12,6 +12,7 @@ import SettingsDialog from '@/components/Dashboard/SettingsDialog';
 import { useAuth } from '@/components/AuthProvider';
 import { dbService } from '@/services/dbService';
 import LoadingScreen from '@/components/LoadingScreen';
+import { APP_VERSION } from '@/utils/version';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -278,9 +279,12 @@ const Index = () => {
         <BadgesSection stats={{ ...stats, customTopicsCount }} />
       </main>
 
-      <footer className="mt-auto pt-10 text-center">
+      <footer className="mt-auto pt-10 text-center space-y-2">
         <p className="text-muted-foreground text-sm font-medium flex items-center justify-center gap-1">
           Vytvořeno s <Heart className="w-3 h-3 text-red-400 fill-red-400" /> by <a href="https://plojharsim.cz" target="_blank" rel="noopener noreferrer" className="text-indigo-600 dark:text-indigo-400 font-bold hover:underline">plojharsim</a>
+        </p>
+        <p className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-[0.2em]">
+          Verze {APP_VERSION}
         </p>
       </footer>
     </div>
