@@ -7,11 +7,6 @@ import { StudyItem } from "@/data/studyData";
 import { showSuccess, showError } from "@/utils/toast";
 import { CheckCircle2, LayoutGrid } from "lucide-react";
 
-interface SortingGameProps {
-  items: StudyItem[];
-  onComplete: (failedItems: StudyItem[]) => void;
-}
-
 interface ItemState {
   id: string;
   originalItem: StudyItem;
@@ -36,7 +31,7 @@ const SortingGame = ({ items, onComplete }: SortingGameProps) => {
       originalItem: item,
       content: item.term,
       correctCategory: item.category!,
-      status: 'pending'
+      status: 'pending' as const
     })).sort(() => Math.random() - 0.5)
   );
 
