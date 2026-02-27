@@ -270,6 +270,12 @@ const StudySession = () => {
     return allowed.includes(m);
   };
 
+  const formatPoložky = (count: number) => {
+    if (count === 1) return `${count} položka`;
+    if (count >= 2 && count <= 4) return `${count} položky`;
+    return `${count} položek`;
+  };
+
   if (loading) return <LoadingScreen message="Připravuji tvou lekci..." />;
   
   const category = categoryId === 'public' ? { title: 'Veřejná knihovna' } : studyData[categoryId || ''];
@@ -339,7 +345,7 @@ const StudySession = () => {
               <div className="text-left min-w-0">
                 <span className="block font-bold text-lg text-slate-800 dark:text-slate-100 truncate">{topic.name}</span>
                 <span className="text-xs text-slate-400 dark:text-slate-500 font-bold uppercase truncate block">
-                  {topic.isDynamic ? 'Dynamické generování' : `${topic.items.length} položek`}
+                  {topic.isDynamic ? 'Dynamické generování' : formatPoložky(topic.items.length)}
                 </span>
               </div>
             </Button>
