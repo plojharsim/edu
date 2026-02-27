@@ -43,12 +43,6 @@ const PublicLibrary = () => {
     t.authorGrade?.toLowerCase().includes(search.toLowerCase())
   );
 
-  const formatPoložky = (count: number) => {
-    if (count === 1) return `${count} položka`;
-    if (count >= 2 && count <= 4) return `${count} položky`;
-    return `${count} položek`;
-  };
-
   if (loading) return <LoadingScreen message="Otevírám veřejnou knihovnu..." />;
 
   return (
@@ -89,7 +83,7 @@ const PublicLibrary = () => {
                     <BookOpen className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
                   </div>
                   <span className="text-[10px] font-black uppercase text-indigo-500 bg-indigo-50 dark:bg-indigo-950/30 px-3 py-1 rounded-full">
-                    {formatPoložky(topic.items.length)}
+                    {topic.items.length} položek
                   </span>
                 </div>
                 

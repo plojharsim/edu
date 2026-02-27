@@ -140,12 +140,6 @@ const Index = () => {
     return Icon;
   };
 
-  const formatPoložky = (count: number) => {
-    if (count === 1) return `${count} položka`;
-    if (count >= 2 && count <= 4) return `${count} položky`;
-    return `${count} položek`;
-  };
-
   if (loading) return <LoadingScreen message="Sestavuji tvou nástěnku..." />;
 
   return (
@@ -231,7 +225,7 @@ const Index = () => {
             {Object.values(filteredStudyData).map((cat) => {
               const itemCount = cat.topics.reduce((acc, t) => acc + t.items.length, 0);
               const hasDynamic = cat.topics.some(t => t.isDynamic);
-              const label = `${formatPoložky(itemCount)}${hasDynamic ? ' a generované' : ''}`;
+              const label = `${itemCount} položek${hasDynamic ? ' a generované' : ''}`;
 
               return (
                 <div key={cat.id} className="w-full max-w-sm md:max-w-none">
