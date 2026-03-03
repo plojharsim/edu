@@ -10,6 +10,7 @@ import { HelpCircle } from "lucide-react";
 interface MatchingGameProps {
   items: StudyItem[];
   onComplete: (failedItems: StudyItem[]) => void;
+  onProgress?: (count: number) => void;
 }
 
 interface CardItem {
@@ -19,7 +20,7 @@ interface CardItem {
   type: 'term' | 'definition';
 }
 
-const MatchingGame = ({ items, onComplete }: MatchingGameProps) => {
+const MatchingGame = ({ items, onComplete, onProgress }: MatchingGameProps) => {
   const [flipped, setFlipped] = useState<CardItem[]>([]);
   const [matchedIndices, setMatchedIndices] = useState<number[]>([]);
   const [incorrectIndices, setIncorrectIndices] = useState<Set<number>>(new Set());
@@ -59,7 +60,11 @@ const MatchingGame = ({ items, onComplete }: MatchingGameProps) => {
       if (first.originalIndex === second.originalIndex) {
         // Shoda!
         setTimeout(() => {
-          setMatchedIndices(prev => [...prev, first.originalIndex]);
+          setMatchedIndices(prev => {
+            const next = [...prev, first.originalIndex];
+            if (onProgress) onProgress(next.length);
+            return next;
+          });
           setFlipped([]);
           setIsProcessing(false);
         }, 600);
