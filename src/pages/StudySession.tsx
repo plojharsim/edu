@@ -417,11 +417,15 @@ const StudySession = () => {
 
   const isLastItem = sessionQueue.length === 1;
 
+  const totalPossible = mode === 'sorting' 
+    ? selectedTopic!.items.filter(i => i.category && i.category.trim() !== "").length 
+    : selectedTopic!.items.length;
+
   return (
     <div className="min-h-screen bg-background pt-safe pb-12 md:py-12 flex flex-col items-center transition-colors duration-300">
       <StudyHeader 
-        current={mode === 'matching' || mode === 'sorting' ? (selectedTopic!.items.length) : masteredCount} 
-        total={selectedTopic!.items.length} 
+        current={masteredCount} 
+        total={totalPossible} 
         title={`${category?.title}: ${selectedTopic?.name}`} 
         time={seconds}
       />
@@ -472,12 +476,14 @@ const StudySession = () => {
           <MatchingGame 
             items={selectedTopic!.items} 
             onComplete={(failedItems) => handleCompletion(failedItems)} 
+            onPairMatched={() => setMasteredCount(prev => prev + 1)}
           />
         )}
         {mode === 'sorting' && (
           <SortingGame 
             items={selectedTopic!.items} 
             onComplete={(failedItems) => handleCompletion(failedItems)} 
+            onItemSorted={() => setMasteredCount(prev => prev + 1)}
           />
         )}
       </div>
