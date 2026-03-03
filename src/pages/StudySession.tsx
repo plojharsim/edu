@@ -420,8 +420,8 @@ const StudySession = () => {
   return (
     <div className="min-h-screen bg-background pt-safe pb-12 md:py-12 flex flex-col items-center transition-colors duration-300">
       <StudyHeader 
-        current={mode === 'matching' || mode === 'sorting' ? (selectedTopic!.items.length) : masteredCount} 
-        total={selectedTopic!.items.length} 
+        current={masteredCount} 
+        total={mode === 'sorting' ? selectedTopic!.items.filter(i => i.category && i.category.trim() !== "").length : selectedTopic!.items.length} 
         title={`${category?.title}: ${selectedTopic?.name}`} 
         time={seconds}
       />
@@ -471,12 +471,14 @@ const StudySession = () => {
         {mode === 'matching' && (
           <MatchingGame 
             items={selectedTopic!.items} 
+            onProgress={(current) => setMasteredCount(current)}
             onComplete={(failedItems) => handleCompletion(failedItems)} 
           />
         )}
         {mode === 'sorting' && (
           <SortingGame 
             items={selectedTopic!.items} 
+            onProgress={(current) => setMasteredCount(current)}
             onComplete={(failedItems) => handleCompletion(failedItems)} 
           />
         )}
