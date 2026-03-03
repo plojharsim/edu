@@ -31,6 +31,7 @@ const StudySession = () => {
   
   const [sessionQueue, setSessionQueue] = useState<StudyItem[]>([]);
   const [masteredCount, setMasteredCount] = useState(0); 
+  const [liveProgress, setLiveProgress] = useState(0);
   const [performanceData, setPerformanceData] = useState<ItemPerformance>({});
   
   const [mode, setMode] = useState<StudyMode | null>(null);
@@ -76,6 +77,7 @@ const StudySession = () => {
     
     setSessionQueue(items);
     setMasteredCount(0);
+    setLiveProgress(0);
     setFailedItemIds(new Set());
     setMode(selectedMode);
     setView('study');
@@ -417,11 +419,16 @@ const StudySession = () => {
 
   const isLastItem = sessionQueue.length === 1;
 
+  const currentProgress = mode === 'matching' || mode === 'sorting' ? liveProgress : masteredCount;
+  const totalItems = mode === 'sorting' 
+    ? selectedTopic!.items.filter(i => i.category && i.category.trim() !== "").length 
+    : selectedTopic!.items.length;
+
   return (
     <div className="min-h-screen bg-background pt-safe pb-12 md:py-12 flex flex-col items-center transition-colors duration-300">
       <StudyHeader 
-        current={mode === 'matching' || mode === 'sorting' ? (selectedTopic!.items.length) : masteredCount} 
-        total={selectedTopic!.items.length} 
+        current={currentProgress} 
+        total={totalItems} 
         title={`${category?.title}: ${selectedTopic?.name}`} 
         time={seconds}
       />
@@ -472,12 +479,14 @@ const StudySession = () => {
           <MatchingGame 
             items={selectedTopic!.items} 
             onComplete={(failedItems) => handleCompletion(failedItems)} 
+            onProgress={setLiveProgress}
           />
         )}
         {mode === 'sorting' && (
           <SortingGame 
             items={selectedTopic!.items} 
             onComplete={(failedItems) => handleCompletion(failedItems)} 
+            onProgress={setLiveProgress}
           />
         )}
       </div>

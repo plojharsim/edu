@@ -10,6 +10,7 @@ import { HelpCircle } from "lucide-react";
 interface MatchingGameProps {
   items: StudyItem[];
   onComplete: (failedItems: StudyItem[]) => void;
+  onProgress?: (count: number) => void;
 }
 
 interface CardItem {
@@ -19,7 +20,7 @@ interface CardItem {
   type: 'term' | 'definition';
 }
 
-const MatchingGame = ({ items, onComplete }: MatchingGameProps) => {
+const MatchingGame = ({ items, onComplete, onProgress }: MatchingGameProps) => {
   const [flipped, setFlipped] = useState<CardItem[]>([]);
   const [matchedIndices, setMatchedIndices] = useState<number[]>([]);
   const [incorrectIndices, setIncorrectIndices] = useState<Set<number>>(new Set());
@@ -42,7 +43,6 @@ const MatchingGame = ({ items, onComplete }: MatchingGameProps) => {
   }, [items]);
 
   const handleCardClick = (card: CardItem) => {
-    // Ignorovat, pokud už je karta otočená, spárovaná nebo probíhá animace
     if (
       isProcessing || 
       matchedIndices.includes(card.originalIndex) || 
@@ -57,14 +57,14 @@ const MatchingGame = ({ items, onComplete }: MatchingGameProps) => {
       const [first, second] = newFlipped;
 
       if (first.originalIndex === second.originalIndex) {
-        // Shoda!
         setTimeout(() => {
-          setMatchedIndices(prev => [...prev, first.originalIndex]);
+          const newMatched = [...matchedIndices, first.originalIndex];
+          setMatchedIndices(newMatched);
+          onProgress?.(newMatched.length);
           setFlipped([]);
           setIsProcessing(false);
         }, 600);
       } else {
-        // Chyba
         setIncorrectIndices(prev => new Set(prev).add(first.originalIndex).add(second.originalIndex));
         setTimeout(() => {
           setFlipped([]);
@@ -102,12 +102,10 @@ const MatchingGame = ({ items, onComplete }: MatchingGameProps) => {
                 (isFlipped || isMatched) ? "rotate-y-180" : "",
                 isMatched && "opacity-0 scale-90 pointer-events-none"
               )}>
-                {/* Zadní strana karty (face down) */}
                 <div className="absolute inset-0 backface-hidden bg-indigo-600 rounded-2xl flex items-center justify-center shadow-md border-2 border-indigo-500">
                   <HelpCircle className="w-8 h-8 text-indigo-300 opacity-50" />
                 </div>
 
-                {/* Přední strana karty (face up) */}
                 <div className="absolute inset-0 backface-hidden rotate-y-180 bg-card border-2 border-indigo-100 dark:border-indigo-900/30 rounded-2xl flex items-center justify-center p-2 text-center shadow-sm overflow-hidden">
                   <span className="text-[10px] sm:text-xs font-bold text-slate-800 dark:text-slate-100 break-words leading-tight">
                     {card.content}

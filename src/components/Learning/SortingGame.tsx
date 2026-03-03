@@ -18,10 +18,10 @@ interface ItemState {
 interface SortingGameProps {
   items: StudyItem[];
   onComplete: (failedItems: StudyItem[]) => void;
+  onProgress?: (count: number) => void;
 }
 
-const SortingGame = ({ items, onComplete }: SortingGameProps) => {
-  // Filtrace položek, které mají definovanou kategorii
+const SortingGame = ({ items, onComplete, onProgress }: SortingGameProps) => {
   const sortableItems = useMemo(() => 
     items.filter(i => i.category && i.category.trim() !== ""), 
   [items]);
@@ -57,13 +57,14 @@ const SortingGame = ({ items, onComplete }: SortingGameProps) => {
     if (!currentItem) return;
 
     if (currentItem.correctCategory === category) {
-      setGameState(prev => prev.map(i => 
+      const newGameState = gameState.map(i => 
         i.id === currentItem.id ? { ...i, status: 'correct' } : i
-      ));
+      );
+      setGameState(newGameState);
+      onProgress?.(newGameState.filter(i => i.status === 'correct').length);
       setSelectedItemId(null);
       showSuccess(`Správně! ${currentItem.content} patří do: ${category}`);
     } else {
-      // Zaznamenáme chybu pro danou položku
       setFailedItemIds(prev => new Set(prev).add(currentItem.id));
       showError(`Chyba. ${currentItem.content} tam nepatří.`);
     }
