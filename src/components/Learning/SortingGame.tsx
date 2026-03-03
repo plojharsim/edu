@@ -17,11 +17,10 @@ interface ItemState {
 
 interface SortingGameProps {
   items: StudyItem[];
-  onProgress?: (current: number) => void;
   onComplete: (failedItems: StudyItem[]) => void;
 }
 
-const SortingGame = ({ items, onProgress, onComplete }: SortingGameProps) => {
+const SortingGame = ({ items, onComplete }: SortingGameProps) => {
   // Filtrace položek, které mají definovanou kategorii
   const sortableItems = useMemo(() => 
     items.filter(i => i.category && i.category.trim() !== ""), 
@@ -58,14 +57,9 @@ const SortingGame = ({ items, onProgress, onComplete }: SortingGameProps) => {
     if (!currentItem) return;
 
     if (currentItem.correctCategory === category) {
-      const newGameState = gameState.map(i => 
+      setGameState(prev => prev.map(i => 
         i.id === currentItem.id ? { ...i, status: 'correct' } : i
-      );
-      setGameState(newGameState);
-      
-      const correctCount = newGameState.filter(i => i.status === 'correct').length;
-      if (onProgress) onProgress(correctCount);
-      
+      ));
       setSelectedItemId(null);
       showSuccess(`Správně! ${currentItem.content} patří do: ${category}`);
     } else {
