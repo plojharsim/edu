@@ -318,10 +318,10 @@ export const dbService = {
   },
 
   // SECURITY FIX: New method to call the Edge Function securely
-  async generateAITopic(prompt: string, files: { mimeType: string, data: string }[]) {
+  async generateAITopic(prompt: string, images: { mimeType: string, data: string }[]) {
     const { data, error } = await supabase.functions.invoke('generate-topic', {
       method: 'POST',
-      body: { prompt, files }
+      body: { prompt, images }
     });
     
     if (error) throw error;
