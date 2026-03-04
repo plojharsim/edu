@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as LucideIcons from 'lucide-react';
-import { Sparkles, TrendingUp, Edit3, Heart, Home, Trophy, Globe } from 'lucide-react';
+import { Sparkles, TrendingUp, Edit3, Heart, Home, Trophy, Globe, Zap } from 'lucide-react';
 import CategoryCard from '@/components/Dashboard/CategoryCard';
 import BadgesSection from '@/components/Dashboard/BadgesSection';
 import { Button } from "@/components/ui/button";
@@ -179,11 +179,11 @@ const Index = () => {
             <Button 
               variant="ghost" 
               size="icon" 
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/app/updates')}
               className="group rounded-2xl h-12 w-12 bg-card shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-all border border-border"
-              title="Domů"
+              title="Novinky"
             >
-              <LucideIcons.Home className="w-6 h-6 text-slate-500 dark:text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors" />
+              <LucideIcons.Zap className="w-6 h-6 text-indigo-600 dark:text-indigo-400 animate-pulse" />
             </Button>
 
             <Button 
@@ -280,7 +280,12 @@ const Index = () => {
         <p className="text-muted-foreground text-sm font-medium flex items-center justify-center gap-1">
           Vytvořeno s <Heart className="w-3 h-3 text-red-400 fill-red-400" /> by <a href="https://plojharsim.cz" target="_blank" rel="noopener noreferrer" className="text-indigo-600 dark:text-indigo-400 font-bold hover:underline">plojharsim</a>
         </p>
-        <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-[0.2em]">Verze {APP_VERSION}</span>
+        <button 
+          onClick={() => navigate('/app/updates')}
+          className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-[0.2em] hover:text-indigo-500 transition-colors"
+        >
+          Verze {APP_VERSION}
+        </button>
       </footer>
     </div>
   );
