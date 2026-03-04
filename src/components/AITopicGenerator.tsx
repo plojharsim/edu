@@ -66,14 +66,24 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
     setSelectedFiles(prev => prev.filter((_, i) => i !== index));
   };
 
-  async function fileToBase64(file: File): Promise<{ mimeType: string, data: string }> {
+  async function readFile(file: File): Promise<{ mimeType: string, data?: string, text?: string }> {
     return new Promise((resolve) => {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64 = (reader.result as string).split(',')[1];
-        resolve({ mimeType: file.type || 'application/octet-stream', data: base64 });
-      };
-      reader.readAsDataURL(file);
+      
+      // Pro textové soubory čteme obsah jako text
+      if (file.type === 'text/plain') {
+        reader.onloadend = () => {
+          resolve({ mimeType: file.type, text: reader.result as string });
+        };
+        reader.readAsText(file);
+      } else {
+        // Pro obrázky a PDF čteme jako base64
+        reader.onloadend = () => {
+          const base64 = (reader.result as string).split(',')[1];
+          resolve({ mimeType: file.type || 'application/octet-stream', data: base64 });
+        };
+        reader.readAsDataURL(file);
+      }
     });
   }
 
@@ -107,11 +117,23 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
     setIsLoading(true);
 
     try {
-      const fileParts = await Promise.all(
-        selectedFiles.map(file => fileToBase64(file))
+      const processedFiles = await Promise.all(
+        selectedFiles.map(file => readFile(file))
       );
 
-      const rawData = await dbService.generateAITopic(prompt, fileParts);
+      // Sloučení textových souborů do promptu
+      let finalPrompt = prompt;
+      const binaryParts: { mimeType: string, data: string }[] = [];
+
+      processedFiles.forEach(f => {
+        if (f.text) {
+          finalPrompt += `\n\nObsah souboru:\n${f.text}`;
+        } else if (f.data) {
+          binaryParts.push({ mimeType: f.mimeType, data: f.data });
+        }
+      });
+
+      const rawData = await dbService.generateAITopic(finalPrompt, binaryParts);
       const validatedData = GeneratedTopicSchema.parse(rawData);
 
       const newTopic: Topic = {
@@ -156,7 +178,7 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
           <DialogDescription className="text-center text-muted-foreground">
             {showKeyInput 
               ? "Pro používání AI je potřeba vložit tvůj osobní API klíč." 
-              : "Nahraj fotky, PDF nebo prezentace a nechej AI kouzlit."}
+              : "Nahraj fotky nebo PDF poznámky a nechej AI kouzlit."}
           </DialogDescription>
         </DialogHeader>
 
@@ -191,7 +213,7 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
 
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Podklady (Foto, PDF, Docs)</label>
+                  <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Podklady (Foto, PDF, Text)</label>
                   <Button 
                     variant="outline" 
                     size="sm" 
@@ -203,7 +225,7 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
                   <input 
                     type="file" 
                     multiple 
-                    accept="image/*,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation,text/plain" 
+                    accept="image/*,application/pdf,text/plain" 
                     className="hidden" 
                     ref={fileInputRef} 
                     onChange={handleFileChange}
