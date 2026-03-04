@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { CheckCircle2, XCircle, ArrowRight } from "lucide-react";
@@ -31,6 +31,17 @@ const MultipleChoice = ({ question, imageUrl, options, correctAnswer, onAnswer, 
       setIsConfirmed(false);
     }
   };
+
+  // Podpora pro klávesu Enter
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Enter' && isConfirmed) {
+        handleNext();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isConfirmed, selected]);
 
   const isCorrect = selected === correctAnswer;
 
