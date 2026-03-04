@@ -214,6 +214,22 @@ export const dbService = {
   async getStats() {
     const userId = await this.getAuthenticatedUserId();
     const { data } = await supabase.from('study_stats').select('*').eq('user_id', userId).single();
+    
+    if (data && data.last_date) {
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const last = new Date(data.last_date);
+      last.setHours(0, 0, 0, 0);
+      
+      const diffTime = today.getTime() - last.getTime();
+      const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+      
+      // Pokud je od poslední lekce více než 1 den pauza a dnes ještě nebylo splněno
+      if (diffDays > 1) {
+        return { ...data, streak: 0 };
+      }
+    }
+    
     return data;
   },
 
