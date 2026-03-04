@@ -234,6 +234,24 @@ const StudySession = () => {
     }
   };
 
+  // Klávesové zkratky pro režim kartiček
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (view !== 'study' || mode !== 'flashcards') return;
+      
+      if (e.key === 'Enter') {
+        if (!isCardFlipped) {
+          setIsCardFlipped(true);
+        } else {
+          handleNext(true);
+        }
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [view, mode, isCardFlipped]);
+
   const handleCompletion = (failedItems: StudyItem[]) => {
     setMistakes(failedItems);
     
