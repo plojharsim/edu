@@ -8,7 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Wand2, Sparkles, Key, Loader2, Save, FilePlus, X, FileImage, FileText, FileType } from "lucide-react";
+import { Wand2, Sparkles, Key, Loader2, Save, FilePlus, X, FileImage, FileText, FileType, Info } from "lucide-react";
 import { showSuccess, showError } from "@/utils/toast";
 import { Topic } from "@/data/studyData";
 import { useAuth } from '@/components/AuthProvider';
@@ -58,7 +58,15 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
-      setSelectedFiles(prev => [...prev, ...files]);
+      // Gemini inline_data supports images, pdfs, and plain text
+      const supportedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif', 'application/pdf', 'text/plain'];
+      const validFiles = files.filter(f => supportedTypes.includes(f.type) || f.type.startsWith('image/'));
+      
+      if (validFiles.length < files.length) {
+        showError("Některé soubory nebyly přidány. Podporujeme pouze Foto, PDF a Text.");
+      }
+      
+      setSelectedFiles(prev => [...prev, ...validFiles]);
     }
   };
 
@@ -156,7 +164,7 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
           <DialogDescription className="text-center text-muted-foreground">
             {showKeyInput 
               ? "Pro používání AI je potřeba vložit tvůj osobní API klíč." 
-              : "Nahraj fotky, PDF nebo prezentace a nechej AI kouzlit."}
+              : "Vytvoř si studijní sadu během pár vteřin pomocí AI."}
           </DialogDescription>
         </DialogHeader>
 
@@ -191,7 +199,7 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
 
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Podklady (Foto, PDF, Docs)</label>
+                  <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Podklady (Foto, PDF, Text)</label>
                   <Button 
                     variant="outline" 
                     size="sm" 
@@ -203,11 +211,18 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
                   <input 
                     type="file" 
                     multiple 
-                    accept="image/*,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation,text/plain" 
+                    accept="image/*,application/pdf,text/plain" 
                     className="hidden" 
                     ref={fileInputRef} 
                     onChange={handleFileChange}
                   />
+                </div>
+
+                <div className="flex items-center gap-2 p-3 bg-indigo-50/50 dark:bg-indigo-950/20 rounded-xl border border-indigo-100 dark:border-indigo-900/30">
+                  <Info className="w-4 h-4 text-indigo-600 shrink-0" />
+                  <p className="text-[10px] text-muted-foreground leading-tight">
+                    Pro Word/Docs podklady je nejdříve <strong>ulož jako PDF</strong>, aby je AI mohla zpracovat.
+                  </p>
                 </div>
 
                 {selectedFiles.length > 0 && (
