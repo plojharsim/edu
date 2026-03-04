@@ -42,6 +42,9 @@ serve(async (req) => {
     // 3. Call Gemini API
     const systemPrompt = `Jsi asistent pro tvorbu studijních materiálů. Tvým úkolem je vytvořit seznam termínů a definic pro studijní aplikaci. 
     Analyzuj veškerý obsah a vytvoř studijní sadu.
+    
+    KRITICKÝ POŽADAVEK: Vždy vygeneruj 3 chybné odpovědi (options). Tyto chybné odpovědi musí být délkou, stylem a formátem velmi podobné té správné (definition), aby nebylo na první pohled poznat, která je správná.
+    
     Odpověz VŽDY A POUZE ve formátu JSON bez jakéhokoliv dalšího textu, který odpovídá této struktuře:
     {
       "name": "Název tématu",
@@ -72,7 +75,8 @@ serve(async (req) => {
 
     console.log(`[generate-topic] Requesting Gemini for user: ${user.id}`);
 
-    const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${secretData.gemini_key}`, {
+    // Používáme specifikovaný model gemini-3-flash-preview
+    const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${secretData.gemini_key}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ contents })
