@@ -37,11 +37,11 @@ serve(async (req) => {
       });
     }
 
-    const { prompt, images } = await req.json();
+    const { prompt, files } = await req.json();
 
     // 3. Call Gemini API
     const systemPrompt = `Jsi asistent pro tvorbu studijních materiálů. Tvým úkolem je vytvořit seznam termínů a definic pro studijní aplikaci. 
-    Analyzuj veškerý obsah a vytvoř studijní sadu.
+    Analyzuj veškerý obsah (text, obrázky, dokumenty) a vytvoř studijní sadu.
     
     KRITICKÝ POŽADAVEK: Vždy vygeneruj 3 chybné odpovědi (options). Tyto chybné odpovědi musí být délkou, stylem a formátem velmi podobné té správné (definition), aby nebylo na první pohled poznat, která je správná.
     
@@ -62,11 +62,11 @@ serve(async (req) => {
       {
         role: "user",
         parts: [
-          { text: systemPrompt + `\n\nTextové zadání: "${prompt || "Vytvoř studijní sadu."}"` },
-          ...(images || []).map((img: any) => ({
+          { text: systemPrompt + `\n\nTextové zadání: "${prompt || "Vytvoř studijní sadu z přiložených podkladů."}"` },
+          ...(files || []).map((file: any) => ({
             inline_data: {
-              mime_type: img.mimeType,
-              data: img.data
+              mime_type: file.mimeType,
+              data: file.data
             }
           }))
         ]
