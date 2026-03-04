@@ -41,11 +41,15 @@ serve(async (req) => {
 
     // 3. Call Gemini API
     const systemPrompt = `Jsi asistent pro tvorbu studijních materiálů. Tvým úkolem je vytvořit seznam termínů a definic pro studijní aplikaci. 
-    Analyzuj veškerý obsah a vytvoř studijní sadu.
+    Analyzuj veškerý obsah (textové zadání, nahrané fotografie poznámek nebo dokumenty jako PDF/Word) a vytvoř komplexní studijní sadu.
     
-    KRITICKÝ POŽADAVEK: Vždy vygeneruj 3 chybné odpovědi (options). Tyto chybné odpovědi musí být délkou, stylem a formátem velmi podobné té správné (definition), aby nebylo na první pohled poznat, která je správná.
+    POŽADAVKY:
+    1. Vytvoř logický název tématu.
+    2. Vytvoř seznam termínů (term) a jejich definic (definition).
+    3. KRITICKÝ POŽADAVEK: Pro každou položku vygeneruj 3 chybné odpovědi (options). Tyto chybné odpovědi musí být věrohodné a formátem velmi podobné té správné, aby nebylo hned poznat, která je správná.
+    4. Pokud to dává smysl, rozděl položky do kategorií (category).
     
-    Odpověz VŽDY A POUZE ve formátu JSON bez jakéhokoliv dalšího textu, který odpovídá této struktuře:
+    Odpověz VŽDY A POUZE ve formátu JSON bez jakéhokoliv dalšího textu:
     {
       "name": "Název tématu",
       "items": [
@@ -62,7 +66,7 @@ serve(async (req) => {
       {
         role: "user",
         parts: [
-          { text: systemPrompt + `\n\nTextové zadání: "${prompt || "Vytvoř studijní sadu."}"` },
+          { text: systemPrompt + `\n\nZadání uživatele: "${prompt || "Vytvoř studijní sadu z přiložených souborů."}"` },
           ...(images || []).map((img: any) => ({
             inline_data: {
               mime_type: img.mimeType,
@@ -75,7 +79,6 @@ serve(async (req) => {
 
     console.log(`[generate-topic] Requesting Gemini for user: ${user.id}`);
 
-    // Používáme specifikovaný model gemini-3-flash-preview
     const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${secretData.gemini_key}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

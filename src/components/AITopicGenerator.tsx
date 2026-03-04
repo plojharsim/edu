@@ -8,7 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Wand2, Sparkles, Key, Loader2, Save, ImagePlus, X, FileImage } from "lucide-react";
+import { Wand2, Sparkles, Key, Loader2, Save, FilePlus, X, FileText, FileImage, FileStack } from "lucide-react";
 import { showSuccess, showError } from "@/utils/toast";
 import { Topic } from "@/data/studyData";
 import { useAuth } from '@/components/AuthProvider';
@@ -94,20 +94,18 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
     }
 
     if (!prompt.trim() && selectedFiles.length === 0) {
-      showError("Zadej textové zadání nebo nahraj fotky poznámek.");
+      showError("Zadej textové zadání nebo nahraj podklady (fotky, PDF, dokumenty).");
       return;
     }
 
     setIsLoading(true);
 
     try {
-      // SECURITY FIX: Instead of calling Gemini directly from the browser,
-      // we now call our secure Supabase Edge Function.
-      const imageParts = await Promise.all(
+      const fileParts = await Promise.all(
         selectedFiles.map(file => fileToBase64(file))
       );
 
-      const rawData = await dbService.generateAITopic(prompt, imageParts);
+      const rawData = await dbService.generateAITopic(prompt, fileParts);
       const validatedData = GeneratedTopicSchema.parse(rawData);
 
       const newTopic: Topic = {
@@ -124,7 +122,7 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
       };
 
       onTopicGenerated(newTopic);
-      showSuccess("AI úspěšně vytvořila téma!");
+      showSuccess("AI úspěšně vytvořila téma z tvých podkladů!");
       onOpenChange(false);
       setPrompt("");
       setSelectedFiles([]);
@@ -137,6 +135,12 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const getFileIcon = (type: string) => {
+    if (type.startsWith('image/')) return <FileImage className="w-4 h-4 text-indigo-500" />;
+    if (type === 'application/pdf') return <FileText className="w-4 h-4 text-rose-500" />;
+    return <FileStack className="w-4 h-4 text-amber-500" />;
   };
 
   return (
@@ -152,7 +156,7 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
           <DialogDescription className="text-center text-muted-foreground">
             {showKeyInput 
               ? "Pro používání AI je potřeba vložit tvůj osobní API klíč." 
-              : "Nahraj fotky poznámek nebo napiš téma a nechej AI kouzlit."}
+              : "Nahraj fotky, PDF, prezentace nebo dokumenty a nechej AI kouzlit."}
           </DialogDescription>
         </DialogHeader>
 
@@ -178,7 +182,7 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
           ) : (
             <div className="space-y-4">
               <Textarea 
-                placeholder="Upřesni zadání nebo nechej prázdné a nahraj jen fotky..."
+                placeholder="Napiš téma nebo instrukce pro AI (např. 'Vytvoř test z těchto poznámek')..."
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 className="min-h-[100px] rounded-2xl border-2 border-border bg-background text-base p-4 resize-none focus:border-indigo-500"
@@ -187,19 +191,19 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
 
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Fotky poznámek</label>
+                  <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Podklady (fotky & dokumenty)</label>
                   <Button 
                     variant="outline" 
                     size="sm" 
                     className="rounded-xl gap-2 border-dashed border-2 hover:bg-indigo-50 dark:hover:bg-indigo-950/20"
                     onClick={() => fileInputRef.current?.click()}
                   >
-                    <ImagePlus className="w-4 h-4" /> Přidat fotky
+                    <FilePlus className="w-4 h-4" /> Přidat soubory
                   </Button>
                   <input 
                     type="file" 
                     multiple 
-                    accept="image/*" 
+                    accept="image/*,.pdf,.docx,.pptx,.txt" 
                     className="hidden" 
                     ref={fileInputRef} 
                     onChange={handleFileChange}
@@ -207,10 +211,10 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
                 </div>
 
                 {selectedFiles.length > 0 && (
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {selectedFiles.map((file, idx) => (
-                      <div key={idx} className="relative group p-2 bg-muted/50 rounded-xl border border-border flex items-center gap-2">
-                        <FileImage className="w-4 h-4 text-indigo-500 shrink-0" />
+                      <div key={idx} className="relative group p-3 bg-muted/50 rounded-xl border border-border flex items-center gap-2">
+                        {getFileIcon(file.type)}
                         <span className="text-[10px] font-medium truncate flex-1">{file.name}</span>
                         <button 
                           onClick={() => removeFile(idx)}
@@ -246,7 +250,7 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
           >
             {isLoading ? (
               <>
-                <Loader2 className="w-5 h-5 animate-spin" /> {showKeyInput ? 'Ukládám...' : 'Generuji...'}
+                <Loader2 className="w-5 h-5 animate-spin" /> {showKeyInput ? 'Ukládám...' : 'Analyzuji podklady...'}
               </>
             ) : showKeyInput ? (
               <>
