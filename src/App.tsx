@@ -21,7 +21,6 @@ import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import UpdatePassword from "./pages/UpdatePassword";
 import UpdateRequired from "./pages/UpdateRequired";
-import Updates from "./pages/Updates";
 import NotFound from "./pages/NotFound";
 import LoadingScreen from "./components/LoadingScreen";
 import TermsOfService from "./pages/TermsOfService";
@@ -120,14 +119,6 @@ const App = () => (
                   element={
                     <ProtectedRoute>
                       <Index />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/app/updates" 
-                  element={
-                    <ProtectedRoute>
-                      <Updates />
                     </ProtectedRoute>
                   } 
                 />
