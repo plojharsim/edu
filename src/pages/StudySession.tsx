@@ -234,20 +234,6 @@ const StudySession = () => {
     }
   };
 
-  // Klávesové zkratky pro globální ovládání
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Enter') {
-        // Pokud jsme v režimu kartiček a karta je otočená, Enter potvrdí "Věděl jsem"
-        if (view === 'study' && mode === 'flashcards' && isCardFlipped && !isTransitioning) {
-          handleNext(true);
-        }
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [view, mode, isCardFlipped, isTransitioning]);
-
   const handleCompletion = (failedItems: StudyItem[]) => {
     setMistakes(failedItems);
     
