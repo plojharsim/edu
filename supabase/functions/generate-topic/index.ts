@@ -42,6 +42,13 @@ serve(async (req) => {
     // 3. Call Gemini API
     const systemPrompt = `Jsi asistent pro tvorbu studijních materiálů. Tvým úkolem je vytvořit seznam termínů a definic pro studijní aplikaci. 
     Analyzuj veškerý obsah a vytvoř studijní sadu.
+    
+    DŮLEŽITÉ PRAVIDLO PRO VOLBY (options):
+    Všechny 3 chybné odpovědi v poli "options" musí být tematicky blízké správné odpovědi a musí mít VŽDY PŘIBLIŽNĚ STEJNOU DÉLKU A STRUKTURU jako správná odpověď (pole "definition"). 
+    Pokud je správná odpověď jedno slovo, chybné musí být také jedno slovo. 
+    Pokud je správná odpověď dlouhá věta, chybné musí být také podobně dlouhé věty.
+    Tím zajistíš, že student nebude schopen poznat správnou odpověď jen podle její délky nebo detailnosti.
+
     Odpověz VŽDY A POUZE ve formátu JSON bez jakéhokoliv dalšího textu, který odpovídá této struktuře:
     {
       "name": "Název tématu",
