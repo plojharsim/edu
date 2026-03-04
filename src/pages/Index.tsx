@@ -6,7 +6,6 @@ import * as LucideIcons from 'lucide-react';
 import { Sparkles, TrendingUp, Edit3, Heart, Home, Trophy, Globe } from 'lucide-react';
 import CategoryCard from '@/components/Dashboard/CategoryCard';
 import BadgesSection from '@/components/Dashboard/BadgesSection';
-import UpdateFeed from '@/components/Dashboard/UpdateFeed';
 import { Button } from "@/components/ui/button";
 import { PREDEFINED_DATA, Category } from '@/data/studyData';
 import SettingsDialog from '@/components/Dashboard/SettingsDialog';
@@ -274,10 +273,7 @@ const Index = () => {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          <BadgesSection stats={{ ...stats, customTopicsCount }} />
-          <UpdateFeed />
-        </div>
+        <BadgesSection stats={{ ...stats, customTopicsCount }} />
       </main>
 
       <footer className="mt-auto pt-10 text-center flex flex-col items-center gap-2">
