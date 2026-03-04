@@ -156,7 +156,7 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
           <DialogDescription className="text-center text-muted-foreground">
             {showKeyInput 
               ? "Pro používání AI je potřeba vložit tvůj osobní API klíč." 
-              : "Nahraj fotky, PDF nebo texty a nechej AI kouzlit."}
+              : "Nahraj fotky, PDF nebo prezentace a nechej AI kouzlit."}
           </DialogDescription>
         </DialogHeader>
 
@@ -182,7 +182,7 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
           ) : (
             <div className="space-y-4">
               <Textarea 
-                placeholder="Upřesni zadání (např. 'Vytvoř test z historie') nebo nechej prázdné..."
+                placeholder="Upřesni zadání (např. 'Vytvoř test z kapitoly 3') nebo nechej prázdné..."
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 className="min-h-[100px] rounded-2xl border-2 border-border bg-background text-base p-4 resize-none focus:border-indigo-500"
@@ -191,7 +191,7 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
 
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Podklady (Foto, PDF, Text)</label>
+                  <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Podklady (Foto, PDF, Docs)</label>
                   <Button 
                     variant="outline" 
                     size="sm" 
@@ -203,7 +203,7 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
                   <input 
                     type="file" 
                     multiple 
-                    accept="image/*,application/pdf,text/plain,text/markdown" 
+                    accept="image/*,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation,text/plain" 
                     className="hidden" 
                     ref={fileInputRef} 
                     onChange={handleFileChange}
@@ -226,7 +226,6 @@ const AITopicGenerator = ({ isOpen, onOpenChange, onTopicGenerated }: AITopicGen
                     ))}
                   </div>
                 )}
-                <p className="text-[9px] text-muted-foreground italic">Tip: Word a PowerPoint dokumenty nejdříve uložte jako PDF.</p>
               </div>
 
               <div className="flex items-center justify-end">
