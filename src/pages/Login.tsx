@@ -7,7 +7,6 @@ import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/AuthProvider';
 import { Card } from '@/components/ui/card';
-import { Sparkles, GraduationCap } from 'lucide-react';
 
 const Login = () => {
   const { session } = useAuth();
@@ -29,13 +28,12 @@ const Login = () => {
 
       <Card className="w-full max-w-md p-8 md:p-10 rounded-[3rem] border-border shadow-2xl bg-card relative">
         <div className="flex flex-col items-center mb-10">
-          <div className="flex gap-2 mb-6">
-            <div className="p-3 bg-indigo-600 rounded-2xl shadow-lg shadow-indigo-200 dark:shadow-none">
-              <Sparkles className="w-6 h-6 text-white" />
-            </div>
-            <div className="p-3 bg-indigo-100 dark:bg-indigo-900/30 rounded-2xl">
-              <GraduationCap className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
-            </div>
+          <div className="mb-6">
+            <img 
+              src="/logo.png" 
+              alt="Edu App Logo" 
+              className="w-24 h-24 rounded-[2rem] shadow-xl object-contain animate-in zoom-in duration-500"
+            />
           </div>
           <h1 className="text-3xl font-black text-foreground tracking-tight text-center">Vítej v Edu | by plojharsim</h1>
           <p className="text-muted-foreground text-center mt-3 font-medium">

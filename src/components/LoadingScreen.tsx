@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { Loader2, Sparkles } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 interface LoadingScreenProps {
   message?: string;
@@ -13,7 +13,11 @@ const LoadingScreen = ({ message = "Načítám tvůj pokrok..." }: LoadingScreen
       <div className="relative mb-8">
         <div className="absolute inset-0 bg-indigo-500/20 blur-2xl rounded-full animate-pulse" />
         <div className="relative p-6 bg-card rounded-[2.5rem] border-2 border-border shadow-xl">
-          <Sparkles className="w-12 h-12 text-indigo-600 animate-pulse" />
+          <img 
+            src="/logo.png" 
+            alt="Edu Logo Loader" 
+            className="w-16 h-16 rounded-[1.25rem] object-contain"
+          />
         </div>
         <Loader2 className="absolute -bottom-2 -right-2 w-8 h-8 text-indigo-500 animate-spin" />
       </div>

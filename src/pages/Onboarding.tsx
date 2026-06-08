@@ -12,7 +12,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
-import { Sparkles, GraduationCap, User } from "lucide-react";
+import { GraduationCap, User } from "lucide-react";
 import { showSuccess, showError } from "@/utils/toast";
 import { useAuth } from '@/components/AuthProvider';
 import { dbService } from '@/services/dbService';
@@ -65,9 +65,11 @@ const Onboarding = () => {
         
         <div className="relative z-10">
           <div className="flex justify-center mb-8">
-            <div className="p-4 bg-indigo-600 rounded-3xl shadow-lg shadow-indigo-200 dark:shadow-none">
-              <Sparkles className="w-8 h-8 text-white" />
-            </div>
+            <img 
+              src="/logo.png" 
+              alt="Edu Logo Onboarding" 
+              className="w-20 h-20 rounded-[1.75rem] shadow-lg object-contain"
+            />
           </div>
 
           {step === 1 && (

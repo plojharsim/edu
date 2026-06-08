@@ -31,12 +31,14 @@ const Landing = () => {
       <nav className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-md border-b border-border/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between gap-4">
           <div 
-            className="flex items-center gap-2 min-w-0 cursor-pointer hover:opacity-80 transition-opacity"
+            className="flex items-center gap-3 min-w-0 cursor-pointer hover:opacity-80 transition-opacity"
             onClick={() => window.location.reload()}
           >
-            <div className="p-2 bg-indigo-600 rounded-xl shadow-lg shadow-indigo-200 dark:shadow-none shrink-0">
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
+            <img 
+              src="/logo.png" 
+              alt="Edu Logo" 
+              className="w-10 h-10 rounded-xl shadow-md object-contain shrink-0"
+            />
             <span className="text-base sm:text-xl font-black tracking-tighter text-foreground truncate">
               Edu <span className="hidden min-[400px]:inline">| by plojharsim</span>
             </span>
@@ -61,7 +63,7 @@ const Landing = () => {
         <div className="max-w-5xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/30 mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <Zap className="w-4 h-4 text-indigo-600" />
-            <span className="text-xs font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">Efektivní učení nové generace</span>
+            <span className="text-xs font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">Efektivní učení nove generace</span>
           </div>
           
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-foreground mb-8 tracking-tight leading-[0.9] animate-in fade-in slide-in-from-bottom-6 duration-1000">
@@ -156,7 +158,11 @@ const Landing = () => {
             <div className="absolute inset-0 bg-indigo-600/10 blur-[100px] rounded-full" />
             <div className="relative bg-card border-4 border-border rounded-[3rem] p-8 shadow-2xl rotate-3 hover:rotate-0 transition-transform duration-500">
                <div className="flex items-center gap-4 mb-6">
-                 <div className="w-12 h-12 bg-indigo-600 rounded-2xl" />
+                 <img 
+                   src="/logo.png" 
+                   alt="App Logo Card" 
+                   className="w-12 h-12 rounded-2xl shadow-md object-contain"
+                 />
                  <div className="space-y-1">
                    <div className="h-4 w-32 bg-muted rounded-full" />
                    <div className="h-3 w-20 bg-muted/60 rounded-full" />
@@ -178,8 +184,12 @@ const Landing = () => {
       <footer className="py-20 px-6 border-t border-border">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="flex flex-col items-center md:items-start gap-4">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-6 h-6 text-indigo-600" />
+            <div className="flex items-center gap-3">
+              <img 
+                src="/logo.png" 
+                alt="Edu Logo Footer" 
+                className="w-8 h-8 rounded-lg shadow-sm object-contain"
+              />
               <span className="text-xl font-black tracking-tighter">Edu | by plojharsim</span>
             </div>
             <Link to="/terms" className="text-xs font-bold text-muted-foreground hover:text-indigo-600 uppercase tracking-widest transition-colors">
