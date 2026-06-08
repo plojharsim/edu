@@ -37,7 +37,7 @@ const Landing = () => {
             <img 
               src="/logo.png" 
               alt="Edu Logo" 
-              className="w-10 h-10 rounded-xl shadow-md object-contain shrink-0"
+              className="w-10 h-10 shadow-md object-contain shrink-0"
             />
             <span className="text-base sm:text-xl font-black tracking-tighter text-foreground truncate">
               Edu <span className="hidden min-[400px]:inline">| by plojharsim</span>
@@ -161,7 +161,7 @@ const Landing = () => {
                  <img 
                    src="/logo.png" 
                    alt="App Logo Card" 
-                   className="w-12 h-12 rounded-2xl shadow-md object-contain"
+                   className="w-12 h-12 shadow-md object-contain"
                  />
                  <div className="space-y-1">
                    <div className="h-4 w-32 bg-muted rounded-full" />
@@ -188,7 +188,7 @@ const Landing = () => {
               <img 
                 src="/logo.png" 
                 alt="Edu Logo Footer" 
-                className="w-8 h-8 rounded-lg shadow-sm object-contain"
+                className="w-8 h-8 shadow-sm object-contain"
               />
               <span className="text-xl font-black tracking-tighter">Edu | by plojharsim</span>
             </div>

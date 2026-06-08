@@ -68,7 +68,7 @@ const Onboarding = () => {
             <img 
               src="/logo.png" 
               alt="Edu Logo Onboarding" 
-              className="w-20 h-20 rounded-[1.75rem] shadow-lg object-contain"
+              className="w-20 h-20 shadow-lg object-contain"
             />
           </div>
 

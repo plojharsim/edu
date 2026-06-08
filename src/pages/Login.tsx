@@ -32,7 +32,7 @@ const Login = () => {
             <img 
               src="/logo.png" 
               alt="Edu App Logo" 
-              className="w-24 h-24 rounded-[2rem] shadow-xl object-contain animate-in zoom-in duration-500"
+              className="w-24 h-24 shadow-xl object-contain animate-in zoom-in duration-500"
             />
           </div>
           <h1 className="text-3xl font-black text-foreground tracking-tight text-center">Vítej v Edu | by plojharsim</h1>

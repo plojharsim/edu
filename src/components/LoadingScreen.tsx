@@ -16,7 +16,7 @@ const LoadingScreen = ({ message = "Načítám tvůj pokrok..." }: LoadingScreen
           <img 
             src="/logo.png" 
             alt="Edu Logo Loader" 
-            className="w-28 h-28 rounded-[2rem] shadow-2xl object-contain border-2 border-border/10"
+            className="w-28 h-28 shadow-2xl object-contain"
           />
         </div>
         <Loader2 className="absolute -bottom-2 -right-2 w-8 h-8 text-indigo-500 animate-spin bg-background rounded-full p-0.5" />
